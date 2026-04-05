@@ -186,7 +186,7 @@ const ConfigManager = ({
       name: 'reset',
       onClick: handleReset,
       children: (
-        <div className='flex items-center gap-2 text-red-600'>
+        <div className='flex items-center gap-2' style={{ color: 'var(--error)' }}>
           <RotateCcw size={14} />
           {t('重置配置')}
         </div>
@@ -209,7 +209,7 @@ const ConfigManager = ({
             theme='borderless'
             type='tertiary'
             size='small'
-            className='!rounded-lg !text-gray-600 hover:!text-blue-600 hover:!bg-blue-50'
+            style={{ borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)' }}
           />
         </Dropdown>
 
@@ -229,7 +229,7 @@ const ConfigManager = ({
     <div className='space-y-3'>
       {/* 配置状态信息和重置按钮 */}
       <div className='flex items-center justify-between'>
-        <Typography.Text className='text-xs text-gray-500'>
+        <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {getConfigStatus()}
         </Typography.Text>
         <Button
@@ -238,7 +238,7 @@ const ConfigManager = ({
           theme='borderless'
           type='danger'
           onClick={handleReset}
-          className='!rounded-full !text-xs !px-2'
+          style={{ borderRadius: 'var(--radius-sm)', fontSize: '12px', padding: '0 8px' }}
         />
       </div>
 
@@ -250,7 +250,8 @@ const ConfigManager = ({
           theme='solid'
           type='primary'
           onClick={handleExport}
-          className='!rounded-lg flex-1 !text-xs !h-7'
+          className='flex-1'
+          style={{ borderRadius: 'var(--radius-md)', fontSize: '12px', height: '28px' }}
         >
           {t('导出')}
         </Button>
@@ -261,7 +262,8 @@ const ConfigManager = ({
           theme='outline'
           type='primary'
           onClick={handleImportClick}
-          className='!rounded-lg flex-1 !text-xs !h-7'
+          className='flex-1'
+          style={{ borderRadius: 'var(--radius-md)', fontSize: '12px', height: '28px' }}
         >
           {t('导入')}
         </Button>

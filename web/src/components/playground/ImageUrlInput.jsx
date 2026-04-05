@@ -53,15 +53,13 @@ const ImageUrlInput = ({
         <div className='flex items-center gap-2'>
           <Image
             size={16}
-            className={
-              imageEnabled && !disabled ? 'text-blue-500' : 'text-gray-400'
-            }
+            style={{ color: imageEnabled && !disabled ? 'var(--accent)' : 'var(--text-muted)' }}
           />
           <Typography.Text strong className='text-sm'>
             {t('图片地址')}
           </Typography.Text>
           {disabled && (
-            <Typography.Text className='text-xs text-orange-600'>
+            <Typography.Text className='text-xs' style={{ color: 'var(--warning)' }}>
               ({t('已在自定义模式中忽略')})
             </Typography.Text>
           )}
@@ -82,26 +80,26 @@ const ImageUrlInput = ({
             theme='solid'
             type='primary'
             onClick={handleAddImageUrl}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={!imageEnabled || disabled}
           />
         </div>
       </div>
 
       {!imageEnabled ? (
-        <Typography.Text className='text-xs text-gray-500 mb-2 block'>
+        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {disabled
             ? t('图片功能在自定义请求体模式下不可用')
             : t('启用后可添加图片URL进行多模态对话')}
         </Typography.Text>
       ) : imageUrls.length === 0 ? (
-        <Typography.Text className='text-xs text-gray-500 mb-2 block'>
+        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {disabled
             ? t('图片功能在自定义请求体模式下不可用')
             : t('点击 + 按钮添加图片URL进行多模态对话')}
         </Typography.Text>
       ) : (
-        <Typography.Text className='text-xs text-gray-500 mb-2 block'>
+        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {t('已添加')} {imageUrls.length} {t('张图片')}
           {disabled ? ` (${t('自定义模式下不可用')})` : ''}
         </Typography.Text>
@@ -117,7 +115,7 @@ const ImageUrlInput = ({
                 placeholder={`https://example.com/image${index + 1}.jpg`}
                 value={url}
                 onChange={(value) => handleUpdateImageUrl(index, value)}
-                className='!rounded-lg'
+                style={{ borderRadius: 'var(--radius-md)' }}
                 size='small'
                 prefix={<IconFile size='small' />}
                 disabled={!imageEnabled || disabled}
@@ -129,7 +127,8 @@ const ImageUrlInput = ({
               theme='borderless'
               type='danger'
               onClick={() => handleRemoveImageUrl(index)}
-              className='!rounded-full !w-6 !h-6 !p-0 !min-w-0 !text-red-500 hover:!bg-red-50 flex-shrink-0'
+              className='flex-shrink-0'
+              style={{ borderRadius: 'var(--radius-sm)', width: 24, height: 24, padding: 0, minWidth: 0 }}
               disabled={!imageEnabled || disabled}
             />
           </div>

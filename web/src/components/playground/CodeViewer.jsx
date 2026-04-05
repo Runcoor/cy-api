@@ -74,7 +74,7 @@ const codeThemeStyles = {
     color: '#666',
     fontSize: '14px',
     fontStyle: 'italic',
-    backgroundColor: 'var(--semi-color-fill-0)',
+    backgroundColor: 'var(--surface-hover)',
     borderRadius: '8px',
   },
   performanceWarning: {

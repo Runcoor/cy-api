@@ -48,7 +48,7 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Thermometer size={16} className='text-gray-500' />
+            <Thermometer size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Temperature
             </Typography.Text>
@@ -68,11 +68,11 @@ const ParameterControl = ({
               )
             }
             onClick={() => onParameterToggle('temperature')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs text-gray-500 mb-2'>
+        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('控制输出的随机性和创造性')}
         </Typography.Text>
         <Slider
@@ -92,7 +92,7 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Target size={16} className='text-gray-500' />
+            <Target size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Top P
             </Typography.Text>
@@ -108,11 +108,11 @@ const ParameterControl = ({
               parameterEnabled.top_p ? <Check size={10} /> : <X size={10} />
             }
             onClick={() => onParameterToggle('top_p')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs text-gray-500 mb-2'>
+        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('核采样，控制词汇选择的多样性')}
         </Typography.Text>
         <Slider
@@ -132,7 +132,7 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Repeat size={16} className='text-gray-500' />
+            <Repeat size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Frequency Penalty
             </Typography.Text>
@@ -152,11 +152,11 @@ const ParameterControl = ({
               )
             }
             onClick={() => onParameterToggle('frequency_penalty')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs text-gray-500 mb-2'>
+        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('频率惩罚，减少重复词汇的出现')}
         </Typography.Text>
         <Slider
@@ -176,7 +176,7 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Ban size={16} className='text-gray-500' />
+            <Ban size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Presence Penalty
             </Typography.Text>
@@ -196,11 +196,11 @@ const ParameterControl = ({
               )
             }
             onClick={() => onParameterToggle('presence_penalty')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs text-gray-500 mb-2'>
+        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('存在惩罚，鼓励讨论新话题')}
         </Typography.Text>
         <Slider
@@ -220,7 +220,7 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Hash size={16} className='text-gray-500' />
+            <Hash size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Max Tokens
             </Typography.Text>
@@ -237,7 +237,7 @@ const ParameterControl = ({
               )
             }
             onClick={() => onParameterToggle('max_tokens')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
@@ -249,7 +249,7 @@ const ParameterControl = ({
           defaultValue={0}
           value={inputs.max_tokens}
           onChange={(value) => onInputChange('max_tokens', value)}
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
           disabled={!parameterEnabled.max_tokens || disabled}
         />
       </div>
@@ -260,11 +260,11 @@ const ParameterControl = ({
       >
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
-            <Shuffle size={16} className='text-gray-500' />
+            <Shuffle size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               Seed
             </Typography.Text>
-            <Typography.Text className='text-xs text-gray-400'>
+            <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
               ({t('可选，用于复现结果')})
             </Typography.Text>
           </div>
@@ -274,7 +274,7 @@ const ParameterControl = ({
             size='small'
             icon={parameterEnabled.seed ? <Check size={10} /> : <X size={10} />}
             onClick={() => onParameterToggle('seed')}
-            className='!rounded-full !w-4 !h-4 !p-0 !min-w-0'
+            style={{ borderRadius: 'var(--radius-sm)', width: 16, height: 16, padding: 0, minWidth: 0 }}
             disabled={disabled}
           />
         </div>
@@ -286,7 +286,7 @@ const ParameterControl = ({
           onChange={(value) =>
             onInputChange('seed', value === '' ? null : value)
           }
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
           disabled={!parameterEnabled.seed || disabled}
         />
       </div>

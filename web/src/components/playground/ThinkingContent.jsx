@@ -71,39 +71,35 @@ const ThinkingContent = ({
   }
 
   return (
-    <div className='rounded-xl sm:rounded-2xl mb-2 sm:mb-4 overflow-hidden shadow-sm backdrop-blur-sm'>
+    <div className='mb-2 sm:mb-4 overflow-hidden' style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
       <div
-        className='flex items-center justify-between p-3 cursor-pointer hover:bg-gradient-to-r hover:from-white/20 hover:to-purple-50/30 transition-all'
+        className='flex items-center justify-between p-3 cursor-pointer'
         style={{
-          background:
-            'linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #7c3aed 100%)',
+          background: 'var(--elevated)',
           position: 'relative',
+          transition: 'background 150ms ease-out',
         }}
         onClick={() => onToggleReasoningExpansion(message.id)}
       >
-        <div className='absolute inset-0 overflow-hidden'>
-          <div className='absolute -top-10 -right-10 w-40 h-40 bg-white opacity-5 rounded-full'></div>
-          <div className='absolute -bottom-8 -left-8 w-24 h-24 bg-white opacity-10 rounded-full'></div>
-        </div>
         <div className='flex items-center gap-2 sm:gap-4 relative'>
-          <div className='w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center shadow-lg'>
+          <div className='w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent)' }}>
             <Brain
-              style={{ color: 'white' }}
+              style={{ color: '#fff' }}
               size={styleState.isMobile ? 12 : 16}
             />
           </div>
           <div className='flex flex-col'>
             <Typography.Text
               strong
-              style={{ color: 'white' }}
+              style={{ color: 'var(--text-primary)' }}
               className='text-sm sm:text-base'
             >
               {headerText}
             </Typography.Text>
             {thinkingSource && (
               <Typography.Text
-                style={{ color: 'white' }}
-                className='text-xs mt-0.5 opacity-80 hidden sm:block'
+                style={{ color: 'var(--text-muted)' }}
+                className='text-xs mt-0.5 hidden sm:block'
               >
                 来源: {thinkingSource}
               </Typography.Text>
@@ -114,29 +110,29 @@ const ThinkingContent = ({
           {isThinkingStatus && !message.isThinkingComplete && (
             <div className='flex items-center gap-1 sm:gap-2'>
               <Loader2
-                style={{ color: 'white' }}
+                style={{ color: 'var(--accent)' }}
                 className='animate-spin'
                 size={styleState.isMobile ? 14 : 18}
               />
               <Typography.Text
-                style={{ color: 'white' }}
-                className='text-xs sm:text-sm font-medium opacity-90'
+                style={{ color: 'var(--text-secondary)' }}
+                className='text-xs sm:text-sm font-medium'
               >
                 思考中
               </Typography.Text>
             </div>
           )}
           {(!isThinkingStatus || message.isThinkingComplete) && (
-            <div className='w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center'>
+            <div className='w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--surface-hover)' }}>
               {message.isReasoningExpanded ? (
                 <ChevronUp
                   size={styleState.isMobile ? 12 : 16}
-                  style={{ color: 'white' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 />
               ) : (
                 <ChevronRight
                   size={styleState.isMobile ? 12 : 16}
-                  style={{ color: 'white' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 />
               )}
             </div>
@@ -148,13 +144,15 @@ const ThinkingContent = ({
           message.isReasoningExpanded
             ? 'max-h-96 opacity-100'
             : 'max-h-0 opacity-0'
-        } overflow-hidden bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50`}
+        } overflow-hidden`}
+        style={{ background: 'var(--surface)' }}
       >
         {message.isReasoningExpanded && (
           <div className='p-3 sm:p-5 pt-2 sm:pt-4'>
             <div
               ref={scrollRef}
-              className='bg-white/70 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 shadow-inner overflow-x-auto overflow-y-auto thinking-content-scroll'
+              className='overflow-x-auto overflow-y-auto thinking-content-scroll p-2'
+              style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)' }}
               style={{
                 maxHeight: '200px',
                 scrollbarWidth: 'thin',

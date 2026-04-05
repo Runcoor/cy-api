@@ -62,7 +62,7 @@ const DebugPanel = ({
       alignItems: 'center',
       borderRadius: '100%',
       background: 'rgba(var(--semi-grey-1), 1)',
-      color: 'var(--semi-color-text)',
+      color: 'var(--text-primary)',
       cursor: 'pointer',
     };
 
@@ -109,8 +109,8 @@ const DebugPanel = ({
     >
       <div className='flex items-center justify-between mb-6 flex-shrink-0'>
         <div className='flex items-center'>
-          <div className='w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center mr-3'>
-            <Code size={20} className='text-white' />
+          <div className='w-10 h-10 flex items-center justify-center mr-3' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
+            <Code size={20} style={{ color: 'var(--text-secondary)' }} />
           </div>
           <Typography.Title heading={5} className='mb-0'>
             {t('调试信息')}
@@ -124,7 +124,7 @@ const DebugPanel = ({
             theme='borderless'
             type='tertiary'
             size='small'
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
           />
         )}
       </div>
@@ -145,7 +145,7 @@ const DebugPanel = ({
                 <Eye size={16} />
                 {t('预览请求体')}
                 {customRequestMode && (
-                  <span className='px-1.5 py-0.5 text-xs bg-orange-100 text-orange-600 rounded-full'>
+                  <span className='px-1.5 py-0.5 text-xs' style={{ background: 'var(--surface-hover)', color: 'var(--warning)', borderRadius: 'var(--radius-sm)' }}>
                     自定义
                   </span>
                 )}
@@ -182,7 +182,7 @@ const DebugPanel = ({
                 <Zap size={16} />
                 {t('响应')}
                 {debugData.sseMessages && debugData.sseMessages.length > 0 && (
-                  <span className='px-1.5 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full'>
+                  <span className='px-1.5 py-0.5 text-xs' style={{ background: 'var(--surface-hover)', color: 'var(--accent)', borderRadius: 'var(--radius-sm)' }}>
                     SSE ({debugData.sseMessages.length})
                   </span>
                 )}
@@ -206,8 +206,8 @@ const DebugPanel = ({
       <div className='flex items-center justify-between mt-4 pt-4 flex-shrink-0'>
         {(debugData.timestamp || debugData.previewTimestamp) && (
           <div className='flex items-center gap-2'>
-            <Clock size={14} className='text-gray-500' />
-            <Typography.Text className='text-xs text-gray-500'>
+            <Clock size={14} style={{ color: 'var(--text-muted)' }} />
+            <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
               {activeKey === 'preview' && debugData.previewTimestamp
                 ? `${t('预览更新')}: ${new Date(debugData.previewTimestamp).toLocaleString()}`
                 : debugData.timestamp

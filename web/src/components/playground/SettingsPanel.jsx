@@ -70,8 +70,8 @@ const SettingsPanel = ({
       {/* 标题区域 - 与调试面板保持一致 */}
       <div className='flex items-center justify-between mb-6 flex-shrink-0'>
         <div className='flex items-center'>
-          <div className='w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-3'>
-            <Settings size={20} className='text-white' />
+          <div className='w-10 h-10 flex items-center justify-center mr-3' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
+            <Settings size={20} style={{ color: 'var(--text-secondary)' }} />
           </div>
           <Typography.Title heading={5} className='mb-0'>
             {t('模型配置')}
@@ -85,7 +85,7 @@ const SettingsPanel = ({
             theme='borderless'
             type='tertiary'
             size='small'
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
           />
         )}
       </div>
@@ -116,12 +116,12 @@ const SettingsPanel = ({
         {/* 分组选择 */}
         <div className={customRequestMode ? 'opacity-50' : ''}>
           <div className='flex items-center gap-2 mb-2'>
-            <Users size={16} className='text-gray-500' />
+            <Users size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               {t('分组')}
             </Typography.Text>
             {customRequestMode && (
-              <Typography.Text className='text-xs text-orange-600'>
+              <Typography.Text className='text-xs' style={{ color: 'var(--warning)' }}>
                 ({t('已在自定义模式中忽略')})
               </Typography.Text>
             )}
@@ -140,7 +140,7 @@ const SettingsPanel = ({
             renderOptionItem={renderGroupOption}
             style={{ width: '100%' }}
             dropdownStyle={{ width: '100%', maxWidth: '100%' }}
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
             disabled={customRequestMode}
           />
         </div>
@@ -148,12 +148,12 @@ const SettingsPanel = ({
         {/* 模型选择 */}
         <div className={customRequestMode ? 'opacity-50' : ''}>
           <div className='flex items-center gap-2 mb-2'>
-            <Sparkles size={16} className='text-gray-500' />
+            <Sparkles size={16} style={{ color: 'var(--text-muted)' }} />
             <Typography.Text strong className='text-sm'>
               {t('模型')}
             </Typography.Text>
             {customRequestMode && (
-              <Typography.Text className='text-xs text-orange-600'>
+              <Typography.Text className='text-xs' style={{ color: 'var(--warning)' }}>
                 ({t('已在自定义模式中忽略')})
               </Typography.Text>
             )}
@@ -171,7 +171,7 @@ const SettingsPanel = ({
             optionList={models}
             style={{ width: '100%' }}
             dropdownStyle={{ width: '100%', maxWidth: '100%' }}
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
             disabled={customRequestMode}
           />
         </div>
@@ -204,12 +204,12 @@ const SettingsPanel = ({
         <div className={customRequestMode ? 'opacity-50' : ''}>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-              <ToggleLeft size={16} className='text-gray-500' />
+              <ToggleLeft size={16} style={{ color: 'var(--text-muted)' }} />
               <Typography.Text strong className='text-sm'>
                 {t('流式输出')}
               </Typography.Text>
               {customRequestMode && (
-                <Typography.Text className='text-xs text-orange-600'>
+                <Typography.Text className='text-xs' style={{ color: 'var(--warning)' }}>
                   ({t('已在自定义模式中忽略')})
                 </Typography.Text>
               )}

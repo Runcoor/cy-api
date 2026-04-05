@@ -66,7 +66,7 @@ const MessageContent = ({
 
     return (
       <div className={`${className}`}>
-        <Typography.Text className='text-white'>{errorText}</Typography.Text>
+        <Typography.Text style={{ color: 'var(--error)' }}>{errorText}</Typography.Text>
       </div>
     );
   }
@@ -174,11 +174,13 @@ const MessageContent = ({
   ) {
     return (
       <div
-        className={`${className} flex items-center gap-2 sm:gap-4 bg-gradient-to-r from-purple-50 to-indigo-50`}
+        className={`${className} flex items-center gap-2 sm:gap-4`}
+        style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)' }}
       >
-        <div className='w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg'>
+        <div className='w-5 h-5 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent)' }}>
           <Loader2
-            className='animate-spin text-white'
+            className='animate-spin'
+            style={{ color: '#fff' }}
             size={styleState.isMobile ? 16 : 20}
           />
         </div>
@@ -191,15 +193,15 @@ const MessageContent = ({
       {message.role === 'system' && (
         <div className='mb-2 sm:mb-4'>
           <div
-            className='flex items-center gap-2 p-2 sm:p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg'
-            style={{ border: '1px solid var(--semi-color-border)' }}
+            className='flex items-center gap-2 p-2 sm:p-3'
+            style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}
           >
-            <div className='w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-sm'>
-              <Typography.Text className='text-white text-xs font-bold'>
+            <div className='w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--warning)' }}>
+              <Typography.Text className='text-xs font-bold' style={{ color: '#fff' }}>
                 S
               </Typography.Text>
             </div>
-            <Typography.Text className='text-amber-700 text-xs sm:text-sm font-medium'>
+            <Typography.Text className='text-xs sm:text-sm font-medium' style={{ color: 'var(--warning)' }}>
               {t('系统消息')}
             </Typography.Text>
           </div>
@@ -228,7 +230,7 @@ const MessageContent = ({
               fontSize: styleState.isMobile ? '14px' : '15px',
               lineHeight: '1.6',
             }}
-            className='!border-blue-200 focus:!border-blue-400 !bg-blue-50/50'
+            style={{ borderColor: 'var(--accent)', background: 'var(--surface-hover)' }}
           />
           <div className='flex items-center gap-2 w-full'>
             <Button
@@ -273,7 +275,8 @@ const MessageContent = ({
                         <img
                           src={imgItem.image_url.url}
                           alt={`用户上传的图片 ${index + 1}`}
-                          className='rounded-lg max-w-full h-auto shadow-sm border'
+                          className='max-w-full h-auto'
+                          style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}
                           style={{ maxHeight: '300px' }}
                           onError={(e) => {
                             e.target.style.display = 'none';
@@ -281,8 +284,8 @@ const MessageContent = ({
                           }}
                         />
                         <div
-                          className='text-red-500 text-sm p-2 bg-red-50 rounded-lg border border-red-200'
-                          style={{ display: 'none' }}
+                          className='text-sm p-2'
+                          style={{ color: 'var(--error)', background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', display: 'none' }}
                         >
                           图片加载失败: {imgItem.image_url.url}
                         </div>

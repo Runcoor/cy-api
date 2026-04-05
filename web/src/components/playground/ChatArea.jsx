@@ -62,17 +62,17 @@ const ChatArea = ({
       {styleState.isMobile ? (
         <div className='pt-4'></div>
       ) : (
-        <div className='px-6 py-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-t-2xl'>
+        <div className='px-6 py-4' style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center'>
-                <MessageSquare size={20} className='text-white' />
+              <div className='w-10 h-10 flex items-center justify-center' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
+                <MessageSquare size={20} style={{ color: 'var(--text-secondary)' }} />
               </div>
               <div>
-                <Typography.Title heading={5} className='!text-white mb-0'>
+                <Typography.Title heading={5} className='mb-0'>
                   {t('AI 对话')}
                 </Typography.Title>
-                <Typography.Text className='!text-white/80 text-sm hidden sm:inline'>
+                <Typography.Text type='tertiary' className='text-sm hidden sm:inline'>
                   {inputs.model || t('选择模型开始对话')}
                 </Typography.Text>
               </div>
@@ -82,9 +82,9 @@ const ChatArea = ({
                 icon={showDebugPanel ? <EyeOff size={14} /> : <Eye size={14} />}
                 onClick={onToggleDebugPanel}
                 theme='borderless'
-                type='primary'
+                type='tertiary'
                 size='small'
-                className='!rounded-lg !text-white/80 hover:!text-white hover:!bg-white/10'
+                style={{ borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)' }}
               >
                 {showDebugPanel ? t('隐藏调试') : t('显示调试')}
               </Button>

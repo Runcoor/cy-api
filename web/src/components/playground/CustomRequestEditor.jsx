@@ -121,7 +121,7 @@ const CustomRequestEditor = ({
       {/* 自定义模式开关 */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
-          <Code size={16} className='text-gray-500' />
+          <Code size={16} style={{ color: 'var(--text-muted)' }} />
           <Typography.Text strong className='text-sm'>
             {t('自定义请求体模式')}
           </Typography.Text>
@@ -144,7 +144,7 @@ const CustomRequestEditor = ({
               '启用此模式后，将使用您自定义的请求体发送API请求，模型配置面板的参数设置将被忽略。',
             )}
             icon={<AlertTriangle size={16} />}
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
             closeIcon={null}
           />
 
@@ -156,14 +156,14 @@ const CustomRequestEditor = ({
               </Typography.Text>
               <div className='flex items-center gap-2'>
                 {isValid ? (
-                  <div className='flex items-center gap-1 text-green-600'>
+                  <div className='flex items-center gap-1' style={{ color: 'var(--success)' }}>
                     <Check size={14} />
                     <Typography.Text className='text-xs'>
                       {t('格式正确')}
                     </Typography.Text>
                   </div>
                 ) : (
-                  <div className='flex items-center gap-1 text-red-600'>
+                  <div className='flex items-center gap-1' style={{ color: 'var(--error)' }}>
                     <X size={14} />
                     <Typography.Text className='text-xs'>
                       {t('格式错误')}
@@ -177,7 +177,7 @@ const CustomRequestEditor = ({
                   icon={<Edit size={14} />}
                   onClick={formatJson}
                   disabled={!isValid}
-                  className='!rounded-lg'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                 >
                   {t('格式化')}
                 </Button>
@@ -189,7 +189,11 @@ const CustomRequestEditor = ({
               onChange={handleValueChange}
               placeholder='{"model": "gpt-4o", "messages": [...], ...}'
               autosize={{ minRows: 8, maxRows: 20 }}
-              className={`custom-request-textarea !rounded-lg font-mono text-sm ${!isValid ? '!border-red-500' : ''}`}
+              className='custom-request-textarea font-mono text-sm'
+              style={{
+                borderRadius: 'var(--radius-md)',
+                ...((!isValid) ? { borderColor: 'var(--error)' } : {}),
+              }}
               style={{
                 fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                 lineHeight: '1.5',
@@ -202,7 +206,7 @@ const CustomRequestEditor = ({
               </Typography.Text>
             )}
 
-            <Typography.Text className='text-xs text-gray-500 mt-2 block'>
+            <Typography.Text className='text-xs mt-2 block' style={{ color: 'var(--text-muted)' }}>
               {t(
                 '请输入有效的JSON格式的请求体。您可以参考预览面板中的默认请求体格式。',
               )}
