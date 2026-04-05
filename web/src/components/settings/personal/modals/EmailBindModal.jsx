@@ -41,7 +41,7 @@ const EmailBindModal = ({
     <Modal
       title={
         <div className='flex items-center'>
-          <IconMail className='mr-2 text-blue-500' />
+          <IconMail className='mr-2' style={{ color: 'var(--accent)' }} />
           {t('绑定邮箱地址')}
         </div>
       }
@@ -61,13 +61,13 @@ const EmailBindModal = ({
             name='email'
             type='email'
             size='large'
-            className='!rounded-lg flex-1'
+            style={{ borderRadius: 'var(--radius-md)' }} className='flex-1'
             prefix={<IconMail />}
           />
           <Button
             onClick={sendVerificationCode}
             disabled={disableButton || loading}
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
             type='primary'
             theme='outline'
             size='large'
@@ -86,7 +86,7 @@ const EmailBindModal = ({
             handleInputChange('email_verification_code', value)
           }
           size='large'
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
           prefix={<IconKey />}
         />
 

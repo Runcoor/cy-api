@@ -152,8 +152,9 @@ const ThinkingContent = ({
             <div
               ref={scrollRef}
               className='overflow-x-auto overflow-y-auto thinking-content-scroll p-2'
-              style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)' }}
               style={{
+                background: 'var(--surface-hover)',
+                borderRadius: 'var(--radius-md)',
                 maxHeight: '200px',
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgba(0, 0, 0, 0.3) transparent',

@@ -193,10 +193,10 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
           position='top'
         >
           <div className='absolute inset-0 flex flex-col items-center justify-center cursor-pointer'>
-            <div className='w-6 h-6 rounded-full bg-green-500 flex items-center justify-center mb-0.5 shadow-sm'>
-              <Check size={14} className='text-white' strokeWidth={3} />
+            <div className='w-6 h-6 flex items-center justify-center mb-0.5' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--success)' }}>
+              <Check size={14} style={{ color: '#fff' }} strokeWidth={3} />
             </div>
-            <div className='text-[10px] font-medium text-green-600 dark:text-green-400 leading-none'>
+            <div className='text-[10px] font-medium leading-none' style={{ color: 'var(--success)' }}>
               {renderQuota(quotaAwarded)}
             </div>
           </div>
@@ -213,7 +213,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
   };
 
   return (
-    <Card className='!rounded-2xl'>
+    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
       <Modal
         title='Security Check'
         visible={turnstileModalVisible}
@@ -244,7 +244,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
           className='flex items-center flex-1 cursor-pointer'
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <Avatar size='small' color='green' className='mr-3 shadow-md'>
+          <Avatar size='small' color='green' className='mr-3'>
             <CalendarCheck size={16} />
           </Avatar>
           <div className='flex-1'>
@@ -253,12 +253,12 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
                 {t('每日签到')}
               </Typography.Text>
               {isCollapsed ? (
-                <ChevronDown size={16} className='text-gray-400' />
+                <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />
               ) : (
-                <ChevronUp size={16} className='text-gray-400' />
+                <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} />
               )}
             </div>
-            <div className='text-xs text-gray-500 dark:text-gray-400'>
+            <div className='text-xs' style={{ color: 'var(--text-muted)' }}>
               {!initialLoaded
                 ? t('正在加载签到状态...')
                 : checkinData.stats?.checked_in_today
@@ -276,7 +276,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
           onClick={() => doCheckin()}
           loading={checkinLoading || !initialLoaded}
           disabled={!initialLoaded || checkinData.stats?.checked_in_today}
-          className='!bg-green-600 hover:!bg-green-700'
+          style={{ background: 'var(--success)' }}
         >
           {!initialLoaded
             ? t('加载中...')
@@ -290,29 +290,29 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
       <Collapsible isOpen={isCollapsed === false} keepDOM>
         {/* 签到统计 */}
         <div className='grid grid-cols-3 gap-3 mb-4 mt-4'>
-          <div className='text-center p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg'>
-            <div className='text-xl font-bold text-green-600'>
+          <div className='text-center p-2.5 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
+            <div className='text-xl font-bold' style={{ color: 'var(--success)' }}>
               {checkinData.stats?.total_checkins || 0}
             </div>
-            <div className='text-xs text-gray-500'>{t('累计签到')}</div>
+            <div className='text-xs' style={{ color: 'var(--text-muted)' }}>{t('累计签到')}</div>
           </div>
-          <div className='text-center p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg'>
-            <div className='text-xl font-bold text-orange-600'>
+          <div className='text-center p-2.5 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
+            <div className='text-xl font-bold' style={{ color: 'var(--warning)' }}>
               {renderQuota(monthlyQuota, 6)}
             </div>
-            <div className='text-xs text-gray-500'>{t('本月获得')}</div>
+            <div className='text-xs' style={{ color: 'var(--text-muted)' }}>{t('本月获得')}</div>
           </div>
-          <div className='text-center p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg'>
-            <div className='text-xl font-bold text-blue-600'>
+          <div className='text-center p-2.5 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
+            <div className='text-xl font-bold' style={{ color: 'var(--accent)' }}>
               {renderQuota(checkinData.stats?.total_quota || 0, 6)}
             </div>
-            <div className='text-xs text-gray-500'>{t('累计获得')}</div>
+            <div className='text-xs' style={{ color: 'var(--text-muted)' }}>{t('累计获得')}</div>
           </div>
         </div>
 
         {/* 签到日历 - 使用更紧凑的样式 */}
         <Spin spinning={loading}>
-          <div className='border rounded-lg overflow-hidden checkin-calendar'>
+          <div className='rounded-lg overflow-hidden checkin-calendar' style={{ border: '1px solid var(--border-default)' }}>
             <style>{`
             .checkin-calendar .semi-calendar {
               font-size: 13px;
@@ -367,7 +367,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
         </Spin>
 
         {/* 签到说明 */}
-        <div className='mt-3 p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg'>
+        <div className='mt-3 p-2.5 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
           <Typography.Text type='tertiary' className='text-xs'>
             <ul className='list-disc list-inside space-y-0.5'>
               <li>{t('每日签到可获得随机额度奖励')}</li>

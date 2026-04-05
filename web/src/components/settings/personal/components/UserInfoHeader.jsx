@@ -53,16 +53,13 @@ const UserInfoHeader = ({ t, userState }) => {
 
   return (
     <Card
-      className='!rounded-2xl overflow-hidden'
+      style={{ borderRadius: 'var(--radius-lg)' }}
+      className='overflow-hidden'
       cover={
         <div
           className='relative h-32'
           style={{
-            '--palette-primary-darkerChannel': '0 75 80',
-            backgroundImage: `linear-gradient(0deg, rgba(var(--palette-primary-darkerChannel) / 80%), rgba(var(--palette-primary-darkerChannel) / 80%)), url('/cover-4.webp')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
+            background: 'var(--elevated)',
           }}
         >
           {/* 用户信息内容 */}
@@ -75,7 +72,7 @@ const UserInfoHeader = ({ t, userState }) => {
                 <div className='flex-1 min-w-0 flex flex-col justify-between'>
                   <div
                     className='text-3xl font-bold truncate'
-                    style={{ color: 'white' }}
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     {getUsername()}
                   </div>
@@ -84,7 +81,7 @@ const UserInfoHeader = ({ t, userState }) => {
                       <Tag
                         size='large'
                         shape='circle'
-                        style={{ color: 'white' }}
+                        style={{ color: 'var(--text-secondary)' }}
                       >
                         {t('超级管理员')}
                       </Tag>
@@ -92,7 +89,7 @@ const UserInfoHeader = ({ t, userState }) => {
                       <Tag
                         size='large'
                         shape='circle'
-                        style={{ color: 'white' }}
+                        style={{ color: 'var(--text-secondary)' }}
                       >
                         {t('管理员')}
                       </Tag>
@@ -100,12 +97,12 @@ const UserInfoHeader = ({ t, userState }) => {
                       <Tag
                         size='large'
                         shape='circle'
-                        style={{ color: 'white' }}
+                        style={{ color: 'var(--text-secondary)' }}
                       >
                         {t('普通用户')}
                       </Tag>
                     )}
-                    <Tag size='large' shape='circle' style={{ color: 'white' }}>
+                    <Tag size='large' shape='circle' style={{ color: 'var(--text-secondary)' }}>
                       ID: {userState?.user?.id}
                     </Tag>
                   </div>
@@ -129,7 +126,7 @@ const UserInfoHeader = ({ t, userState }) => {
         <div className='hidden lg:block flex-shrink-0'>
           <Card
             size='small'
-            className='!rounded-xl'
+            style={{ borderRadius: 'var(--radius-lg)' }}
             bodyStyle={{ padding: '12px 16px' }}
           >
             <div className='flex items-center gap-4'>
@@ -171,7 +168,7 @@ const UserInfoHeader = ({ t, userState }) => {
       <div className='lg:hidden mt-2'>
         <Card
           size='small'
-          className='!rounded-xl'
+          style={{ borderRadius: 'var(--radius-lg)' }}
           bodyStyle={{ padding: '12px 16px' }}
         >
           <div className='space-y-3'>

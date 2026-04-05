@@ -38,7 +38,7 @@ const AccountDeleteModal = ({
     <Modal
       title={
         <div className='flex items-center'>
-          <IconDelete className='mr-2 text-red-500' />
+          <IconDelete className='mr-2' style={{ color: 'var(--error)' }} />
           {t('删除账户确认')}
         </div>
       }
@@ -54,11 +54,11 @@ const AccountDeleteModal = ({
           type='danger'
           description={t('您正在删除自己的帐户，将清空所有数据且不可恢复')}
           closeIcon={null}
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
         />
 
         <div>
-          <Typography.Text strong className='block mb-2 text-red-600'>
+          <Typography.Text strong className='block mb-2' style={{ color: 'var(--error)' }}>
             {t('请输入您的用户名以确认删除')}
           </Typography.Text>
           <Input
@@ -71,7 +71,7 @@ const AccountDeleteModal = ({
               handleInputChange('self_account_deletion_confirmation', value)
             }
             size='large'
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
             prefix={<IconUser />}
           />
         </div>

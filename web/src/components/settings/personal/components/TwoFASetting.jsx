@@ -208,10 +208,10 @@ const TwoFASetting = ({ t }) => {
   // 备用码展示组件
   const BackupCodesDisplay = ({ codes, title, onCopy }) => {
     return (
-      <Card className='!rounded-xl' style={{ width: '100%' }}>
+      <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }} style={{ width: '100%' }}>
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
-            <Text strong className='text-slate-700 dark:text-slate-200'>
+            <Text strong style={{ color: 'var(--text-primary)' }}>
               {title}
             </Text>
           </div>
@@ -222,7 +222,7 @@ const TwoFASetting = ({ t }) => {
                 <div className='flex items-center justify-between'>
                   <Text
                     code
-                    className='text-sm font-mono text-slate-700 dark:text-slate-200'
+                    className='text-sm font-mono'
                   >
                     {code}
                   </Text>
@@ -240,7 +240,7 @@ const TwoFASetting = ({ t }) => {
             theme='solid'
             icon={<IconCopy />}
             onClick={onCopy}
-            className='!rounded-lg !bg-slate-600 hover:!bg-slate-700 w-full'
+            className='w-full' style={{ borderRadius: 'var(--radius-md)' }}
           >
             {t('复制所有代码')}
           </Button>
@@ -256,7 +256,7 @@ const TwoFASetting = ({ t }) => {
         {currentStep > 0 && (
           <Button
             onClick={() => setCurrentStep(currentStep - 1)}
-            className='!rounded-lg'
+            style={{ borderRadius: 'var(--radius-md)' }}
           >
             {t('上一步')}
           </Button>
@@ -266,7 +266,7 @@ const TwoFASetting = ({ t }) => {
             type='primary'
             theme='solid'
             onClick={() => setCurrentStep(currentStep + 1)}
-            className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
+            style={{ borderRadius: 'var(--radius-md)' }}
           >
             {t('下一步')}
           </Button>
@@ -282,7 +282,7 @@ const TwoFASetting = ({ t }) => {
               }
               handleEnable2FA();
             }}
-            className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
+            style={{ borderRadius: 'var(--radius-md)' }}
           >
             {t('完成设置并启用两步验证')}
           </Button>
@@ -301,7 +301,7 @@ const TwoFASetting = ({ t }) => {
             setVerificationCode('');
             setConfirmDisable(false);
           }}
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
           {t('取消')}
         </Button>
@@ -311,7 +311,7 @@ const TwoFASetting = ({ t }) => {
           loading={loading}
           disabled={!confirmDisable || !verificationCode}
           onClick={handleDisable2FA}
-          className='!rounded-lg !bg-slate-500 hover:!bg-slate-600'
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
           {t('确认禁用')}
         </Button>
@@ -331,7 +331,7 @@ const TwoFASetting = ({ t }) => {
             setVerificationCode('');
             setBackupCodes([]);
           }}
-          className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
           {t('完成')}
         </Button>
@@ -346,7 +346,7 @@ const TwoFASetting = ({ t }) => {
             setVerificationCode('');
             setBackupCodes([]);
           }}
-          className='!rounded-lg'
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
           {t('取消')}
         </Button>
@@ -356,7 +356,7 @@ const TwoFASetting = ({ t }) => {
           loading={loading}
           disabled={!verificationCode}
           onClick={handleRegenerateBackupCodes}
-          className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
+          style={{ borderRadius: 'var(--radius-md)' }}
         >
           {t('生成新的备用码')}
         </Button>
@@ -366,13 +366,13 @@ const TwoFASetting = ({ t }) => {
 
   return (
     <>
-      <Card className='!rounded-xl w-full'>
+      <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
         <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
           <div className='flex items-start w-full sm:w-auto'>
-            <div className='w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-4 flex-shrink-0'>
+            <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
               <IconShield
                 size='large'
-                className='text-slate-600 dark:text-slate-300'
+                style={{ color: 'var(--text-secondary)' }}
               />
             </div>
             <div className='flex-1'>
@@ -419,7 +419,7 @@ const TwoFASetting = ({ t }) => {
                 size='default'
                 onClick={handleSetup2FA}
                 loading={loading}
-                className='!rounded-lg !bg-slate-600 hover:!bg-slate-700'
+                style={{ borderRadius: 'var(--radius-md)' }}
                 icon={<IconShield />}
               >
                 {t('启用验证')}
@@ -431,7 +431,7 @@ const TwoFASetting = ({ t }) => {
                   theme='solid'
                   size='default'
                   onClick={() => setDisableModalVisible(true)}
-                  className='!rounded-lg !bg-slate-500 hover:!bg-slate-600'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                   icon={<IconAlertTriangle />}
                 >
                   {t('禁用两步验证')}
@@ -441,7 +441,7 @@ const TwoFASetting = ({ t }) => {
                   theme='solid'
                   size='default'
                   onClick={() => setBackupModalVisible(true)}
-                  className='!rounded-lg'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                   icon={<IconRefresh />}
                 >
                   {t('重新生成备用码')}
@@ -456,7 +456,7 @@ const TwoFASetting = ({ t }) => {
       <Modal
         title={
           <div className='flex items-center'>
-            <IconShield className='mr-2 text-slate-600' />
+            <IconShield className='mr-2' style={{ color: 'var(--text-secondary)' }} />
             {t('设置两步验证')}
           </div>
         }
@@ -493,18 +493,18 @@ const TwoFASetting = ({ t }) => {
             <div className='rounded-xl'>
               {currentStep === 0 && (
                 <div>
-                  <Paragraph className='text-gray-600 dark:text-gray-300 mb-4'>
+                  <Paragraph className='mb-4' style={{ color: 'var(--text-secondary)' }}>
                     {t(
                       '使用认证器应用（如 Google Authenticator、Microsoft Authenticator）扫描下方二维码：',
                     )}
                   </Paragraph>
                   <div className='flex justify-center mb-4'>
-                    <div className='bg-white p-4 rounded-lg shadow-sm'>
+                    <div className='p-4' style={{ background: 'var(--surface)', borderRadius: 'var(--radius-md)' }}>
                       <QRCodeSVG value={setupData.qr_code_data} size={180} />
                     </div>
                   </div>
-                  <div className='bg-blue-50 dark:bg-blue-900 rounded-lg p-3'>
-                    <Text className='text-blue-800 dark:text-blue-200 text-sm'>
+                  <div className='p-3' style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)' }}>
+                    <Text className='text-sm' style={{ color: 'var(--accent)' }}>
                       {t('或手动输入密钥：')}
                       <Text code copyable className='ml-2'>
                         {setupData.secret}
@@ -535,7 +535,7 @@ const TwoFASetting = ({ t }) => {
                   onChange={setVerificationCode}
                   size='large'
                   maxLength={6}
-                  className='!rounded-lg'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                 />
               )}
             </div>
@@ -547,7 +547,7 @@ const TwoFASetting = ({ t }) => {
       <Modal
         title={
           <div className='flex items-center'>
-            <IconAlertTriangle className='mr-2 text-red-500' />
+            <IconAlertTriangle className='mr-2' style={{ color: 'var(--error)' }} />
             {t('禁用两步验证')}
           </div>
         }
@@ -569,7 +569,7 @@ const TwoFASetting = ({ t }) => {
               description={t(
                 '警告：禁用两步验证将永久删除您的验证设置和所有备用码，此操作不可撤销！',
               )}
-              className='!rounded-lg'
+              style={{ borderRadius: 'var(--radius-md)' }}
             />
           </div>
 
@@ -578,11 +578,11 @@ const TwoFASetting = ({ t }) => {
             <div>
               <Text
                 strong
-                className='block mb-2 text-slate-700 dark:text-slate-200'
+                className='block mb-2' style={{ color: 'var(--text-secondary)' }}
               >
                 {t('禁用后的影响：')}
               </Text>
-              <ul className='space-y-2 text-sm text-slate-600 dark:text-slate-300'>
+              <ul className='space-y-2 text-sm' style={{ color: 'var(--text-secondary)' }}>
                 <li className='flex items-start gap-2'>
                   <Badge dot type='warning' />
                   {t('降低您账户的安全性')}
@@ -608,7 +608,7 @@ const TwoFASetting = ({ t }) => {
               <div>
                 <Text
                   strong
-                  className='block mb-2 text-slate-700 dark:text-slate-200'
+                  className='block mb-2' style={{ color: 'var(--text-secondary)' }}
                 >
                   {t('验证身份')}
                 </Text>
@@ -617,7 +617,7 @@ const TwoFASetting = ({ t }) => {
                   value={verificationCode}
                   onChange={setVerificationCode}
                   size='large'
-                  className='!rounded-lg'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                 />
               </div>
 
@@ -641,7 +641,7 @@ const TwoFASetting = ({ t }) => {
       <Modal
         title={
           <div className='flex items-center'>
-            <IconRefresh className='mr-2 text-slate-600' />
+            <IconRefresh className='mr-2' style={{ color: 'var(--text-secondary)' }} />
             {t('重新生成备用码')}
           </div>
         }
@@ -665,7 +665,7 @@ const TwoFASetting = ({ t }) => {
                   description={t(
                     '重新生成备用码将使现有的备用码失效，请确保您已保存了当前的备用码。',
                   )}
-                  className='!rounded-lg'
+                  style={{ borderRadius: 'var(--radius-md)' }}
                 />
               </div>
 
@@ -674,7 +674,7 @@ const TwoFASetting = ({ t }) => {
                 <div>
                   <Text
                     strong
-                    className='block mb-2 text-slate-700 dark:text-slate-200'
+                    className='block mb-2' style={{ color: 'var(--text-secondary)' }}
                   >
                     {t('验证身份')}
                   </Text>
@@ -683,7 +683,7 @@ const TwoFASetting = ({ t }) => {
                     value={verificationCode}
                     onChange={setVerificationCode}
                     size='large'
-                    className='!rounded-lg'
+                    style={{ borderRadius: 'var(--radius-md)' }}
                   />
                 </div>
               </div>
@@ -696,12 +696,12 @@ const TwoFASetting = ({ t }) => {
                   <Badge dot type='success' />
                   <Text
                     strong
-                    className='text-lg text-slate-700 dark:text-slate-200'
+                    className='text-lg' style={{ color: 'var(--text-primary)' }}
                   >
                     {t('新的备用码已生成')}
                   </Text>
                 </div>
-                <Text className='text-slate-500 dark:text-slate-400 text-sm'>
+                <Text className='text-sm' style={{ color: 'var(--text-muted)' }}>
                   {t('旧的备用码已失效，请保存新的备用码')}
                 </Text>
 
