@@ -27,11 +27,9 @@ import {
   getSystemName,
 } from '../../helpers';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Button, Card, Form, Typography, Banner } from '@douyinfe/semi-ui';
+import { Button, Form, Banner } from '@douyinfe/semi-ui';
 import { IconMail, IconLock, IconCopy } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
-
-const { Text, Title } = Typography;
 
 const PasswordResetConfirm = () => {
   const { t } = useTranslation();
@@ -104,112 +102,185 @@ const PasswordResetConfirm = () => {
   }
 
   return (
-    <div className='relative overflow-hidden bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
-      {/* 背景模糊晕染球 */}
-      <div
-        className='blur-ball blur-ball-indigo'
-        style={{ top: '-80px', right: '-80px', transform: 'none' }}
-      />
-      <div
-        className='blur-ball blur-ball-teal'
-        style={{ top: '50%', left: '-120px' }}
-      />
-      <div className='w-full max-w-sm mt-[60px]'>
+    <div
+      className='flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'
+      style={{
+        background: 'var(--bg-base)',
+        minHeight: 'calc(100vh - var(--header-height))',
+      }}
+    >
+      <div className='w-full max-w-sm'>
         <div className='flex flex-col items-center'>
-          <div className='w-full max-w-md'>
-            <div className='flex items-center justify-center mb-6 gap-2'>
-              <img src={logo} alt='Logo' className='h-10 rounded-full' />
-              <Title heading={3} className='!text-gray-800'>
-                {systemName}
-              </Title>
+          {/* Logo + system name */}
+          <div className='flex items-center gap-2.5 mb-8'>
+            <img
+              src={logo}
+              alt='Logo'
+              style={{
+                height: '32px',
+                borderRadius: 'var(--radius-sm)',
+                objectFit: 'contain',
+              }}
+            />
+            <span
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              {systemName}
+            </span>
+          </div>
+
+          {/* Card panel */}
+          <div
+            className='w-full'
+            style={{
+              background: 'var(--surface)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-float)',
+            }}
+          >
+            <div
+              className='text-center'
+              style={{
+                padding: '24px 24px 0',
+                borderBottom: '1px solid var(--border-subtle)',
+                paddingBottom: '16px',
+              }}
+            >
+              <h3
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  margin: 0,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {t('密码重置确认')}
+              </h3>
+              <p
+                className='mt-1'
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--text-muted)',
+                  margin: '4px 0 0',
+                }}
+              >
+                {isValidResetLink
+                  ? t('确认重置您的账户密码')
+                  : t('无效的重置链接')}
+              </p>
             </div>
 
-            <Card className='border-0 !rounded-2xl overflow-hidden'>
-              <div className='flex justify-center pt-6 pb-2'>
-                <Title heading={3} className='text-gray-800 dark:text-gray-200'>
-                  {t('密码重置确认')}
-                </Title>
-              </div>
-              <div className='px-2 py-8'>
-                {!isValidResetLink && (
-                  <Banner
-                    type='danger'
-                    description={t('无效的重置链接，请重新发起密码重置请求')}
-                    className='mb-4 !rounded-lg'
-                    closeIcon={null}
+            <div style={{ padding: '24px' }}>
+              {!isValidResetLink && (
+                <Banner
+                  type='danger'
+                  description={t('无效的重置链接，请重新发起密码重置请求')}
+                  closeIcon={null}
+                  style={{
+                    borderRadius: 'var(--radius-md)',
+                    marginBottom: '16px',
+                  }}
+                />
+              )}
+
+              <Form
+                getFormApi={(api) => setFormApi(api)}
+                initValues={{
+                  email: email || '',
+                  newPassword: newPassword || '',
+                }}
+                className='space-y-4'
+              >
+                <Form.Input
+                  field='email'
+                  label={t('邮箱')}
+                  name='email'
+                  disabled={true}
+                  prefix={<IconMail />}
+                  placeholder={email ? '' : t('等待获取邮箱信息...')}
+                />
+
+                {newPassword && (
+                  <Form.Input
+                    field='newPassword'
+                    label={t('新密码')}
+                    name='newPassword'
+                    disabled={true}
+                    prefix={<IconLock />}
+                    suffix={
+                      <Button
+                        icon={<IconCopy />}
+                        type='tertiary'
+                        theme='borderless'
+                        size='small'
+                        onClick={async () => {
+                          await copy(newPassword);
+                          showNotice(
+                            `${t('密码已复制到剪贴板：')} ${newPassword}`,
+                          );
+                        }}
+                        style={{
+                          color: 'var(--accent)',
+                          fontSize: '13px',
+                        }}
+                      >
+                        {t('复制')}
+                      </Button>
+                    }
                   />
                 )}
-                <Form
-                  getFormApi={(api) => setFormApi(api)}
-                  initValues={{
-                    email: email || '',
-                    newPassword: newPassword || '',
+
+                <Button
+                  theme='solid'
+                  type='primary'
+                  htmlType='submit'
+                  onClick={handleSubmit}
+                  loading={loading}
+                  disabled={
+                    disableButton || newPassword || !isValidResetLink
+                  }
+                  className='w-full'
+                  style={{
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--accent)',
+                    border: 'none',
+                    height: '40px',
+                    fontSize: '14px',
+                    fontWeight: 500,
                   }}
-                  className='space-y-4'
                 >
-                  <Form.Input
-                    field='email'
-                    label={t('邮箱')}
-                    name='email'
-                    disabled={true}
-                    prefix={<IconMail />}
-                    placeholder={email ? '' : t('等待获取邮箱信息...')}
-                  />
+                  {newPassword ? t('密码重置完成') : t('确认重置密码')}
+                </Button>
+              </Form>
 
-                  {newPassword && (
-                    <Form.Input
-                      field='newPassword'
-                      label={t('新密码')}
-                      name='newPassword'
-                      disabled={true}
-                      prefix={<IconLock />}
-                      suffix={
-                        <Button
-                          icon={<IconCopy />}
-                          type='tertiary'
-                          theme='borderless'
-                          onClick={async () => {
-                            await copy(newPassword);
-                            showNotice(
-                              `${t('密码已复制到剪贴板：')} ${newPassword}`,
-                            );
-                          }}
-                        >
-                          {t('复制')}
-                        </Button>
-                      }
-                    />
-                  )}
-
-                  <div className='space-y-2 pt-2'>
-                    <Button
-                      theme='solid'
-                      className='w-full !rounded-full'
-                      type='primary'
-                      htmlType='submit'
-                      onClick={handleSubmit}
-                      loading={loading}
-                      disabled={
-                        disableButton || newPassword || !isValidResetLink
-                      }
-                    >
-                      {newPassword ? t('密码重置完成') : t('确认重置密码')}
-                    </Button>
-                  </div>
-                </Form>
-
-                <div className='mt-6 text-center text-sm'>
-                  <Text>
-                    <Link
-                      to='/login'
-                      className='text-blue-600 hover:text-blue-800 font-medium'
-                    >
-                      {t('返回登录')}
-                    </Link>
-                  </Text>
-                </div>
+              <div
+                className='mt-6 text-center'
+                style={{ fontSize: '13px' }}
+              >
+                <span style={{ color: 'var(--text-muted)' }}>
+                  {t('想起来了？')}{' '}
+                </span>
+                <Link
+                  to='/login'
+                  style={{
+                    color: 'var(--accent)',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                  }}
+                >
+                  {t('返回登录')}
+                </Link>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>

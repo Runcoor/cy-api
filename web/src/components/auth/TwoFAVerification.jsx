@@ -17,17 +17,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { API, showError, showSuccess } from '../../helpers';
-import {
-  Button,
-  Card,
-  Divider,
-  Form,
-  Input,
-  Typography,
-} from '@douyinfe/semi-ui';
+import { Button, Divider, Form, Typography } from '@douyinfe/semi-ui';
 import React, { useState } from 'react';
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
   const [loading, setLoading] = useState(false);
@@ -77,12 +70,43 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
     }
   };
 
+  const linkButtonStyle = {
+    color: 'var(--accent)',
+    padding: 0,
+    fontSize: '13px',
+    fontWeight: 500,
+  };
+
+  const hintBoxStyle = {
+    marginTop: '20px',
+    padding: '12px 14px',
+    background: 'var(--surface-hover)',
+    borderRadius: 'var(--radius-md)',
+    border: '1px solid var(--border-subtle)',
+  };
+
+  const submitButtonStyle = {
+    borderRadius: 'var(--radius-md)',
+    background: 'var(--accent)',
+    border: 'none',
+    height: '40px',
+    fontSize: '14px',
+    fontWeight: 500,
+    marginBottom: '16px',
+  };
+
   if (isModal) {
     return (
       <div className='space-y-4'>
-        <Paragraph className='text-gray-600 dark:text-gray-300'>
+        <p
+          style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            margin: '0 0 8px',
+          }}
+        >
           请输入认证器应用显示的验证码完成登录
-        </Paragraph>
+        </p>
 
         <Form onSubmit={handleSubmit}>
           <Form.Input
@@ -92,7 +116,6 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
             value={verificationCode}
             onChange={setVerificationCode}
             onKeyPress={handleKeyPress}
-            size='large'
             style={{ marginBottom: 16 }}
             autoFocus
           />
@@ -100,16 +123,22 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
           <Button
             htmlType='submit'
             type='primary'
+            theme='solid'
             loading={loading}
             block
-            size='large'
-            style={{ marginBottom: 16 }}
+            className='w-full'
+            style={submitButtonStyle}
           >
             验证并登录
           </Button>
         </Form>
 
-        <Divider />
+        <Divider
+          style={{
+            borderColor: 'var(--border-subtle)',
+            margin: '12px 0',
+          }}
+        />
 
         <div style={{ textAlign: 'center' }}>
           <Button
@@ -119,7 +148,7 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
               setUseBackupCode(!useBackupCode);
               setVerificationCode('');
             }}
-            style={{ marginRight: 16, color: '#1890ff', padding: 0 }}
+            style={{ ...linkButtonStyle, marginRight: 16 }}
           >
             {useBackupCode ? '使用认证器验证码' : '使用备用码'}
           </Button>
@@ -129,16 +158,19 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
               theme='borderless'
               type='tertiary'
               onClick={onBack}
-              style={{ color: '#1890ff', padding: 0 }}
+              style={linkButtonStyle}
             >
               返回登录
             </Button>
           )}
         </div>
 
-        <div className='bg-gray-50 dark:bg-gray-800 rounded-lg p-3'>
-          <Text size='small' type='secondary'>
-            <strong>提示：</strong>
+        <div style={hintBoxStyle}>
+          <Text
+            size='small'
+            style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}
+          >
+            <strong style={{ color: 'var(--text-secondary)' }}>提示：</strong>
             <br />
             • 验证码每30秒更新一次
             <br />
@@ -152,91 +184,129 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
 
   return (
     <div
+      className='flex items-center justify-center py-12 px-4'
       style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '60vh',
+        background: 'var(--bg-base)',
+        minHeight: 'calc(100vh - var(--header-height))',
       }}
     >
-      <Card style={{ width: 400, padding: 24 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title heading={3}>两步验证</Title>
-          <Paragraph type='secondary'>
+      <div
+        className='w-full'
+        style={{
+          maxWidth: '400px',
+          background: 'var(--surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-float)',
+        }}
+      >
+        <div
+          className='text-center'
+          style={{
+            padding: '24px 24px 0',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '16px',
+          }}
+        >
+          <h3
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            两步验证
+          </h3>
+          <p
+            style={{
+              fontSize: '13px',
+              color: 'var(--text-muted)',
+              margin: '4px 0 0',
+            }}
+          >
             请输入认证器应用显示的验证码完成登录
-          </Paragraph>
+          </p>
         </div>
 
-        <Form onSubmit={handleSubmit}>
-          <Form.Input
-            field='code'
-            label={useBackupCode ? '备用码' : '验证码'}
-            placeholder={useBackupCode ? '请输入8位备用码' : '请输入6位验证码'}
-            value={verificationCode}
-            onChange={setVerificationCode}
-            onKeyPress={handleKeyPress}
-            size='large'
-            style={{ marginBottom: 16 }}
-            autoFocus
+        <div style={{ padding: '24px' }}>
+          <Form onSubmit={handleSubmit}>
+            <Form.Input
+              field='code'
+              label={useBackupCode ? '备用码' : '验证码'}
+              placeholder={
+                useBackupCode ? '请输入8位备用码' : '请输入6位验证码'
+              }
+              value={verificationCode}
+              onChange={setVerificationCode}
+              onKeyPress={handleKeyPress}
+              style={{ marginBottom: 16 }}
+              autoFocus
+            />
+
+            <Button
+              htmlType='submit'
+              type='primary'
+              theme='solid'
+              loading={loading}
+              className='w-full'
+              style={submitButtonStyle}
+            >
+              验证并登录
+            </Button>
+          </Form>
+
+          <Divider
+            style={{
+              borderColor: 'var(--border-subtle)',
+              margin: '12px 0',
+            }}
           />
 
-          <Button
-            htmlType='submit'
-            type='primary'
-            loading={loading}
-            block
-            size='large'
-            style={{ marginBottom: 16 }}
-          >
-            验证并登录
-          </Button>
-        </Form>
-
-        <Divider />
-
-        <div style={{ textAlign: 'center' }}>
-          <Button
-            theme='borderless'
-            type='tertiary'
-            onClick={() => {
-              setUseBackupCode(!useBackupCode);
-              setVerificationCode('');
-            }}
-            style={{ marginRight: 16, color: '#1890ff', padding: 0 }}
-          >
-            {useBackupCode ? '使用认证器验证码' : '使用备用码'}
-          </Button>
-
-          {onBack && (
+          <div style={{ textAlign: 'center' }}>
             <Button
               theme='borderless'
               type='tertiary'
-              onClick={onBack}
-              style={{ color: '#1890ff', padding: 0 }}
+              onClick={() => {
+                setUseBackupCode(!useBackupCode);
+                setVerificationCode('');
+              }}
+              style={{ ...linkButtonStyle, marginRight: 16 }}
             >
-              返回登录
+              {useBackupCode ? '使用认证器验证码' : '使用备用码'}
             </Button>
-          )}
-        </div>
 
-        <div
-          style={{
-            marginTop: 24,
-            padding: 16,
-            background: '#f6f8fa',
-            borderRadius: 6,
-          }}
-        >
-          <Text size='small' type='secondary'>
-            <strong>提示：</strong>
-            <br />
-            • 验证码每30秒更新一次
-            <br />
-            • 如果无法获取验证码，请使用备用码
-            <br />• 每个备用码只能使用一次
-          </Text>
+            {onBack && (
+              <Button
+                theme='borderless'
+                type='tertiary'
+                onClick={onBack}
+                style={linkButtonStyle}
+              >
+                返回登录
+              </Button>
+            )}
+          </div>
+
+          <div style={hintBoxStyle}>
+            <Text
+              size='small'
+              style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}
+            >
+              <strong style={{ color: 'var(--text-secondary)' }}>
+                提示：
+              </strong>
+              <br />
+              • 验证码每30秒更新一次
+              <br />
+              • 如果无法获取验证码，请使用备用码
+              <br />• 每个备用码只能使用一次
+            </Text>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
