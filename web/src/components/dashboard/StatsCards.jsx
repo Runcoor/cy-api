@@ -39,7 +39,12 @@ const StatsCards = ({
           <Card
             key={idx}
             {...CARD_PROPS}
-            className={`${group.color} border-0 !rounded-2xl w-full`}
+            className='w-full'
+            style={{
+              background: 'var(--surface)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-default)',
+            }}
             title={group.title}
           >
             <div className='space-y-4'>
@@ -58,7 +63,7 @@ const StatsCards = ({
                       {item.icon}
                     </Avatar>
                     <div>
-                      <div className='text-xs text-gray-500'>{item.title}</div>
+                      <div className='text-xs' style={{ color: 'var(--text-muted)' }}>{item.title}</div>
                       <div className='text-lg font-semibold'>
                         <Skeleton
                           loading={loading}

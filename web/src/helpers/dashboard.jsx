@@ -196,23 +196,23 @@ export const renderMonitorList = (
   });
 
   const renderItem = (monitor, idx) => (
-    <div key={idx} className='p-2 hover:bg-white rounded-lg transition-colors'>
+    <div key={idx} className='p-2 rounded-lg' style={{ transition: 'background-color 150ms ease-out' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
       <div className='flex items-center justify-between mb-1'>
         <div className='flex items-center gap-2'>
           <div
             className='w-2 h-2 rounded-full flex-shrink-0'
             style={{ backgroundColor: getUptimeStatusColor(monitor.status) }}
           />
-          <span className='text-sm font-medium text-gray-900'>
+          <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
             {monitor.name}
           </span>
         </div>
-        <span className='text-xs text-gray-500'>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {((monitor.uptime || 0) * 100).toFixed(2)}%
         </span>
       </div>
       <div className='flex items-center gap-2'>
-        <span className='text-xs text-gray-500'>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {getUptimeStatusText(monitor.status)}
         </span>
         <div className='flex-1'>
@@ -231,7 +231,7 @@ export const renderMonitorList = (
     <div key={gname || 'default'} className='mb-2'>
       {gname && (
         <>
-          <div className='text-md font-semibold text-gray-500 px-2 py-1'>
+          <div className='text-md font-semibold px-2 py-1' style={{ color: 'var(--text-secondary)' }}>
             {gname}
           </div>
           <Divider />

@@ -38,7 +38,12 @@ const ChartsPanel = ({
   return (
     <Card
       {...CARD_PROPS}
-      className={`!rounded-2xl ${hasApiInfoPanel ? 'lg:col-span-3' : ''}`}
+      className={hasApiInfoPanel ? 'lg:col-span-3' : ''}
+      style={{
+        background: 'var(--surface)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-default)',
+      }}
       title={
         <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3'>
           <div className={FLEX_CENTER_GAP2}>

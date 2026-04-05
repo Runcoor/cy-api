@@ -37,7 +37,12 @@ const AnnouncementsPanel = ({
   return (
     <Card
       {...CARD_PROPS}
-      className='shadow-sm !rounded-2xl lg:col-span-2'
+      className='lg:col-span-2'
+      style={{
+        background: 'var(--surface)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-default)',
+      }}
       title={
         <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 w-full'>
           <div className='flex items-center gap-2'>
@@ -56,19 +61,19 @@ const AnnouncementsPanel = ({
                   style={{
                     backgroundColor:
                       legend.color === 'grey'
-                        ? '#8b9aa7'
+                        ? 'var(--text-muted)'
                         : legend.color === 'blue'
-                          ? '#3b82f6'
+                          ? 'var(--accent)'
                           : legend.color === 'green'
-                            ? '#10b981'
+                            ? 'var(--success)'
                             : legend.color === 'orange'
-                              ? '#f59e0b'
+                              ? 'var(--warning)'
                               : legend.color === 'red'
-                                ? '#ef4444'
-                                : '#8b9aa7',
+                                ? 'var(--error)'
+                                : 'var(--text-muted)',
                   }}
                 />
-                <span className='text-gray-600'>{legend.label}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>{legend.label}</span>
               </div>
             ))}
           </div>
@@ -89,7 +94,8 @@ const AnnouncementsPanel = ({
                   extra={
                     item.extra ? (
                       <div
-                        className='text-xs text-gray-500'
+                        className='text-xs'
+                        style={{ color: 'var(--text-muted)' }}
                         dangerouslySetInnerHTML={{ __html: htmlExtra }}
                       />
                     ) : null

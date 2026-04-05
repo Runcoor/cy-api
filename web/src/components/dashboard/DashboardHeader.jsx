@@ -29,29 +29,41 @@ const DashboardHeader = ({
   loading,
   t,
 }) => {
-  const ICON_BUTTON_CLASS = 'text-white hover:bg-opacity-80 !rounded-full';
+  const iconBtnStyle = {
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--text-secondary)',
+  };
 
   return (
     <div className='flex items-center justify-between mb-4'>
       <h2
-        className='text-2xl font-semibold text-gray-800 transition-opacity duration-1000 ease-in-out'
-        style={{ opacity: greetingVisible ? 1 : 0 }}
+        style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: '22px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          letterSpacing: '-0.01em',
+          opacity: greetingVisible ? 1 : 0,
+          transition: 'opacity 500ms ease-out',
+        }}
       >
         {getGreeting}
       </h2>
-      <div className='flex gap-3'>
+      <div className='flex gap-2'>
         <Button
           type='tertiary'
+          theme='borderless'
           icon={<Search size={16} />}
           onClick={showSearchModal}
-          className={`bg-green-500 hover:bg-green-600 ${ICON_BUTTON_CLASS}`}
+          style={iconBtnStyle}
         />
         <Button
           type='tertiary'
+          theme='borderless'
           icon={<RefreshCw size={16} />}
           onClick={refresh}
           loading={loading}
-          className={`bg-blue-500 hover:bg-blue-600 ${ICON_BUTTON_CLASS}`}
+          style={iconBtnStyle}
         />
       </div>
     </div>
