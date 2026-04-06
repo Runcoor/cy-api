@@ -192,11 +192,9 @@ const CustomRequestEditor = ({
               className='custom-request-textarea font-mono text-sm'
               style={{
                 borderRadius: 'var(--radius-md)',
-                ...((!isValid) ? { borderColor: 'var(--error)' } : {}),
-              }}
-              style={{
-                fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                fontFamily: 'var(--font-mono)',
                 lineHeight: '1.5',
+                ...((!isValid) ? { borderColor: 'var(--error)' } : {}),
               }}
             />
 

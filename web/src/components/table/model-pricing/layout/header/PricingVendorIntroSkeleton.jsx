@@ -47,28 +47,22 @@ const SIZES = {
 };
 
 const SKELETON_STYLES = {
-  cover: (primaryColor) => ({
-    '--palette-primary-darkerChannel': primaryColor,
-    backgroundImage: `linear-gradient(0deg, rgba(var(--palette-primary-darkerChannel) / 80%), rgba(var(--palette-primary-darkerChannel) / 80%)), url('/cover-4.webp')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+  cover: () => ({
+    background: 'var(--bg-subtle)',
+    borderBottom: '1px solid var(--border-subtle)',
   }),
   title: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'var(--surface-active)',
     borderRadius: 8,
-    backdropFilter: 'blur(4px)',
   },
   tag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'var(--surface-active)',
     borderRadius: 9999,
-    backdropFilter: 'blur(4px)',
-    border: '1px solid rgba(255,255,255,0.3)',
+    border: '1px solid var(--border-subtle)',
   },
   description: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'var(--surface-active)',
     borderRadius: 4,
-    backdropFilter: 'blur(4px)',
   },
   avatar: (isAllVendors) => {
     const colors = isAllVendors
@@ -100,15 +94,11 @@ const PricingVendorIntroSkeleton = memo(
   ({ isAllVendors = false, isMobile = false }) => {
     const placeholder = (
       <Card
-        style={{ borderRadius: 'var(--radius-lg)' }}
+        style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', background: 'var(--surface)' }}
         cover={
           <div
             className='relative h-full'
-            style={SKELETON_STYLES.cover(
-              isAllVendors
-                ? THEME_COLORS.allVendors.primary
-                : THEME_COLORS.specific.primary,
-            )}
+            style={SKELETON_STYLES.cover()}
           >
             <div className='relative z-10 h-full flex items-center justify-between p-4'>
               <div className='flex-1 min-w-0 mr-4'>
@@ -144,7 +134,7 @@ const PricingVendorIntroSkeleton = memo(
                   {createSkeletonRect(
                     {
                       ...SKELETON_STYLES.description,
-                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                      opacity: 0.6,
                       width: '75%',
                       height: SIZES.description.height,
                     },
@@ -153,7 +143,7 @@ const PricingVendorIntroSkeleton = memo(
                 </div>
               </div>
 
-              <div className='flex-shrink-0 w-16 h-16 backdrop-blur-sm flex items-center justify-center' style={{ borderRadius: 'var(--radius-lg)', background: 'var(--surface)', border: '1px solid var(--border-subtle)' }}>
+              <div className='flex-shrink-0 w-16 h-16 flex items-center justify-center' style={{ borderRadius: 'var(--radius-lg)', background: 'var(--surface-active)', border: '1px solid var(--border-subtle)' }}>
                 {createSkeletonRect(
                   {
                     ...SKELETON_STYLES.avatar(isAllVendors),

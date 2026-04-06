@@ -19,17 +19,10 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import {
-  Avatar,
-  Typography,
-  Card,
   Button,
   Input,
-  Badge,
-  Space,
 } from '@douyinfe/semi-ui';
 import { Copy, Users, BarChart2, TrendingUp, Gift, Zap } from 'lucide-react';
-
-const { Text } = Typography;
 
 const InvitationCard = ({
   t,
@@ -40,189 +33,191 @@ const InvitationCard = ({
   handleAffLinkClick,
 }) => {
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)', background: 'var(--surface)', border: '1px solid var(--border-subtle)' }}>
-      {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='green' className='mr-3'>
-          <Gift size={16} />
-        </Avatar>
+    <div
+      className='rounded-[var(--radius-lg)] border border-[var(--border-default)]'
+      style={{ background: 'var(--surface)' }}
+    >
+      {/* Card header — macOS panel style */}
+      <div className='px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3'>
+        <div
+          className='w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center'
+          style={{ background: 'var(--accent-light)' }}
+        >
+          <Gift size={16} style={{ color: 'var(--accent)' }} />
+        </div>
         <div>
-          <Typography.Text className='text-lg font-medium'>
+          <h3
+            className='text-base font-semibold leading-tight'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
+          >
             {t('邀请奖励')}
-          </Typography.Text>
-          <div className='text-xs'>{t('邀请好友获得额外奖励')}</div>
+          </h3>
+          <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>
+            {t('邀请好友获得额外奖励')}
+          </p>
         </div>
       </div>
 
-      {/* 收益展示区域 */}
-      <Space vertical style={{ width: '100%' }}>
-        {/* 统计数据统一卡片 */}
-        <Card
-          className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
-          cover={
-            <div
-              className='relative h-30'
-              style={{
-                '--palette-primary-darkerChannel': '0 75 80',
-                backgroundImage: `linear-gradient(0deg, rgba(var(--palette-primary-darkerChannel) / 80%), rgba(var(--palette-primary-darkerChannel) / 80%)), url('/cover-4.webp')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-              }}
+      {/* Card body */}
+      <div className='p-5 space-y-4'>
+
+        {/* Earnings Stats Panel — macOS elevated surface */}
+        <div
+          className='rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden'
+          style={{ background: 'var(--bg-subtle)' }}
+        >
+          {/* Stats header with transfer button */}
+          <div className='px-5 py-3 border-b border-[var(--border-subtle)] flex items-center justify-between'>
+            <span
+              className='text-sm font-semibold'
+              style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
             >
-              {/* 标题和按钮 */}
-              <div className='relative z-10 h-full flex flex-col justify-between p-4'>
-                <div className='flex justify-between items-center'>
-                  <Text strong style={{ color: 'white', fontSize: '16px' }}>
-                    {t('收益统计')}
-                  </Text>
-                  <Button
-                    type='primary'
-                    theme='solid'
-                    size='small'
-                    disabled={
-                      !userState?.user?.aff_quota ||
-                      userState?.user?.aff_quota <= 0
-                    }
-                    onClick={() => setOpenTransfer(true)}
-                    className='!rounded-lg'
-                  >
-                    <Zap size={12} className='mr-1' />
-                    {t('划转到余额')}
-                  </Button>
-                </div>
+              {t('收益统计')}
+            </span>
+            <Button
+              type='primary'
+              theme='solid'
+              size='small'
+              disabled={
+                !userState?.user?.aff_quota ||
+                userState?.user?.aff_quota <= 0
+              }
+              onClick={() => setOpenTransfer(true)}
+              className='!rounded-[var(--radius-md)]'
+            >
+              <Zap size={12} className='mr-1' />
+              {t('划转到余额')}
+            </Button>
+          </div>
 
-                {/* 统计数据 */}
-                <div className='grid grid-cols-3 gap-6 mt-4'>
-                  {/* 待使用收益 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {renderQuota(userState?.user?.aff_quota || 0)}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <TrendingUp
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
-                      >
-                        {t('待使用收益')}
-                      </Text>
-                    </div>
-                  </div>
-
-                  {/* 总收益 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {renderQuota(userState?.user?.aff_history_quota || 0)}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <BarChart2
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
-                      >
-                        {t('总收益')}
-                      </Text>
-                    </div>
-                  </div>
-
-                  {/* 邀请人数 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {userState?.user?.aff_count || 0}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <Users
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
-                      >
-                        {t('邀请人数')}
-                      </Text>
-                    </div>
-                  </div>
-                </div>
+          {/* Stats grid */}
+          <div className='grid grid-cols-3 divide-x divide-[var(--border-subtle)]'>
+            {/* Pending earnings */}
+            <div className='px-4 py-4 text-center'>
+              <div
+                className='text-base sm:text-xl font-bold mb-1'
+                style={{ color: 'var(--success)', fontFamily: 'var(--font-mono)' }}
+              >
+                {renderQuota(userState?.user?.aff_quota || 0)}
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <TrendingUp size={12} style={{ color: 'var(--text-muted)' }} />
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                  {t('待使用收益')}
+                </span>
               </div>
             </div>
-          }
+
+            {/* Total earnings */}
+            <div className='px-4 py-4 text-center'>
+              <div
+                className='text-base sm:text-xl font-bold mb-1'
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+              >
+                {renderQuota(userState?.user?.aff_history_quota || 0)}
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <BarChart2 size={12} style={{ color: 'var(--text-muted)' }} />
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                  {t('总收益')}
+                </span>
+              </div>
+            </div>
+
+            {/* Invited count */}
+            <div className='px-4 py-4 text-center'>
+              <div
+                className='text-base sm:text-xl font-bold mb-1'
+                style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+              >
+                {userState?.user?.aff_count || 0}
+              </div>
+              <div className='flex items-center justify-center gap-1'>
+                <Users size={12} style={{ color: 'var(--text-muted)' }} />
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                  {t('邀请人数')}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Invitation link */}
+        <div
+          className='rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-4'
+          style={{ background: 'var(--bg-subtle)' }}
         >
-          {/* 邀请链接部分 */}
           <Input
             value={affLink}
             readonly
-            className='!rounded-lg'
-            prefix={t('邀请链接')}
+            className='!rounded-[var(--radius-md)]'
+            prefix={
+              <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                {t('邀请链接')}
+              </span>
+            }
             suffix={
               <Button
                 type='primary'
                 theme='solid'
                 onClick={handleAffLinkClick}
                 icon={<Copy size={14} />}
-                className='!rounded-lg'
+                className='!rounded-[var(--radius-md)]'
+                size='small'
               >
                 {t('复制')}
               </Button>
             }
           />
-        </Card>
+        </div>
 
-        {/* 奖励说明 */}
-        <Card
-          className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
-          title={<Text type='tertiary'>{t('奖励说明')}</Text>}
+        {/* Reward description */}
+        <div
+          className='rounded-[var(--radius-lg)] border border-[var(--border-subtle)]'
+          style={{ background: 'var(--surface)' }}
         >
-          <div className='space-y-3'>
-            <div className='flex items-start gap-2'>
-              <Badge dot type='success' />
-              <Text type='tertiary' className='text-sm'>
+          <div className='px-5 py-3 border-b border-[var(--border-subtle)]'>
+            <span
+              className='text-sm font-semibold'
+              style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
+            >
+              {t('奖励说明')}
+            </span>
+          </div>
+          <div className='p-4 space-y-3'>
+            <div className='flex items-start gap-3'>
+              <div
+                className='w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0'
+                style={{ background: 'var(--success)' }}
+              />
+              <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
                 {t('邀请好友注册，好友充值后您可获得相应奖励')}
-              </Text>
+              </span>
             </div>
 
-            <div className='flex items-start gap-2'>
-              <Badge dot type='success' />
-              <Text type='tertiary' className='text-sm'>
+            <div className='flex items-start gap-3'>
+              <div
+                className='w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0'
+                style={{ background: 'var(--success)' }}
+              />
+              <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
                 {t('通过划转功能将奖励额度转入到您的账户余额中')}
-              </Text>
+              </span>
             </div>
 
-            <div className='flex items-start gap-2'>
-              <Badge dot type='success' />
-              <Text type='tertiary' className='text-sm'>
+            <div className='flex items-start gap-3'>
+              <div
+                className='w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0'
+                style={{ background: 'var(--success)' }}
+              />
+              <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
                 {t('邀请的好友越多，获得的奖励越多')}
-              </Text>
+              </span>
             </div>
           </div>
-        </Card>
-      </Space>
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 

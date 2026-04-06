@@ -50,20 +50,20 @@ const THEME_COLORS = {
 
 const COMPONENT_STYLES = {
   tag: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    color: '#1f2937',
-    border: '1px solid rgba(255,255,255,0.8)',
+    backgroundColor: 'var(--accent-light)',
+    color: 'var(--accent)',
+    border: '1px solid var(--border-subtle)',
     fontWeight: '500',
   },
   avatarContainer:
-    'w-16 h-16 backdrop-blur-sm flex items-center justify-center',
+    'w-16 h-16 flex items-center justify-center',
   avatarContainerStyle: {
     borderRadius: 'var(--radius-lg)',
-    background: 'rgba(255,255,255,0.85)',
-    border: '1px solid rgba(255,255,255,0.6)',
+    background: 'var(--surface-active)',
+    border: '1px solid var(--border-subtle)',
   },
-  titleText: { color: 'white' },
-  descriptionText: { color: 'rgba(255,255,255,0.9)' },
+  titleText: { color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' },
+  descriptionText: { color: 'var(--text-secondary)' },
 };
 
 const CONTENT_TEXTS = {
@@ -265,12 +265,9 @@ const PricingVendorIntro = memo(
     );
 
     const createCoverStyle = useCallback(
-      (primaryColor) => ({
-        '--palette-primary-darkerChannel': primaryColor,
-        backgroundImage: `linear-gradient(0deg, rgba(var(--palette-primary-darkerChannel) / 80%), rgba(var(--palette-primary-darkerChannel) / 80%)), url('/cover-4.webp')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+      () => ({
+        background: 'var(--bg-subtle)',
+        borderBottom: '1px solid var(--border-subtle)',
       }),
       [],
     );
@@ -323,13 +320,13 @@ const PricingVendorIntro = memo(
     );
 
     const renderHeaderCard = useCallback(
-      ({ title, count, description, rightContent, primaryDarkerChannel }) => (
+      ({ title, count, description, rightContent }) => (
         <Card
-          style={{ borderRadius: 'var(--radius-lg)' }}
+          style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', background: 'var(--surface)' }}
           cover={
             <div
               className='relative h-full'
-              style={createCoverStyle(primaryDarkerChannel)}
+              style={createCoverStyle()}
             >
               <div className='relative z-10 h-full flex items-center justify-between p-4'>
                 <div className='flex-1 min-w-0 mr-4'>
