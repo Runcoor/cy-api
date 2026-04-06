@@ -153,7 +153,7 @@ const ModelPricingTable = ({
   };
 
   return (
-    <Card className='!rounded-2xl shadow-sm border-0'>
+    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
       <div className='flex items-center mb-4'>
         <Avatar size='small' color='orange' className='mr-2 shadow-md'>
           <IconCoinMoneyStroked size={16} />

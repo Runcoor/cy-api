@@ -93,14 +93,14 @@ const SKELETON_STYLES = {
 };
 
 const createSkeletonRect = (style = {}, key = null) => (
-  <div key={key} className='animate-pulse' style={style} />
+  <div key={key} className='mv-skeleton-pulse' style={style} />
 );
 
 const PricingVendorIntroSkeleton = memo(
   ({ isAllVendors = false, isMobile = false }) => {
     const placeholder = (
       <Card
-        className='!rounded-2xl shadow-sm border-0'
+        style={{ borderRadius: 'var(--radius-lg)' }}
         cover={
           <div
             className='relative h-full'

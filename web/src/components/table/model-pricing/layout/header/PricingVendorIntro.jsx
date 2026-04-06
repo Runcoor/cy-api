@@ -320,7 +320,7 @@ const PricingVendorIntro = memo(
     const renderHeaderCard = useCallback(
       ({ title, count, description, rightContent, primaryDarkerChannel }) => (
         <Card
-          className='!rounded-2xl shadow-sm border-0'
+          style={{ borderRadius: 'var(--radius-lg)' }}
           cover={
             <div
               className='relative h-full'

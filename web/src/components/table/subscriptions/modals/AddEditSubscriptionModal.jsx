@@ -253,7 +253,7 @@ const AddEditSubscriptionModal = ({
             {({ values }) => (
               <div className='p-2'>
                 {/* 基本信息 */}
-                <Card className='!rounded-2xl shadow-sm border-0 mb-4'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
                   <div className='flex items-center mb-2'>
                     <Avatar
                       size='small'
@@ -382,7 +382,7 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 有效期设置 */}
-                <Card className='!rounded-2xl shadow-sm border-0 mb-4'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
                   <div className='flex items-center mb-2'>
                     <Avatar
                       size='small'
@@ -444,7 +444,7 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 额度重置 */}
-                <Card className='!rounded-2xl shadow-sm border-0 mb-4'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
                   <div className='flex items-center mb-2'>
                     <Avatar
                       size='small'
@@ -502,7 +502,7 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 第三方支付配置 */}
-                <Card className='!rounded-2xl shadow-sm border-0 mb-4'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
                   <div className='flex items-center mb-2'>
                     <Avatar
                       size='small'

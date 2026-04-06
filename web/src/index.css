@@ -1400,5 +1400,14 @@ html:not(.dark) .blur-ball-teal {
   opacity: 0.2;
 }
 
+/* ==================== Skeleton Pulse (restrained) ==================== */
+@keyframes mv-skeleton-fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.mv-skeleton-pulse {
+  animation: mv-skeleton-fade 1.5s ease-in-out infinite;
+}
+
 /* ==================== Misc ==================== */
 .ec-dbcd0a3c01b55203 { forced-color-adjust: auto; }

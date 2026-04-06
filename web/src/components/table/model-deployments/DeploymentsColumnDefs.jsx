@@ -49,59 +49,59 @@ const STATUS_TAG_CONFIG = {
   running: {
     color: 'green',
     labelKey: '运行中',
-    icon: <FaPlay size={12} className='text-green-600' />,
+    icon: <FaPlay size={12} style={{ color: 'var(--success)' }} />,
   },
   deploying: {
     color: 'blue',
     labelKey: '部署中',
-    icon: <FaSpinner size={12} className='text-blue-600' />,
+    icon: <FaSpinner size={12} style={{ color: 'var(--accent)' }} />,
   },
   pending: {
     color: 'orange',
     labelKey: '待部署',
-    icon: <FaClock size={12} className='text-orange-600' />,
+    icon: <FaClock size={12} style={{ color: 'var(--warning)' }} />,
   },
   stopped: {
     color: 'grey',
     labelKey: '已停止',
-    icon: <FaStop size={12} className='text-gray-500' />,
+    icon: <FaStop size={12} style={{ color: 'var(--text-muted)' }} />,
   },
   error: {
     color: 'red',
     labelKey: '错误',
-    icon: <FaExclamationCircle size={12} className='text-red-500' />,
+    icon: <FaExclamationCircle size={12} style={{ color: 'var(--error)' }} />,
   },
   failed: {
     color: 'red',
     labelKey: '失败',
-    icon: <FaExclamationCircle size={12} className='text-red-500' />,
+    icon: <FaExclamationCircle size={12} style={{ color: 'var(--error)' }} />,
   },
   destroyed: {
     color: 'red',
     labelKey: '已销毁',
-    icon: <FaBan size={12} className='text-red-500' />,
+    icon: <FaBan size={12} style={{ color: 'var(--error)' }} />,
   },
   completed: {
     color: 'green',
     labelKey: '已完成',
-    icon: <FaCheckCircle size={12} className='text-green-600' />,
+    icon: <FaCheckCircle size={12} style={{ color: 'var(--success)' }} />,
   },
   'deployment requested': {
     color: 'blue',
     labelKey: '部署请求中',
-    icon: <FaSpinner size={12} className='text-blue-600' />,
+    icon: <FaSpinner size={12} style={{ color: 'var(--accent)' }} />,
   },
   'termination requested': {
     color: 'orange',
     labelKey: '终止请求中',
-    icon: <FaClock size={12} className='text-orange-600' />,
+    icon: <FaClock size={12} style={{ color: 'var(--warning)' }} />,
   },
 };
 
 const DEFAULT_STATUS_CONFIG = {
   color: 'grey',
   labelKey: null,
-  icon: <FaInfoCircle size={12} className='text-gray-500' />,
+  icon: <FaInfoCircle size={12} style={{ color: 'var(--text-muted)' }} />,
 };
 
 const parsePercentValue = (value) => {
@@ -215,7 +215,7 @@ const ContainerNameCell = ({ text, record, t }) => {
       <Typography.Text
         type='secondary'
         size='small'
-        className='text-xs cursor-pointer hover:text-blue-600 transition-colors select-all'
+        className='text-xs cursor-pointer transition-colors select-all'
         onClick={handleCopyId}
         title={t('点击复制ID')}
       >
@@ -235,19 +235,19 @@ const renderResourceConfig = (resource, t) => {
     <div className='flex flex-col gap-1'>
       {cpu && (
         <div className='flex items-center gap-1 text-xs'>
-          <FaMicrochip className='text-blue-500' />
+          <FaMicrochip style={{ color: 'var(--accent)' }} />
           <span>CPU: {cpu}</span>
         </div>
       )}
       {memory && (
         <div className='flex items-center gap-1 text-xs'>
-          <FaMemory className='text-green-500' />
+          <FaMemory style={{ color: 'var(--success)' }} />
           <span>内存: {memory}</span>
         </div>
       )}
       {gpu && (
         <div className='flex items-center gap-1 text-xs'>
-          <FaServer className='text-purple-500' />
+          <FaServer style={{ color: 'var(--text-secondary)' }} />
           <span>GPU: {gpu}</span>
         </div>
       )}
@@ -315,11 +315,12 @@ export const getDeploymentsColumns = ({
       render: (provider) =>
         provider ? (
           <div
-            className='flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide'
+            className='flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide'
             style={{
-              borderColor: 'rgba(59, 130, 246, 0.4)',
-              backgroundColor: 'rgba(59, 130, 246, 0.08)',
-              color: '#2563eb',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-default)',
+              background: 'var(--surface-hover)',
+              color: 'var(--accent)',
             }}
           >
             <FaGlobe className='text-[11px]' />
@@ -426,13 +427,13 @@ export const getDeploymentsColumns = ({
       ellipsis: true,
       render: (text, record) => (
         <div className='flex items-center gap-2'>
-          <div className='flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded-md'>
-            <FaServer className='text-green-600 text-xs' />
-            <span className='text-xs font-medium text-green-700'>
+          <div className='flex items-center gap-1 px-2 py-1 rounded-md' style={{ background: 'var(--surface-hover)', border: '1px solid var(--border-default)' }}>
+            <FaServer className='text-xs' style={{ color: 'var(--success)' }} />
+            <span className='text-xs font-medium' style={{ color: 'var(--text-primary)' }}>
               {record.hardware_name}
             </span>
           </div>
-          <span className='text-xs text-gray-500 font-medium'>
+          <span className='text-xs font-medium' style={{ color: 'var(--text-muted)' }}>
             x{record.hardware_quantity}
           </span>
         </div>
@@ -444,7 +445,7 @@ export const getDeploymentsColumns = ({
       key: COLUMN_KEYS.created_at,
       width: 150,
       render: (text) => (
-        <span className='text-sm text-gray-600'>{timestamp2string(text)}</span>
+        <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{timestamp2string(text)}</span>
       ),
     },
     {

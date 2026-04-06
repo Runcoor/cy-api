@@ -35,7 +35,7 @@ const CompleteStep = ({
 }) => {
   return (
     <div className='text-center'>
-      <Avatar color='green' className='mx-auto mb-4 shadow-lg'>
+      <Avatar color='green' className='mx-auto mb-4'>
         <CheckCircle size={24} />
       </Avatar>
       <Title heading={3} className='mb-2'>

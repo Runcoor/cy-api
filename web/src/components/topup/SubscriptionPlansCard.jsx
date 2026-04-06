@@ -257,7 +257,14 @@ const SubscriptionPlansCard = ({
       {loading ? (
         <div className='space-y-4'>
           {/* 我的订阅骨架屏 */}
-          <Card className='!rounded-xl w-full' bodyStyle={{ padding: '12px' }}>
+          <Card
+            style={{
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--surface)',
+              border: '1px solid var(--border-default)',
+            }}
+            bodyStyle={{ padding: '12px' }}
+          >
             <div className='flex items-center justify-between mb-3'>
               <Skeleton.Title active style={{ width: 100, height: 20 }} />
               <Skeleton.Button active style={{ width: 24, height: 24 }} />
@@ -271,7 +278,11 @@ const SubscriptionPlansCard = ({
             {[1, 2, 3].map((i) => (
               <Card
                 key={i}
-                className='!rounded-xl w-full h-full'
+                style={{
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-default)',
+                }}
                 bodyStyle={{ padding: 16 }}
               >
                 <Skeleton.Title
@@ -302,7 +313,14 @@ const SubscriptionPlansCard = ({
       ) : (
         <Space vertical style={{ width: '100%' }} spacing={8}>
           {/* 当前订阅状态 */}
-          <Card className='!rounded-xl w-full' bodyStyle={{ padding: '12px' }}>
+          <Card
+            style={{
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--surface)',
+              border: '1px solid var(--border-default)',
+            }}
+            bodyStyle={{ padding: '12px' }}
+          >
             <div className='flex items-center justify-between mb-2 gap-3'>
               <div className='flex items-center gap-2 flex-1 min-w-0'>
                 <Text strong>{t('我的订阅')}</Text>
@@ -363,6 +381,7 @@ const SubscriptionPlansCard = ({
                   }
                   onClick={handleRefresh}
                   loading={refreshing}
+                  style={{ borderRadius: 'var(--radius-sm)' }}
                 />
               </div>
             </div>
@@ -402,7 +421,7 @@ const SubscriptionPlansCard = ({
                         {/* 订阅概要 */}
                         <div className='flex items-center justify-between text-xs mb-2'>
                           <div className='flex items-center gap-2'>
-                            <span className='font-medium'>
+                            <span className='font-medium' style={{ color: 'var(--text-primary)' }}>
                               {planTitle
                                 ? `${planTitle} · ${t('订阅')} #${subscription?.id}`
                                 : `${t('订阅')} #${subscription?.id}`}
@@ -427,12 +446,12 @@ const SubscriptionPlansCard = ({
                             )}
                           </div>
                           {isActive && (
-                            <span className='text-gray-500'>
+                            <span style={{ color: 'var(--text-muted)' }}>
                               {t('剩余')} {remainDays} {t('天')}
                             </span>
                           )}
                         </div>
-                        <div className='text-xs text-gray-500 mb-2'>
+                        <div className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
                           {isActive
                             ? t('至')
                             : isCancelled
@@ -442,7 +461,7 @@ const SubscriptionPlansCard = ({
                             (subscription?.end_time || 0) * 1000,
                           ).toLocaleString()}
                         </div>
-                        <div className='text-xs text-gray-500 mb-2'>
+                        <div className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
                           {t('总额度')}:{' '}
                           {totalAmount > 0 ? (
                             <Tooltip
@@ -470,13 +489,13 @@ const SubscriptionPlansCard = ({
                 </div>
               </>
             ) : (
-              <div className='text-xs text-gray-500'>
+              <div className='text-xs' style={{ color: 'var(--text-muted)' }}>
                 {t('购买套餐后即可享受模型权益')}
               </div>
             )}
           </Card>
 
-          {/* 可购买套餐 - 标准定价卡片 */}
+          {/* 可购买套餐 - macOS Vibrancy pricing cards */}
           {plans.length > 0 ? (
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 w-full px-1'>
               {plans.map((p, index) => {
@@ -520,16 +539,29 @@ const SubscriptionPlansCard = ({
                 return (
                   <Card
                     key={plan?.id}
-                    className={`!rounded-xl transition-all hover:shadow-lg w-full h-full ${
-                      isPopular ? 'ring-2 ring-purple-500' : ''
-                    }`}
+                    className='w-full h-full transition-colors duration-150'
+                    style={{
+                      borderRadius: 'var(--radius-lg)',
+                      background: 'var(--surface)',
+                      border: isPopular
+                        ? '1px solid var(--accent)'
+                        : '1px solid var(--border-default)',
+                    }}
                     bodyStyle={{ padding: 0 }}
                   >
                     <div className='p-4 h-full flex flex-col'>
                       {/* 推荐标签 */}
                       {isPopular && (
                         <div className='mb-2'>
-                          <Tag color='purple' shape='circle' size='small'>
+                          <Tag
+                            size='small'
+                            shape='circle'
+                            style={{
+                              background: 'var(--accent-light)',
+                              color: 'var(--accent)',
+                              border: 'none',
+                            }}
+                          >
                             <Sparkles size={10} className='mr-1' />
                             {t('推荐')}
                           </Tag>
@@ -540,29 +572,44 @@ const SubscriptionPlansCard = ({
                         <Typography.Title
                           heading={5}
                           ellipsis={{ rows: 1, showTooltip: true }}
-                          style={{ margin: 0 }}
+                          style={{
+                            margin: 0,
+                            fontFamily: 'var(--font-serif)',
+                            color: 'var(--text-primary)',
+                          }}
                         >
                           {plan?.title || t('订阅套餐')}
                         </Typography.Title>
                         {plan?.subtitle && (
                           <Text
-                            type='tertiary'
                             size='small'
                             ellipsis={{ rows: 1, showTooltip: true }}
-                            style={{ display: 'block' }}
+                            style={{
+                              display: 'block',
+                              color: 'var(--text-secondary)',
+                            }}
                           >
                             {plan.subtitle}
                           </Text>
                         )}
                       </div>
 
-                      {/* 价格区域 */}
+                      {/* 价格区域 — accent color, serif numerals */}
                       <div className='py-2'>
                         <div className='flex items-baseline justify-start'>
-                          <span className='text-xl font-bold text-purple-600'>
+                          <span
+                            className='text-xl font-bold'
+                            style={{ color: 'var(--accent)' }}
+                          >
                             {symbol}
                           </span>
-                          <span className='text-3xl font-bold text-purple-600'>
+                          <span
+                            className='text-3xl font-bold'
+                            style={{
+                              color: 'var(--accent)',
+                              fontFamily: 'var(--font-serif)',
+                            }}
+                          >
                             {displayPrice}
                           </span>
                         </div>
@@ -572,7 +619,10 @@ const SubscriptionPlansCard = ({
                       <div className='flex flex-col items-start gap-1 pb-2'>
                         {planBenefits.map((item) => {
                           const content = (
-                            <div className='flex items-center gap-2 text-xs text-gray-500'>
+                            <div
+                              className='flex items-center gap-2 text-xs'
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
                               <Badge dot type='tertiary' />
                               <span>{item.label}</span>
                             </div>
@@ -616,6 +666,7 @@ const SubscriptionPlansCard = ({
                               onClick={() => {
                                 if (!reached) openBuy(p);
                               }}
+                              style={{ borderRadius: 'var(--radius-md)' }}
                             >
                               {reached ? t('已达上限') : t('立即订阅')}
                             </Button>
@@ -635,7 +686,10 @@ const SubscriptionPlansCard = ({
               })}
             </div>
           ) : (
-            <div className='text-center text-gray-400 text-sm py-4'>
+            <div
+              className='text-center text-sm py-4'
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('暂无可购买套餐')}
             </div>
           )}
@@ -647,7 +701,15 @@ const SubscriptionPlansCard = ({
   return (
     <>
       {withCard ? (
-        <Card className='!rounded-2xl shadow-sm border-0'>{cardContent}</Card>
+        <Card
+          style={{
+            borderRadius: 'var(--radius-lg)',
+            background: 'var(--surface)',
+            border: '1px solid var(--border-default)',
+          }}
+        >
+          {cardContent}
+        </Card>
       ) : (
         <div className='space-y-3'>{cardContent}</div>
       )}

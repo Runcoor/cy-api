@@ -216,7 +216,7 @@ const EditRedemptionModal = (props) => {
           >
             {({ values }) => (
               <div className='p-2'>
-                <Card className='!rounded-2xl shadow-sm border-0 mb-6'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
                   {/* Header: Basic Info */}
                   <div className='flex items-center mb-2'>
                     <Avatar
@@ -264,7 +264,7 @@ const EditRedemptionModal = (props) => {
                   </Row>
                 </Card>
 
-                <Card className='!rounded-2xl shadow-sm border-0'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=''>
                   {/* Header: Quota Settings */}
                   <div className='flex items-center mb-2'>
                     <Avatar

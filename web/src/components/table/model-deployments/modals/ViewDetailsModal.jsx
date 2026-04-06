@@ -142,7 +142,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
     <Modal
       title={
         <div className='flex items-center gap-2'>
-          <FaInfoCircle className='text-blue-500' />
+          <FaInfoCircle style={{ color: 'var(--accent)' }} />
           <span>{t('容器详情')}</span>
         </div>
       }
@@ -174,11 +174,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <Card
             title={
               <div className='flex items-center gap-2'>
-                <FaServer className='text-blue-500' />
+                <FaServer style={{ color: 'var(--accent)' }} />
                 <span>{t('基本信息')}</span>
               </div>
             }
-            className='border-0 shadow-sm'
+            style={{ border: '1px solid var(--border-default)' }}
           >
             <Descriptions
               data={[
@@ -230,11 +230,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <Card
             title={
               <div className='flex items-center gap-2'>
-                <FaChartLine className='text-green-500' />
+                <FaChartLine style={{ color: 'var(--success)' }} />
                 <span>{t('硬件与性能')}</span>
               </div>
             }
-            className='border-0 shadow-sm'
+            style={{ border: '1px solid var(--border-default)' }}
           >
             <div className='space-y-4'>
               <Descriptions
@@ -257,7 +257,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                           theme='solid'
                           type='primary'
                         >
-                          <FaServer className='text-purple-500' />
+                          <FaServer style={{ color: 'var(--text-secondary)' }} />
                         </Badge>
                         <Text>
                           {t('总计')} {details.total_gpus} {t('个GPU')}
@@ -295,7 +295,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                   strokeWidth={8}
                   showInfo={false}
                 />
-                <div className='flex justify-between text-xs text-gray-500'>
+                <div className='flex justify-between text-xs'>
                   <span>
                     {t('已服务')}: {details.compute_minutes_served} {t('分钟')}
                   </span>
@@ -312,11 +312,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
             <Card
               title={
                 <div className='flex items-center gap-2'>
-                  <FaDocker className='text-blue-600' />
+                  <FaDocker style={{ color: 'var(--accent)' }} />
                   <span>{t('容器配置')}</span>
                 </div>
               }
-              className='border-0 shadow-sm'
+              style={{ border: '1px solid var(--border-default)' }}
             >
               <div className='space-y-3'>
                 <Descriptions
@@ -354,7 +354,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                       <Text strong className='block mb-2'>
                         {t('环境变量')}:
                       </Text>
-                      <div className='bg-gray-50 p-3 rounded-lg max-h-32 overflow-y-auto'>
+                      <div className='p-3 rounded-lg max-h-32 overflow-y-auto' style={{ background: 'var(--surface-hover)' }}>
                         {Object.entries(
                           details.container_config.env_variables,
                         ).map(([key, value]) => (
@@ -362,10 +362,10 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                             key={key}
                             className='flex gap-2 text-sm font-mono mb-1'
                           >
-                            <span className='text-blue-600 font-medium'>
+                            <span className='font-medium' style={{ color: 'var(--accent)' }}>
                               {key}=
                             </span>
-                            <span className='text-gray-700 break-all'>
+                            <span className='break-all' style={{ color: 'var(--text-secondary)' }}>
                               {String(value)}
                             </span>
                           </div>
@@ -381,11 +381,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <Card
             title={
               <div className='flex items-center gap-2'>
-                <FaServer className='text-indigo-500' />
+                <FaServer style={{ color: 'var(--accent)' }} />
                 <span>{t('容器实例')}</span>
               </div>
             }
-            className='border-0 shadow-sm'
+            style={{ border: '1px solid var(--border-default)' }}
           >
             {containersLoading ? (
               <div className='flex items-center justify-center py-6'>
@@ -401,7 +401,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                 {containers.map((ctr) => (
                   <Card
                     key={ctr.container_id}
-                    className='bg-gray-50 border border-gray-100'
+                    style={{ background: 'var(--surface-hover)', border: '1px solid var(--border-default)' }}
                     bodyStyle={{ padding: '12px 16px' }}
                   >
                     <div className='flex flex-wrap items-center justify-between gap-3'>
@@ -446,7 +446,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     </div>
 
                     {ctr.events && ctr.events.length > 0 && (
-                      <div className='mt-3 bg-white rounded-md border border-gray-100 p-3'>
+                      <div className='mt-3 rounded-md p-3' style={{ background: 'var(--surface)', border: '1px solid var(--border-default)' }}>
                         <Text
                           size='small'
                           type='secondary'
@@ -460,12 +460,12 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                               key={`${ctr.container_id}-${event.time}-${index}`}
                               className='flex gap-3 text-xs font-mono'
                             >
-                              <span className='text-gray-500 min-w-[140px]'>
+                              <span className='min-w-[140px]' style={{ color: 'var(--text-muted)' }}>
                                 {event.time
                                   ? timestamp2string(event.time)
                                   : '--'}
                               </span>
-                              <span className='text-gray-700 break-all flex-1'>
+                              <span className='break-all flex-1' style={{ color: 'var(--text-secondary)' }}>
                                 {event.message || '--'}
                               </span>
                             </div>
@@ -484,11 +484,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
             <Card
               title={
                 <div className='flex items-center gap-2'>
-                  <FaMapMarkerAlt className='text-orange-500' />
+                  <FaMapMarkerAlt style={{ color: 'var(--warning)' }} />
                   <span>{t('部署位置')}</span>
                 </div>
               }
-              className='border-0 shadow-sm'
+              style={{ border: '1px solid var(--border-default)' }}
             >
               <div className='flex flex-wrap gap-2'>
                 {details.locations.map((location) => (
@@ -509,16 +509,16 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <Card
             title={
               <div className='flex items-center gap-2'>
-                <FaMoneyBillWave className='text-green-500' />
+                <FaMoneyBillWave style={{ color: 'var(--success)' }} />
                 <span>{t('费用信息')}</span>
               </div>
             }
-            className='border-0 shadow-sm'
+            style={{ border: '1px solid var(--border-default)' }}
           >
             <div className='space-y-3'>
-              <div className='flex items-center justify-between p-3 bg-green-50 rounded-lg'>
+              <div className='flex items-center justify-between p-3 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
                 <Text>{t('已支付金额')}</Text>
-                <Text strong className='text-lg text-green-600'>
+                <Text strong className='text-lg' style={{ color: 'var(--success)' }}>
                   $
                   {details.amount_paid
                     ? details.amount_paid.toFixed(2)
@@ -552,11 +552,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <Card
             title={
               <div className='flex items-center gap-2'>
-                <FaClock className='text-purple-500' />
+                <FaClock style={{ color: 'var(--text-secondary)' }} />
                 <span>{t('时间信息')}</span>
               </div>
             }
-            className='border-0 shadow-sm'
+            style={{ border: '1px solid var(--border-default)' }}
           >
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='space-y-2'>
@@ -569,7 +569,7 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                 </div>
                 <div className='flex items-center justify-between'>
                   <Text type='secondary'>{t('剩余时间')}:</Text>
-                  <Text strong className='text-orange-600'>
+                  <Text strong style={{ color: 'var(--warning)' }}>
                     {Math.floor(details.compute_minutes_remaining / 60)}h{' '}
                     {details.compute_minutes_remaining % 60}m
                   </Text>

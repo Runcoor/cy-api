@@ -148,6 +148,30 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [endpointItems.length]);
 
+  /* ---- Provider icon data (avoids 20x copy-paste divs) ---- */
+  const providerIcons = [
+    <Moonshot size={36} key="moonshot" />,
+    <OpenAI size={36} key="openai" />,
+    <XAI size={36} key="xai" />,
+    <Zhipu.Color size={36} key="zhipu" />,
+    <Volcengine.Color size={36} key="volcengine" />,
+    <Cohere.Color size={36} key="cohere" />,
+    <Claude.Color size={36} key="claude" />,
+    <Gemini.Color size={36} key="gemini" />,
+    <Suno size={36} key="suno" />,
+    <Minimax.Color size={36} key="minimax" />,
+    <Wenxin.Color size={36} key="wenxin" />,
+    <Spark.Color size={36} key="spark" />,
+    <Qingyan.Color size={36} key="qingyan" />,
+    <DeepSeek.Color size={36} key="deepseek" />,
+    <Qwen.Color size={36} key="qwen" />,
+    <Midjourney size={36} key="midjourney" />,
+    <Grok size={36} key="grok" />,
+    <AzureAI.Color size={36} key="azureai" />,
+    <Hunyuan.Color size={36} key="hunyuan" />,
+    <Xinference.Color size={36} key="xinference" />,
+  ];
+
   return (
     <div className='w-full overflow-x-hidden'>
       <NoticeModal
@@ -157,36 +181,54 @@ const Home = () => {
       />
       {homePageContentLoaded && homePageContent === '' ? (
         <div className='w-full overflow-x-hidden'>
-          {/* Banner 部分 */}
-          <div className='w-full border-b border-semi-color-border min-h-[500px] md:min-h-[600px] lg:min-h-[700px] relative overflow-x-hidden'>
-            {/* 背景模糊晕染球 */}
-            <div className='blur-ball blur-ball-indigo' />
-            <div className='blur-ball blur-ball-teal' />
-            <div className='flex items-center justify-center h-full px-4 py-20 md:py-24 lg:py-32 mt-10'>
-              {/* 居中内容区 */}
-              <div className='flex flex-col items-center justify-center text-center max-w-4xl mx-auto'>
-                <div className='flex flex-col items-center justify-center mb-6 md:mb-8'>
+          {/* ===== Hero Section ===== */}
+          <div
+            className='w-full min-h-[520px] md:min-h-[600px] lg:min-h-[680px] relative overflow-hidden'
+            style={{
+              background: 'var(--bg-base)',
+              borderBottom: '1px solid var(--border-subtle)',
+            }}
+          >
+            <div className='flex items-center justify-center h-full px-5 py-20 md:py-24 lg:py-32 mt-10'>
+              {/* Centered content */}
+              <div className='flex flex-col items-center justify-center text-center max-w-3xl mx-auto'>
+
+                {/* Main heading — serif, restrained */}
+                <div className='flex flex-col items-center justify-center mb-8 md:mb-10'>
                   <h1
-                    className={`text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-semi-color-text-0 leading-tight ${isChinese ? 'tracking-wide md:tracking-wider' : ''}`}
+                    className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight ${isChinese ? 'tracking-wide' : ''}`}
+                    style={{
+                      fontFamily: 'var(--font-serif)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
-                    <>
-                      {t('统一的')}
-                      <br />
-                      <span className='shine-text'>{t('大模型接口网关')}</span>
-                    </>
+                    {t('统一的')}
+                    <br />
+                    <span style={{ color: 'var(--accent)' }}>
+                      {t('大模型接口网关')}
+                    </span>
                   </h1>
-                  <p className='text-base md:text-lg lg:text-xl text-semi-color-text-1 mt-4 md:mt-6 max-w-xl'>
+
+                  <p
+                    className='text-sm md:text-base lg:text-lg mt-4 md:mt-5 max-w-lg'
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {t('更好的价格，更好的稳定性，只需要将模型基址替换为：')}
                   </p>
-                  {/* BASE URL 与端点选择 */}
-                  <div className='flex flex-col md:flex-row items-center justify-center gap-4 w-full mt-4 md:mt-6 max-w-md'>
+
+                  {/* BASE URL input — macOS style */}
+                  <div className='flex flex-col md:flex-row items-center justify-center gap-3 w-full mt-5 md:mt-6 max-w-md'>
                     <Input
                       readonly
                       value={serverAddress}
-                      className='flex-1 !rounded-full'
                       size={isMobile ? 'default' : 'large'}
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '13px',
+                      }}
                       suffix={
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-1.5'>
                           <ScrollList
                             bodyHeight={32}
                             style={{ border: 'unset', boxShadow: 'unset' }}
@@ -203,7 +245,11 @@ const Home = () => {
                             type='primary'
                             onClick={handleCopyBaseURL}
                             icon={<IconCopy />}
-                            className='!rounded-full'
+                            style={{
+                              borderRadius: 'var(--radius-sm)',
+                              minWidth: '32px',
+                              height: '32px',
+                            }}
                           />
                         </div>
                       }
@@ -211,15 +257,20 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* 操作按钮 */}
-                <div className='flex flex-row gap-4 justify-center items-center'>
+                {/* CTA buttons — macOS restrained */}
+                <div className='flex flex-row gap-3 justify-center items-center'>
                   <Link to='/console'>
                     <Button
                       theme='solid'
                       type='primary'
                       size={isMobile ? 'default' : 'large'}
-                      className='!rounded-3xl px-8 py-2'
                       icon={<IconPlay />}
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0 24px',
+                        background: 'var(--accent)',
+                        border: 'none',
+                      }}
                     >
                       {t('获取密钥')}
                     </Button>
@@ -227,8 +278,14 @@ const Home = () => {
                   {isDemoSiteMode && statusState?.status?.version ? (
                     <Button
                       size={isMobile ? 'default' : 'large'}
-                      className='flex items-center !rounded-3xl px-6 py-2'
                       icon={<IconGithubLogo />}
+                      style={{
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0 20px',
+                        background: 'var(--surface-active)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-default)',
+                      }}
                       onClick={() =>
                         window.open(
                           'https://github.com/QuantumNous/new-api',
@@ -242,8 +299,14 @@ const Home = () => {
                     docsLink && (
                       <Button
                         size={isMobile ? 'default' : 'large'}
-                        className='flex items-center !rounded-3xl px-6 py-2'
                         icon={<IconFile />}
+                        style={{
+                          borderRadius: 'var(--radius-md)',
+                          padding: '0 20px',
+                          background: 'var(--surface-active)',
+                          color: 'var(--text-primary)',
+                          border: '1px solid var(--border-default)',
+                        }}
                         onClick={() => window.open(docsLink, '_blank')}
                       >
                         {t('文档')}
@@ -252,81 +315,41 @@ const Home = () => {
                   )}
                 </div>
 
-                {/* 框架兼容性图标 */}
-                <div className='mt-12 md:mt-16 lg:mt-20 w-full'>
-                  <div className='flex items-center mb-6 md:mb-8 justify-center'>
-                    <Text
-                      type='tertiary'
-                      className='text-lg md:text-xl lg:text-2xl font-light'
+                {/* ===== Provider Icons Section ===== */}
+                <div className='mt-14 md:mt-18 lg:mt-20 w-full'>
+                  <p
+                    className='text-xs uppercase tracking-widest mb-6 md:mb-8'
+                    style={{
+                      color: 'var(--text-muted)',
+                      fontFamily: 'var(--font-sans)',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {t('支持众多的大模型供应商')}
+                  </p>
+                  <div className='flex flex-wrap items-center justify-center gap-4 sm:gap-5 md:gap-6 max-w-3xl mx-auto px-4'>
+                    {providerIcons.map((icon, i) => (
+                      <div
+                        key={i}
+                        className='w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 flex items-center justify-center transition-colors duration-150'
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          opacity: 0.75,
+                        }}
+                      >
+                        {icon}
+                      </div>
+                    ))}
+                    <div
+                      className='w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 flex items-center justify-center'
+                      style={{ borderRadius: 'var(--radius-sm)' }}
                     >
-                      {t('支持众多的大模型供应商')}
-                    </Text>
-                  </div>
-                  <div className='flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-5xl mx-auto px-4'>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Moonshot size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <OpenAI size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <XAI size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Zhipu.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Volcengine.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Cohere.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Claude.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Gemini.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Suno size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Minimax.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Wenxin.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Spark.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Qingyan.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <DeepSeek.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Qwen.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Midjourney size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Grok size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <AzureAI.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Hunyuan.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Xinference.Color size={40} />
-                    </div>
-                    <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center'>
-                      <Typography.Text className='!text-lg sm:!text-xl md:!text-2xl lg:!text-3xl font-bold'>
+                      <span
+                        className='text-base sm:text-lg md:text-xl font-semibold'
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         30+
-                      </Typography.Text>
+                      </span>
                     </div>
                   </div>
                 </div>

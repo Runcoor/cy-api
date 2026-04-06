@@ -288,7 +288,7 @@ const EditModelModal = (props) => {
           {({ values }) => (
             <div className='p-2'>
               {/* 基本信息 */}
-              <Card className='!rounded-2xl shadow-sm border-0'>
+              <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                 <div className='flex items-center mb-2'>
                   <Avatar size='small' color='green' className='mr-2 shadow-md'>
                     <FileText size={16} />

@@ -1440,7 +1440,7 @@ const EditChannelModal = (props) => {
                 '模型重定向里的下列模型尚未添加到“模型”列表，调用时会因为缺少可用模型而失败：',
               )}
             </div>
-            <div className='font-mono text-xs break-all text-red-600 mt-1'>
+            <div className='font-mono text-xs break-all mt-1' style={{ color: 'var(--error)' }}>
               {missingModels.join(', ')}
             </div>
             <div className='mt-2'>
@@ -2081,11 +2081,10 @@ const EditChannelModal = (props) => {
     // 构建样式类名
     const optionClassName = [
       'flex items-center gap-3 px-3 py-2 transition-all duration-200 rounded-lg mx-2 my-1',
-      focused && 'bg-blue-50 shadow-sm',
-      selected &&
-        'bg-blue-100 text-blue-700 shadow-lg ring-2 ring-blue-200 ring-opacity-50',
+      focused && 'bg-[var(--surface-hover)]',
+      selected && 'bg-[var(--accent-light)]',
       disabled && 'opacity-50 cursor-not-allowed',
-      !disabled && 'hover:bg-gray-50 hover:shadow-md cursor-pointer',
+      !disabled && 'hover:bg-[var(--surface-hover)] cursor-pointer',
       className,
     ]
       .filter(Boolean)
@@ -2110,7 +2109,7 @@ const EditChannelModal = (props) => {
             />
           </div>
           {selected && (
-            <div className='flex-shrink-0 text-blue-600'>
+            <div className='flex-shrink-0' style={{ color: 'var(--accent)' }}>
               <svg
                 width='16'
                 height='16'
@@ -2189,8 +2188,8 @@ const EditChannelModal = (props) => {
               <div className='space-y-4'>
                 {/* Upstream Model Management Section */}
                 {MODEL_FETCHABLE_CHANNEL_TYPES.has(inputs.type) && (
-                <div className='pb-3 border-b border-gray-100'>
-                  <Text className='text-sm font-medium text-gray-500 mb-3 block'>
+                <div className='pb-3 border-b'>
+                  <Text className='text-sm font-medium mb-3 block'>
                     {t('上游模型管理')}
                   </Text>
 
@@ -2237,13 +2236,13 @@ const EditChannelModal = (props) => {
                     }
                     showClear
                   />
-                  <div className='text-xs text-gray-500 mb-2'>
+                  <div className='text-xs mb-2'>
                     {t('上次检测时间')}:&nbsp;
                     {formatUnixTime(
                       inputs.upstream_model_update_last_check_time,
                     )}
                   </div>
-                  <div className='text-xs text-gray-500 mb-3'>
+                  <div className='text-xs mb-3'>
                     {t('上次检测到可加入模型')}:&nbsp;
                     {upstreamDetectedModels.length === 0 ? (
                       t('暂无')
@@ -2261,7 +2260,7 @@ const EditChannelModal = (props) => {
                             {upstreamDetectedModelsPreview.join(', ')}
                           </span>
                         </Tooltip>
-                        <span className='ml-1 text-gray-400'>
+                        <span className='ml-1 opacity-60'>
                           {upstreamDetectedModelsOmittedCount > 0
                             ? t('（共 {{total}} 个，省略 {{omit}} 个）', {
                                 total: upstreamDetectedModels.length,
@@ -2278,8 +2277,8 @@ const EditChannelModal = (props) => {
                 )}
 
                 {/* Request Config Section */}
-                <div className='py-3 border-b border-gray-100'>
-                  <Text className='text-sm font-medium text-gray-500 mb-3 block'>
+                <div className='py-3 border-b'>
+                  <Text className='text-sm font-medium mb-3 block'>
                     {t('请求配置')}
                   </Text>
 
@@ -2417,8 +2416,8 @@ const EditChannelModal = (props) => {
                 </div>
 
                 {/* Channel Behavior Section */}
-                <div className='py-3 border-b border-gray-100'>
-                  <Text className='text-sm font-medium text-gray-500 mb-3 block'>
+                <div className='py-3 border-b'>
+                  <Text className='text-sm font-medium mb-3 block'>
                     {t('渠道行为')}
                   </Text>
 
@@ -2463,7 +2462,7 @@ const EditChannelModal = (props) => {
 
                   {inputs.type === 1 && (
                     <>
-                      <div className='mt-4 mb-2 text-sm font-medium text-gray-700'>
+                      <div className='mt-4 mb-2 text-sm font-medium'>
                         {t('字段透传控制')}
                       </div>
                       <Form.Switch field='allow_service_tier' label={t('允许 service_tier 透传')} checkedText={t('开')} uncheckedText={t('关')} onChange={(value) => handleChannelOtherSettingsChange('allow_service_tier', value)} extraText={t('service_tier 字段用于指定服务层级，允许透传可能导致实际计费高于预期。默认关闭以避免额外费用')} />
@@ -2475,7 +2474,7 @@ const EditChannelModal = (props) => {
 
                   {inputs.type === 14 && (
                     <>
-                      <div className='mt-4 mb-2 text-sm font-medium text-gray-700'>
+                      <div className='mt-4 mb-2 text-sm font-medium'>
                         {t('字段透传控制')}
                       </div>
                       <Form.Switch field='allow_service_tier' label={t('允许 service_tier 透传')} checkedText={t('开')} uncheckedText={t('关')} onChange={(value) => handleChannelOtherSettingsChange('allow_service_tier', value)} extraText={t('service_tier 字段用于指定服务层级，允许透传可能导致实际计费高于预期。默认关闭以避免额外费用')} />
@@ -2486,7 +2485,7 @@ const EditChannelModal = (props) => {
 
                 {/* Extra Settings Section */}
                 <div className='pt-3'>
-                  <Text className='text-sm font-medium text-gray-500 mb-3 block'>
+                  <Text className='text-sm font-medium mb-3 block'>
                     {t('额外设置')}
                   </Text>
 
@@ -2542,13 +2541,13 @@ const EditChannelModal = (props) => {
                   />
                 )}
                 {/* Core Configuration Card - Always Visible */}
-                <Card className='!rounded-2xl shadow-sm border-0'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                   {/* Header */}
                   <div className='flex items-center mb-4'>
                     <Avatar
                       size='small'
                       color='blue'
-                      className='mr-2 shadow-md'
+                      className='mr-2'
                     >
                       <IconServer size={16} />
                     </Avatar>
@@ -2556,7 +2555,7 @@ const EditChannelModal = (props) => {
                       <Text className='text-lg font-medium'>
                         {t('核心配置')}
                       </Text>
-                      <div className='text-xs text-gray-600'>
+                      <div className='text-xs'>
                         {t('创建渠道所需的基本信息')}
                       </div>
                     </div>
@@ -2938,7 +2937,7 @@ const EditChannelModal = (props) => {
                                 description={t(
                                   '批量创建模式下仅支持文件上传，不支持手动输入',
                                 )}
-                                className='!rounded-lg mb-3'
+                                style={{ borderRadius: 'var(--radius-md)' }} className=' mb-3'
                               />
                             )}
 
@@ -3127,7 +3126,7 @@ const EditChannelModal = (props) => {
                             description={t(
                               '轮询模式必须搭配Redis和内存缓存功能使用，否则性能将大幅降低，并且无法实现轮询功能',
                             )}
-                            className='!rounded-lg mt-2'
+                            style={{ borderRadius: 'var(--radius-md)' }} className=' mt-2'
                           />
                         )}
                       </>
@@ -3235,7 +3234,7 @@ const EditChannelModal = (props) => {
                               </Text>
                             </div>
                           }
-                          className='!rounded-lg'
+                          style={{ borderRadius: 'var(--radius-md)' }} className=''
                         />
                       )}
 
@@ -3246,7 +3245,7 @@ const EditChannelModal = (props) => {
                             description={t(
                               '2025年5月10日后添加的渠道，不需要再在部署的时候移除模型名称中的"."',
                             )}
-                            className='!rounded-lg'
+                            style={{ borderRadius: 'var(--radius-md)' }} className=''
                           />
                           <div>
                             <Form.Input
@@ -3301,7 +3300,7 @@ const EditChannelModal = (props) => {
                             description={t(
                               '如果你对接的是上游One API或者New API等转发项目，请使用OpenAI类型，不要使用此类型，除非你知道你在做什么。',
                             )}
-                            className='!rounded-lg'
+                            style={{ borderRadius: 'var(--radius-md)' }} className=''
                           />
                           <div>
                             <Form.Input
@@ -3326,7 +3325,7 @@ const EditChannelModal = (props) => {
                           description={t(
                             'Dify渠道只适配chatflow和agent，并且agent不支持图片！',
                           )}
-                          className='!rounded-lg'
+                          style={{ borderRadius: 'var(--radius-md)' }} className=''
                         />
                       )}
 
@@ -3660,7 +3659,7 @@ const EditChannelModal = (props) => {
                 ) : (
                   /* Desktop: toggle button to open side panel */
                   <div
-                    className='flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors hover:bg-gray-50'
+                    className='flex items-center justify-between p-3 cursor-pointer transition-colors' style={{ borderRadius: 'var(--radius-lg)' }}
                     style={{
                       backgroundColor: advancedSettingsOpen ? 'var(--semi-color-primary-light-default)' : 'var(--semi-color-fill-0)',
                       border: '1px solid var(--semi-color-fill-2)',
@@ -3725,12 +3724,12 @@ const EditChannelModal = (props) => {
                 </div>
                 <div className='semi-sidesheet-body' style={{ padding: 0 }}>
                   <div className='p-2 space-y-3'>
-                    <Card className='!rounded-2xl shadow-sm border-0'>
+                    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                       <div className='flex items-center mb-4'>
                         <Avatar
                           size='small'
                           color='orange'
-                          className='mr-2 shadow-md'
+                          className='mr-2'
                         >
                           <IconSetting size={16} />
                         </Avatar>
@@ -3738,7 +3737,7 @@ const EditChannelModal = (props) => {
                           <Text className='text-lg font-medium'>
                             {t('高级设置')}
                           </Text>
-                          <div className='text-xs text-gray-600'>
+                          <div className='text-xs'>
                             {t('渠道的高级配置选项')}
                           </div>
                         </div>
@@ -3783,9 +3782,10 @@ const EditChannelModal = (props) => {
       <Modal
         title={
           <div className='flex items-center'>
-            <div className='w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3'>
+            <div className='w-8 h-8 flex items-center justify-center mr-3' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
               <svg
-                className='w-4 h-4 text-green-600 dark:text-green-400'
+                className='w-4 h-4'
+                style={{ color: 'var(--success)' }}
                 fill='currentColor'
                 viewBox='0 0 20 20'
               >

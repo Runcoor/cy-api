@@ -388,7 +388,7 @@ const EditTagModal = (props) => {
       width={600}
       onCancel={handleClose}
       footer={
-        <div className='flex justify-end bg-white'>
+        <div className='flex justify-end'>
           <Space>
             <Button
               theme='solid'
@@ -420,15 +420,15 @@ const EditTagModal = (props) => {
         {() => (
           <Spin spinning={loading}>
             <div className='p-2'>
-              <Card className='!rounded-2xl shadow-sm border-0 mb-6'>
+              <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
                 {/* Header: Tag Info */}
                 <div className='flex items-center mb-2'>
-                  <Avatar size='small' color='blue' className='mr-2 shadow-md'>
+                  <Avatar size='small' color='blue' className='mr-2'>
                     <IconBookmark size={16} />
                   </Avatar>
                   <div>
                     <Text className='text-lg font-medium'>{t('标签信息')}</Text>
-                    <div className='text-xs text-gray-600'>
+                    <div className='text-xs'>
                       {t('标签的基本配置')}
                     </div>
                   </div>
@@ -437,7 +437,7 @@ const EditTagModal = (props) => {
                 <Banner
                   type='warning'
                   description={t('所有编辑均为覆盖操作，留空则不更改')}
-                  className='!rounded-lg mb-4'
+                  style={{ borderRadius: 'var(--radius-md)' }} className=' mb-4'
                 />
 
                 <div className='space-y-4'>
@@ -450,19 +450,19 @@ const EditTagModal = (props) => {
                 </div>
               </Card>
 
-              <Card className='!rounded-2xl shadow-sm border-0 mb-6'>
+              <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
                 {/* Header: Model Config */}
                 <div className='flex items-center mb-2'>
                   <Avatar
                     size='small'
                     color='purple'
-                    className='mr-2 shadow-md'
+                    className='mr-2'
                   >
                     <IconCode size={16} />
                   </Avatar>
                   <div>
                     <Text className='text-lg font-medium'>{t('模型配置')}</Text>
-                    <div className='text-xs text-gray-600'>
+                    <div className='text-xs'>
                       {t('模型选择和映射设置')}
                     </div>
                   </div>
@@ -474,7 +474,7 @@ const EditTagModal = (props) => {
                     description={t(
                       '当前模型列表为该标签下所有渠道模型列表最长的一个，并非所有渠道的并集，请注意可能导致某些渠道模型丢失。',
                     )}
-                    className='!rounded-lg mb-4'
+                    style={{ borderRadius: 'var(--radius-md)' }} className=' mb-4'
                   />
                   <Form.Select
                     field='models'
@@ -560,19 +560,19 @@ const EditTagModal = (props) => {
                 </div>
               </Card>
 
-              <Card className='!rounded-2xl shadow-sm border-0 mb-6'>
+              <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
                 {/* Header: Advanced Settings */}
                 <div className='flex items-center mb-2'>
                   <Avatar
                     size='small'
                     color='orange'
-                    className='mr-2 shadow-md'
+                    className='mr-2'
                   >
                     <IconSetting size={16} />
                   </Avatar>
                   <div>
                     <Text className='text-lg font-medium'>{t('高级设置')}</Text>
-                    <div className='text-xs text-gray-600'>
+                    <div className='text-xs'>
                       {t('渠道的高级配置选项')}
                     </div>
                   </div>
@@ -713,15 +713,15 @@ const EditTagModal = (props) => {
                 </div>
               </Card>
 
-              <Card className='!rounded-2xl shadow-sm border-0'>
+              <Card style={{ borderRadius: 'var(--radius-lg)' }} className=''>
                 {/* Header: Group Settings */}
                 <div className='flex items-center mb-2'>
-                  <Avatar size='small' color='green' className='mr-2 shadow-md'>
+                  <Avatar size='small' color='green' className='mr-2'>
                     <IconUser size={16} />
                   </Avatar>
                   <div>
                     <Text className='text-lg font-medium'>{t('分组设置')}</Text>
-                    <div className='text-xs text-gray-600'>
+                    <div className='text-xs'>
                       {t('用户分组配置')}
                     </div>
                   </div>

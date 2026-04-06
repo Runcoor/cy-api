@@ -381,11 +381,17 @@ const UserBindingManagementModal = ({
                   >
                     <div className='flex items-center justify-between gap-3 min-h-[92px]'>
                       <div className='flex items-center flex-1 min-w-0'>
-                        <div className='w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 flex-shrink-0'>
+                        <div
+                          className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0'
+                          style={{
+                            borderRadius: 'var(--radius-md)',
+                            background: 'var(--surface-active)',
+                          }}
+                        >
                           {item.icon}
                         </div>
                         <div className='min-w-0 flex-1'>
-                          <div className='font-medium text-gray-900 flex items-center gap-2'>
+                          <div className='font-medium flex items-center gap-2' style={{ color: 'var(--text-primary)' }}>
                             <span>{item.name}</span>
                             <Tag size='small' color='white'>
                               {item.type === 'builtin'

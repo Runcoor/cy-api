@@ -209,7 +209,7 @@ const EditUserModal = (props) => {
             {({ values }) => (
               <div className='p-2 space-y-3'>
                 {/* 基本信息 */}
-                <Card className='!rounded-2xl shadow-sm border-0'>
+                <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                   <div className='flex items-center mb-2'>
                     <Avatar
                       size='small'
@@ -271,7 +271,7 @@ const EditUserModal = (props) => {
 
                 {/* 权限设置 */}
                 {userId && (
-                  <Card className='!rounded-2xl shadow-sm border-0'>
+                  <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                     <div className='flex items-center mb-2'>
                       <Avatar
                         size='small'
@@ -329,7 +329,7 @@ const EditUserModal = (props) => {
 
                 {/* 绑定信息入口 */}
                 {userId && (
-                  <Card className='!rounded-2xl shadow-sm border-0'>
+                  <Card style={{ borderRadius: 'var(--radius-lg)' }}>
                     <div className='flex items-center justify-between gap-3'>
                       <div className='flex items-center min-w-0'>
                         <Avatar
