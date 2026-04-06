@@ -130,10 +130,9 @@ const DeploymentAccessGuard = ({
               style={{
                 backgroundColor: 'var(--bg-subtle)',
                 padding: '24px',
-                borderRadius: '12px',
+                borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-default)',
                 margin: '32px 0',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
               }}
             >
               <div

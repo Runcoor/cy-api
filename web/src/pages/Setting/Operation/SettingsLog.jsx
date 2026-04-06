@@ -124,12 +124,12 @@ export default function SettingsLog(props) {
           </p>
           <div
             style={{
-              background: '#fff7e6',
-              border: '1px solid #ffd591',
+              background: 'var(--warning-light)',
+              border: '1px solid var(--warning)',
               padding: '12px',
-              borderRadius: '4px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '12px',
-              color: '#333',
+              color: 'var(--text-primary)',
             }}
           >
             <Text strong style={{ color: '#d46b08' }}>

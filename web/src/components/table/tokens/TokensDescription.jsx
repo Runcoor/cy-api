@@ -18,18 +18,35 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Typography } from '@douyinfe/semi-ui';
 import { Key } from 'lucide-react';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
-
-const { Text } = Typography;
 
 const TokensDescription = ({ compactMode, setCompactMode, t }) => {
   return (
     <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
-      <div className='flex items-center' style={{ color: 'var(--accent)' }}>
-        <Key size={16} className='mr-2' />
-        <Text>{t('令牌管理')}</Text>
+      <div className='flex items-center gap-2.5'>
+        <div
+          className='flex items-center justify-center'
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 'var(--radius-sm)',
+            background: 'var(--accent-light)',
+            color: 'var(--accent)',
+          }}
+        >
+          <Key size={15} />
+        </div>
+        <h3
+          className='text-sm font-semibold leading-tight'
+          style={{
+            fontFamily: 'var(--font-serif)',
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
+          {t('令牌管理')}
+        </h3>
       </div>
 
       <CompactModeToggle

@@ -82,7 +82,7 @@ const renderUsername = (text, record) => {
           <div className='flex items-center gap-1'>
             <div
               className='w-2 h-2 flex-shrink-0 rounded-full'
-              style={{ backgroundColor: '#10b981' }}
+              style={{ backgroundColor: 'var(--success)' }}
             />
             {displayRemark}
           </div>

@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Tag, Space, Skeleton } from '@douyinfe/semi-ui';
+import { Skeleton } from '@douyinfe/semi-ui';
 import { renderQuota } from '../../../helpers';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
 import { useMinimumLoadingTime } from '../../../hooks/common/useMinimumLoadingTime';
@@ -35,53 +35,61 @@ const LogsActions = ({
   const needSkeleton = !showStat || showSkeleton;
 
   const placeholder = (
-    <Space>
+    <div className='flex items-center gap-2'>
       <Skeleton.Title style={{ width: 108, height: 21, borderRadius: 6 }} />
       <Skeleton.Title style={{ width: 65, height: 21, borderRadius: 6 }} />
       <Skeleton.Title style={{ width: 64, height: 21, borderRadius: 6 }} />
-    </Space>
+    </div>
   );
 
   return (
     <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
-      <Skeleton loading={needSkeleton} active placeholder={placeholder}>
-        <Space>
-          <Tag
-            color='blue'
-            style={{
-              fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              padding: 13,
-            }}
-            className='!rounded-lg'
-          >
-            {t('消耗额度')}: {renderQuota(stat.quota)}
-          </Tag>
-          <Tag
-            color='pink'
-            style={{
-              fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              padding: 13,
-            }}
-            className='!rounded-lg'
-          >
-            RPM: {stat.rpm}
-          </Tag>
-          <Tag
-            color='white'
-            style={{
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              fontWeight: 500,
-              padding: 13,
-            }}
-            className='!rounded-lg'
-          >
-            TPM: {stat.tpm}
-          </Tag>
-        </Space>
-      </Skeleton>
+      <div className='flex items-center gap-2.5'>
+        <h3
+          className='text-sm font-semibold leading-tight mr-3'
+          style={{
+            fontFamily: 'var(--font-serif)',
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
+          {t('日志')}
+        </h3>
+        <Skeleton loading={needSkeleton} active placeholder={placeholder}>
+          <div className='flex items-center gap-2'>
+            <span
+              className='text-xs font-medium px-2.5 py-1'
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--accent-light)',
+                color: 'var(--accent)',
+              }}
+            >
+              {t('消耗额度')}: {renderQuota(stat.quota)}
+            </span>
+            <span
+              className='text-xs font-medium px-2.5 py-1'
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--error-light)',
+                color: 'var(--error)',
+              }}
+            >
+              RPM: {stat.rpm}
+            </span>
+            <span
+              className='text-xs font-medium px-2.5 py-1'
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--surface-active)',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              TPM: {stat.tpm}
+            </span>
+          </div>
+        </Skeleton>
+      </div>
 
       <CompactModeToggle
         compactMode={compactMode}

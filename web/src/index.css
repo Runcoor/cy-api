@@ -1185,6 +1185,50 @@ html.dark .sbg-variant-green {
   }
 }
 
+/* ==================== CardPro Panel Scroll ==================== */
+.mv-card-pro {
+  height: calc(100vh - 110px);
+  max-height: calc(100vh - 110px);
+}
+
+.mv-card-pro .mv-card-pro-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.mv-card-pro .mv-card-pro-header {
+  flex: 0 0 auto;
+}
+
+.mv-card-pro .mv-card-pro-footer {
+  flex: 0 0 auto;
+}
+
+.mv-card-pro .mv-card-pro-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (max-width: 767px) {
+  .mv-card-pro {
+    height: calc(100vh - 77px);
+    max-height: calc(100vh - 77px);
+  }
+}
+
 /* ==================== Pricing Layout ==================== */
 .pricing-layout {
   height: calc(100vh - 60px);

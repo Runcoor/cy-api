@@ -136,7 +136,7 @@ const DashboardSetting = () => {
           cancelText='取消'
         >
           <p>检测到旧版本的配置数据，是否要迁移到新的配置格式？</p>
-          <p style={{ color: '#f57c00', marginTop: '10px' }}>
+          <p style={{ color: 'var(--warning)', marginTop: '10px' }}>
             <strong>注意：</strong>
             迁移过程中会自动处理数据格式转换，迁移完成后旧配置将被清除，请在迁移前在数据库中备份好旧配置。
           </p>

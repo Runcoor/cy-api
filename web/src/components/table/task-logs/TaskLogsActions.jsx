@@ -18,18 +18,35 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Typography } from '@douyinfe/semi-ui';
 import { IconEyeOpened } from '@douyinfe/semi-icons';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
-
-const { Text } = Typography;
 
 const TaskLogsActions = ({ compactMode, setCompactMode, t }) => {
   return (
     <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
-      <div className='flex items-center mb-2 md:mb-0' style={{ color: 'var(--warning)' }}>
-        <IconEyeOpened className='mr-2' />
-        <Text>{t('任务记录')}</Text>
+      <div className='flex items-center gap-2.5'>
+        <div
+          className='flex items-center justify-center'
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 'var(--radius-sm)',
+            background: 'var(--warning-light)',
+            color: 'var(--warning)',
+          }}
+        >
+          <IconEyeOpened size='small' />
+        </div>
+        <h3
+          className='text-sm font-semibold leading-tight'
+          style={{
+            fontFamily: 'var(--font-serif)',
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
+          {t('任务记录')}
+        </h3>
       </div>
       <CompactModeToggle
         compactMode={compactMode}

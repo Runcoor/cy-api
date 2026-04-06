@@ -18,12 +18,10 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Skeleton, Typography } from '@douyinfe/semi-ui';
+import { Skeleton } from '@douyinfe/semi-ui';
 import { useMinimumLoadingTime } from '../../../hooks/common/useMinimumLoadingTime';
 import { IconEyeOpened } from '@douyinfe/semi-icons';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
-
-const { Text } = Typography;
 
 const MjLogsActions = ({
   loading,
@@ -36,24 +34,48 @@ const MjLogsActions = ({
   const showSkeleton = useMinimumLoadingTime(loading);
 
   const placeholder = (
-    <div className='flex items-center mb-2 md:mb-0'>
-      <IconEyeOpened className='mr-2' />
-      <Skeleton.Title style={{ width: 300, height: 21, borderRadius: 6 }} />
+    <div className='flex items-center gap-2.5'>
+      <Skeleton.Title style={{ width: 28, height: 28, borderRadius: 6 }} />
+      <Skeleton.Title style={{ width: 200, height: 18, borderRadius: 4 }} />
     </div>
   );
 
   return (
     <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
       <Skeleton loading={showSkeleton} active placeholder={placeholder}>
-        <div className='flex items-center mb-2 md:mb-0'>
-          <IconEyeOpened className='mr-2' />
-          <Text>
-            {isAdminUser && showBanner
-              ? t(
-                  '当前未开启Midjourney回调，部分项目可能无法获得绘图结果，可在运营设置中开启。',
-                )
-              : t('Midjourney 任务记录')}
-          </Text>
+        <div className='flex items-center gap-2.5'>
+          <div
+            className='flex items-center justify-center flex-shrink-0'
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
+            <IconEyeOpened size='small' />
+          </div>
+          <div>
+            <h3
+              className='text-sm font-semibold leading-tight'
+              style={{
+                fontFamily: 'var(--font-serif)',
+                color: 'var(--text-primary)',
+                margin: 0,
+              }}
+            >
+              {t('Midjourney 任务记录')}
+            </h3>
+            {isAdminUser && showBanner && (
+              <p
+                className='text-xs mt-0.5'
+                style={{ color: 'var(--warning)', margin: 0 }}
+              >
+                {t('当前未开启Midjourney回调，部分项目可能无法获得绘图结果，可在运营设置中开启。')}
+              </p>
+            )}
+          </div>
         </div>
       </Skeleton>
 

@@ -105,8 +105,8 @@ const ContentModal = ({
             style={{
               marginTop: '16px',
               padding: '8px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '4px',
+              backgroundColor: 'var(--bg-subtle)',
+              borderRadius: 'var(--radius-sm)',
             }}
           >
             <Text

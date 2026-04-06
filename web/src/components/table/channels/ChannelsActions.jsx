@@ -23,7 +23,6 @@ import {
   Dropdown,
   Modal,
   Switch,
-  Typography,
   Select,
 } from '@douyinfe/semi-ui';
 import CompactModeToggle from '../../common/ui/CompactModeToggle';
@@ -233,9 +232,9 @@ const ChannelsActions = ({
         {/* 右侧：设置开关区域 */}
         <div className='flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto order-1 md:order-2'>
           <div className='flex items-center justify-between w-full md:w-auto'>
-            <Typography.Text strong className='mr-2'>
+            <span className='text-xs font-medium mr-2 whitespace-nowrap' style={{ color: 'var(--text-secondary)' }}>
               {t('使用ID排序')}
-            </Typography.Text>
+            </span>
             <Switch
               size='small'
               checked={idSort}
@@ -265,9 +264,9 @@ const ChannelsActions = ({
           </div>
 
           <div className='flex items-center justify-between w-full md:w-auto'>
-            <Typography.Text strong className='mr-2'>
+            <span className='text-xs font-medium mr-2 whitespace-nowrap' style={{ color: 'var(--text-secondary)' }}>
               {t('开启批量操作')}
-            </Typography.Text>
+            </span>
             <Switch
               size='small'
               checked={enableBatchDelete}
@@ -279,9 +278,9 @@ const ChannelsActions = ({
           </div>
 
           <div className='flex items-center justify-between w-full md:w-auto'>
-            <Typography.Text strong className='mr-2'>
+            <span className='text-xs font-medium mr-2 whitespace-nowrap' style={{ color: 'var(--text-secondary)' }}>
               {t('标签聚合模式')}
-            </Typography.Text>
+            </span>
             <Switch
               size='small'
               checked={enableTagMode}
@@ -295,9 +294,9 @@ const ChannelsActions = ({
           </div>
 
           <div className='flex items-center justify-between w-full md:w-auto'>
-            <Typography.Text strong className='mr-2'>
+            <span className='text-xs font-medium mr-2 whitespace-nowrap' style={{ color: 'var(--text-secondary)' }}>
               {t('状态筛选')}
-            </Typography.Text>
+            </span>
             <Select
               size='small'
               value={statusFilter}

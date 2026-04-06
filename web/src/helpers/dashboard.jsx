@@ -162,7 +162,7 @@ export const handleSpeedTest = (apiUrl) => {
 
 // ========== 状态映射函数 ==========
 export const getUptimeStatusColor = (status, uptimeStatusMap) =>
-  uptimeStatusMap[status]?.color || '#8b9aa7';
+  uptimeStatusMap[status]?.color || 'var(--text-muted)';
 
 export const getUptimeStatusText = (status, uptimeStatusMap, t) =>
   uptimeStatusMap[status]?.text || t('未知');

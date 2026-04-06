@@ -18,175 +18,198 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useState } from 'react';
-import { Card, Divider, Typography, Button } from '@douyinfe/semi-ui';
+import { Button } from '@douyinfe/semi-ui';
 import PropTypes from 'prop-types';
 import { useIsMobile } from '../../../hooks/common/useIsMobile';
-import { IconEyeOpened, IconEyeClosed } from '@douyinfe/semi-icons';
-
-const { Text } = Typography;
+import { IconChevronDown, IconChevronUp } from '@douyinfe/semi-icons';
 
 /**
- * CardPro 高级卡片组件
+ * CardPro — macOS Vibrancy Panel Component
  *
- * 布局分为6个区域：
- * 1. 统计信息区域 (statsArea)
- * 2. 描述信息区域 (descriptionArea)
- * 3. 类型切换/标签区域 (tabsArea)
- * 4. 操作按钮区域 (actionsArea)
- * 5. 搜索表单区域 (searchArea)
- * 6. 分页区域 (paginationArea) - 固定在卡片底部
+ * A card wrapper with distinct visual sections, used by all table pages.
+ * Styled as a macOS System Preferences–style panel with depth layers:
+ *   - Header toolbar: bg-subtle background, separated sections
+ *   - Content: bg-surface, flush table area
+ *   - Footer: bg-subtle pagination strip
  *
- * 支持三种布局类型：
- * - type1: 操作型 (如TokensTable) - 描述信息 + 操作按钮 + 搜索表单
- * - type2: 查询型 (如LogsTable) - 统计信息 + 搜索表单
- * - type3: 复杂型 (如ChannelsTable) - 描述信息 + 类型切换 + 操作按钮 + 搜索表单
+ * Layout areas:
+ * 1. statsArea (type2) — statistics display
+ * 2. descriptionArea (type1, type3) — section title
+ * 3. tabsArea (type3) — type tabs
+ * 4. actionsArea (type1, type3) — action buttons
+ * 5. searchArea — search/filter form
+ * 6. paginationArea — pagination controls
  */
 const CardPro = ({
   type = 'type1',
   className = '',
   children,
-  // 各个区域的内容
+  // Area content
   statsArea,
   descriptionArea,
   tabsArea,
   actionsArea,
   searchArea,
-  paginationArea, // 新增分页区域
-  // 卡片属性
+  paginationArea,
+  // Card props
   shadows = '',
   bordered = true,
-  // 自定义样式
+  // Custom style
   style,
-  // 国际化函数
+  // i18n
   t = (key) => key,
   ...props
 }) => {
   const isMobile = useIsMobile();
   const [showMobileActions, setShowMobileActions] = useState(false);
 
-  const toggleMobileActions = () => {
-    setShowMobileActions(!showMobileActions);
-  };
-
   const hasMobileHideableContent = actionsArea || searchArea;
 
-  const renderHeader = () => {
-    const hasContent =
-      statsArea || descriptionArea || tabsArea || actionsArea || searchArea;
-    if (!hasContent) return null;
-
-    return (
-      <div className='flex flex-col w-full'>
-        {/* 统计信息区域 - 用于type2 */}
-        {type === 'type2' && statsArea && <>{statsArea}</>}
-
-        {/* 描述信息区域 - 用于type1和type3 */}
-        {(type === 'type1' || type === 'type3') && descriptionArea && (
-          <>{descriptionArea}</>
-        )}
-
-        {/* 第一个分隔线 - 在描述信息或统计信息后面 */}
-        {((type === 'type1' || type === 'type3') && descriptionArea) ||
-        (type === 'type2' && statsArea) ? (
-          <Divider margin='12px' />
-        ) : null}
-
-        {/* 类型切换/标签区域 - 主要用于type3 */}
-        {type === 'type3' && tabsArea && <>{tabsArea}</>}
-
-        {/* 移动端操作切换按钮 */}
-        {isMobile && hasMobileHideableContent && (
-          <>
-            <div className='w-full mb-2'>
-              <Button
-                onClick={toggleMobileActions}
-                icon={showMobileActions ? <IconEyeClosed /> : <IconEyeOpened />}
-                type='tertiary'
-                size='small'
-                theme='outline'
-                block
-              >
-                {showMobileActions ? t('隐藏操作项') : t('显示操作项')}
-              </Button>
-            </div>
-          </>
-        )}
-
-        {/* 操作按钮和搜索表单的容器 */}
-        <div
-          className={`flex flex-col gap-2 ${isMobile && !showMobileActions ? 'hidden' : ''}`}
-        >
-          {/* 操作按钮区域 - 用于type1和type3 */}
-          {(type === 'type1' || type === 'type3') &&
-            actionsArea &&
-            (Array.isArray(actionsArea) ? (
-              actionsArea.map((area, idx) => (
-                <React.Fragment key={idx}>
-                  {idx !== 0 && <Divider />}
-                  <div className='w-full'>{area}</div>
-                </React.Fragment>
-              ))
-            ) : (
-              <div className='w-full'>{actionsArea}</div>
-            ))}
-
-          {/* 当同时存在操作区和搜索区时，插入分隔线 */}
-          {actionsArea && searchArea && <Divider />}
-
-          {/* 搜索表单区域 - 所有类型都可能有 */}
-          {searchArea && <div className='w-full'>{searchArea}</div>}
-        </div>
-      </div>
-    );
-  };
-
-  const headerContent = renderHeader();
-
-  // 渲染分页区域
-  const renderFooter = () => {
-    if (!paginationArea) return null;
-
-    return (
-      <div
-        className={`flex w-full pt-4 border-t ${isMobile ? 'justify-center' : 'justify-between items-center'}`}
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
-        {paginationArea}
-      </div>
-    );
-  };
-
-  const footerContent = renderFooter();
+  const hasHeaderContent =
+    statsArea || descriptionArea || tabsArea || actionsArea || searchArea;
 
   return (
-    <Card
-      className={`table-scroll-card ${className}`}
-      title={headerContent}
-      footer={footerContent}
-      shadows={shadows}
-      bordered={bordered}
+    <div
+      className={`mv-card-pro ${className}`}
       style={{
         borderRadius: 'var(--radius-lg)',
         background: 'var(--surface)',
         border: '1px solid var(--border-default)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
         ...style,
       }}
       {...props}
     >
-      {children}
-    </Card>
+      {/* ── Header Toolbar ── */}
+      {hasHeaderContent && (
+        <div
+          className='mv-card-pro-header'
+          style={{
+            background: 'var(--bg-subtle)',
+            borderBottom: '1px solid var(--border-subtle)',
+          }}
+        >
+          {/* Description / Stats area — top section with title */}
+          {type === 'type2' && statsArea && (
+            <div className='px-4 py-3 md:px-5'>
+              {statsArea}
+            </div>
+          )}
+
+          {(type === 'type1' || type === 'type3') && descriptionArea && (
+            <div className='px-4 py-3 md:px-5'>
+              {descriptionArea}
+            </div>
+          )}
+
+          {/* Separator between description/stats and toolbar */}
+          {(((type === 'type1' || type === 'type3') && descriptionArea) ||
+            (type === 'type2' && statsArea)) &&
+            (tabsArea || actionsArea || searchArea) && (
+            <div style={{ borderBottom: '1px solid var(--border-subtle)' }} />
+          )}
+
+          {/* Tabs area — type3 only */}
+          {type === 'type3' && tabsArea && (
+            <>
+              <div className='px-4 py-2 md:px-5'>
+                {tabsArea}
+              </div>
+              {(actionsArea || searchArea) && (
+                <div style={{ borderBottom: '1px solid var(--border-subtle)' }} />
+              )}
+            </>
+          )}
+
+          {/* Mobile toggle for actions/search */}
+          {isMobile && hasMobileHideableContent && (
+            <div className='px-4 py-2'>
+              <Button
+                onClick={() => setShowMobileActions(!showMobileActions)}
+                icon={showMobileActions ? <IconChevronUp size='small' /> : <IconChevronDown size='small' />}
+                type='tertiary'
+                size='small'
+                theme='borderless'
+                block
+                style={{
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--text-secondary)',
+                  background: 'var(--surface-hover)',
+                }}
+              >
+                {showMobileActions ? t('隐藏操作项') : t('显示操作项')}
+              </Button>
+            </div>
+          )}
+
+          {/* Actions + Search toolbar area */}
+          <div
+            className={`flex flex-col ${isMobile && !showMobileActions ? 'hidden' : ''}`}
+          >
+            {/* Action buttons */}
+            {(type === 'type1' || type === 'type3') && actionsArea && (
+              Array.isArray(actionsArea) ? (
+                actionsArea.map((area, idx) => (
+                  <React.Fragment key={idx}>
+                    {idx !== 0 && (
+                      <div style={{ borderBottom: '1px solid var(--border-subtle)' }} />
+                    )}
+                    <div className='px-4 py-2.5 md:px-5'>{area}</div>
+                  </React.Fragment>
+                ))
+              ) : (
+                <div className='px-4 py-2.5 md:px-5'>{actionsArea}</div>
+              )
+            )}
+
+            {/* Separator between actions and search */}
+            {actionsArea && searchArea && (
+              <div style={{ borderBottom: '1px solid var(--border-subtle)' }} />
+            )}
+
+            {/* Search/filter form */}
+            {searchArea && (
+              <div className='px-4 py-2.5 md:px-5'>{searchArea}</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Content Area (table) ── */}
+      <div className='mv-card-pro-body' style={{ flex: '1 1 auto' }}>
+        {children}
+      </div>
+
+      {/* ── Footer — Pagination ── */}
+      {paginationArea && (
+        <div
+          className='mv-card-pro-footer'
+          style={{
+            background: 'var(--bg-subtle)',
+            borderTop: '1px solid var(--border-subtle)',
+          }}
+        >
+          <div
+            className={`flex w-full px-4 py-3 md:px-5 ${
+              isMobile ? 'justify-center' : 'justify-between items-center'
+            }`}
+          >
+            {paginationArea}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 CardPro.propTypes = {
-  // 布局类型
   type: PropTypes.oneOf(['type1', 'type2', 'type3']),
-  // 样式相关
   className: PropTypes.string,
   style: PropTypes.object,
   shadows: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   bordered: PropTypes.bool,
-  // 内容区域
   statsArea: PropTypes.node,
   descriptionArea: PropTypes.node,
   tabsArea: PropTypes.node,
@@ -196,9 +219,7 @@ CardPro.propTypes = {
   ]),
   searchArea: PropTypes.node,
   paginationArea: PropTypes.node,
-  // 表格内容
   children: PropTypes.node,
-  // 国际化函数
   t: PropTypes.func,
 };
 
