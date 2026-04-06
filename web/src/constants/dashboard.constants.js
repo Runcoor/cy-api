@@ -72,12 +72,12 @@ export const DEFAULT_CHART_SPECS = {
       state: {
         hover: {
           outerRadius: 0.85,
-          stroke: '#000',
+          stroke: 'rgba(0,0,0,0.15)',
           lineWidth: 1,
         },
         selected: {
           outerRadius: 0.85,
-          stroke: '#000',
+          stroke: 'rgba(0,0,0,0.15)',
           lineWidth: 1,
         },
       },
@@ -101,7 +101,7 @@ export const DEFAULT_CHART_SPECS = {
     bar: {
       state: {
         hover: {
-          stroke: '#000',
+          stroke: 'rgba(0,0,0,0.15)',
           lineWidth: 1,
         },
       },
