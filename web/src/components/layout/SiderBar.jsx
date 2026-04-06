@@ -526,7 +526,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
               transition: 'background-color 150ms ease-out',
               ...(collapsed
                 ? { width: 32, height: 28, padding: 0 }
-                : { padding: '4px 12px', width: '100%' }),
+                : { padding: '4px 12px', width: '100%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }),
             }}
           >
             {!collapsed ? t('收起侧边栏') : null}

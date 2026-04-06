@@ -369,6 +369,13 @@ h1, h2, h3, .mv-heading {
   transition: background-color var(--ease-micro), color var(--ease-micro), border-color var(--ease-micro);
 }
 
+/* i18n: prevent button text overflow in long languages (ru, fr, vi) */
+.semi-button-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Header icon buttons: uniform 32x32, subtle hover */
 .semi-button.semi-button-borderless.semi-button-tertiary:hover {
   background-color: var(--surface-hover) !important;
@@ -523,6 +530,14 @@ html.dark .semi-dropdown-menu {
 }
 
 /* --- Tabs Overrides --- */
+/* i18n: tabs bar scrolls horizontally for long text languages */
+.semi-tabs-bar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.semi-tabs-bar::-webkit-scrollbar { display: none; }
+
 .semi-tabs-content {
   padding: 0 !important;
   height: calc(100% - 40px) !important;
