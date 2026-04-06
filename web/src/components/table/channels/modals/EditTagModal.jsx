@@ -489,7 +489,7 @@ const EditTagModal = (props) => {
                     onSearch={(value) => setModelSearchValue(value)}
                     innerBottomSlot={
                       modelSearchHintText ? (
-                        <Text className='px-3 py-2 block text-xs !text-semi-color-text-2'>
+                        <Text className='px-3 py-2 block text-xs' style={{ color: 'var(--text-secondary)' }}>
                           {modelSearchHintText}
                         </Text>
                       ) : null
@@ -527,7 +527,7 @@ const EditTagModal = (props) => {
                     extraText={
                       <Space>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() =>
                             handleInputChange(
                               'model_mapping',
@@ -538,7 +538,7 @@ const EditTagModal = (props) => {
                           {t('填入模板')}
                         </Text>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() =>
                             handleInputChange(
                               'model_mapping',
@@ -549,7 +549,7 @@ const EditTagModal = (props) => {
                           {t('清空重定向')}
                         </Text>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() => handleInputChange('model_mapping', '')}
                         >
                           {t('不更改')}
@@ -599,7 +599,7 @@ const EditTagModal = (props) => {
                     extraText={
                       <div className='flex gap-2 flex-wrap'>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() =>
                             handleInputChange(
                               'param_override',
@@ -610,7 +610,7 @@ const EditTagModal = (props) => {
                           {t('旧格式模板')}
                         </Text>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() =>
                             handleInputChange(
                               'param_override',
@@ -641,7 +641,7 @@ const EditTagModal = (props) => {
                           {t('新格式模板')}
                         </Text>
                         <Text
-                          className='!text-semi-color-primary cursor-pointer'
+                          className='cursor-pointer' style={{ color: 'var(--accent)' }}
                           onClick={() =>
                             handleInputChange('param_override', null)
                           }
@@ -670,7 +670,7 @@ const EditTagModal = (props) => {
                       <div className='flex flex-col gap-1'>
                         <div className='flex gap-2 flex-wrap items-center'>
                           <Text
-                            className='!text-semi-color-primary cursor-pointer'
+                            className='cursor-pointer' style={{ color: 'var(--accent)' }}
                             onClick={() =>
                               handleInputChange(
                                 'header_override',
@@ -689,7 +689,7 @@ const EditTagModal = (props) => {
                             {t('填入模板')}
                           </Text>
                           <Text
-                            className='!text-semi-color-primary cursor-pointer'
+                            className='cursor-pointer' style={{ color: 'var(--accent)' }}
                             onClick={() =>
                               handleInputChange('header_override', null)
                             }

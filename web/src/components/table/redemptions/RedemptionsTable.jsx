@@ -123,7 +123,7 @@ const RedemptionsTable = (redemptionsData) => {
             style={{ padding: 30 }}
           />
         }
-        className='rounded-xl overflow-hidden'
+        className='overflow-hidden' style={{ borderRadius: 'var(--radius-lg)' }}
         size='middle'
       />
 

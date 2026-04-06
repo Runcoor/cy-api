@@ -122,7 +122,7 @@ const RechargeCard = ({
     <Space vertical style={{ width: '100%' }}>
       {/* 统计数据 */}
       <Card
-        className='!rounded-xl w-full'
+        className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
         cover={
           <div
             className='relative h-30'
@@ -561,7 +561,7 @@ const RechargeCard = ({
             description={t(
               '管理员未开启在线充值功能，请联系管理员开启或使用兑换码充值。',
             )}
-            className='!rounded-xl'
+            style={{ borderRadius: 'var(--radius-lg)' }}
             closeIcon={null}
           />
         )}
@@ -569,7 +569,7 @@ const RechargeCard = ({
 
       {/* 兑换码充值 */}
       <Card
-        className='!rounded-xl w-full'
+        className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
         title={
           <Text type='tertiary' strong>
             {t('兑换码充值')}

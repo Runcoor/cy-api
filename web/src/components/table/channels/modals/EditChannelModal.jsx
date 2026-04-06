@@ -2313,8 +2313,9 @@ const EditChannelModal = (props) => {
                       {t('此项可选，用于覆盖请求参数。不支持覆盖 stream 参数')}
                     </Text>
                     <div
-                      className='mt-2 rounded-xl p-3'
+                      className='mt-2 p-3'
                       style={{
+                        borderRadius: 'var(--radius-lg)',
                         backgroundColor: 'var(--semi-color-fill-0)',
                         border: '1px solid var(--semi-color-fill-2)',
                       }}
@@ -2355,7 +2356,7 @@ const EditChannelModal = (props) => {
                       <div className='flex flex-col gap-1'>
                         <div className='flex gap-2 flex-wrap items-center'>
                           <Text
-                            className='!text-semi-color-primary cursor-pointer'
+                            className='cursor-pointer' style={{ color: 'var(--accent)' }}
                             onClick={() =>
                               handleInputChange(
                                 'header_override',
@@ -2366,7 +2367,7 @@ const EditChannelModal = (props) => {
                             {t('填入模板')}
                           </Text>
                           <Text
-                            className='!text-semi-color-primary cursor-pointer'
+                            className='cursor-pointer' style={{ color: 'var(--accent)' }}
                             onClick={() =>
                               handleInputChange('header_override', JSON.stringify({ '*': true }, null, 2))
                             }
@@ -2374,7 +2375,7 @@ const EditChannelModal = (props) => {
                             {t('填入透传模版')}
                           </Text>
                           <Text
-                            className='!text-semi-color-primary cursor-pointer'
+                            className='cursor-pointer' style={{ color: 'var(--accent)' }}
                             onClick={() => formatJsonField('header_override')}
                           >
                             {t('格式化')}
@@ -2565,7 +2566,7 @@ const EditChannelModal = (props) => {
                       <Banner
                         type='info'
                         closeIcon={null}
-                        className='mb-4 rounded-xl'
+                        className='mb-4' style={{ borderRadius: 'var(--radius-lg)' }}
                         description={t(
                           '此渠道由 IO.NET 自动同步，类型、密钥和 API 地址已锁定。',
                         )}
@@ -2606,7 +2607,7 @@ const EditChannelModal = (props) => {
                       <Banner
                         type='warning'
                         closeIcon={null}
-                        className='mb-4 rounded-xl'
+                        className='mb-4' style={{ borderRadius: 'var(--radius-lg)' }}
                         description={t(
                           '免责声明：仅限个人使用，请勿分发或共享任何凭证。该渠道存在前置条件与使用门槛，请在充分了解流程与风险后使用，并遵守 OpenAI 的相关条款与政策。相关凭证与配置仅限接入 Codex CLI 使用，不适用于其他客户端、平台或渠道。',
                         )}
@@ -3438,7 +3439,7 @@ const EditChannelModal = (props) => {
                       onSearch={(value) => setModelSearchValue(value)}
                       innerBottomSlot={
                         modelSearchHintText ? (
-                          <Text className='px-3 py-2 block text-xs !text-semi-color-text-2'>
+                          <Text className='px-3 py-2 block text-xs' style={{ color: 'var(--text-secondary)' }}>
                             {modelSearchHintText}
                           </Text>
                         ) : null
@@ -3659,8 +3660,9 @@ const EditChannelModal = (props) => {
                 ) : (
                   /* Desktop: toggle button to open side panel */
                   <div
-                    className='flex items-center justify-between p-3 cursor-pointer transition-colors' style={{ borderRadius: 'var(--radius-lg)' }}
+                    className='flex items-center justify-between p-3 cursor-pointer transition-colors'
                     style={{
+                      borderRadius: 'var(--radius-lg)',
                       backgroundColor: advancedSettingsOpen ? 'var(--semi-color-primary-light-default)' : 'var(--semi-color-fill-0)',
                       border: '1px solid var(--semi-color-fill-2)',
                     }}

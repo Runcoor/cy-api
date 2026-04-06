@@ -79,7 +79,7 @@ const MjLogsTable = (mjLogsData) => {
       rowKey='key'
       loading={loading}
       scroll={compactMode ? undefined : { x: 'max-content' }}
-      className='rounded-xl overflow-hidden'
+      className='overflow-hidden' style={{ borderRadius: 'var(--radius-lg)' }}
       size='middle'
       empty={
         <Empty

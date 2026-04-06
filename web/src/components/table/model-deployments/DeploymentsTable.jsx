@@ -194,7 +194,7 @@ const DeploymentsTable = (deploymentsData) => {
             style={{ padding: 30 }}
           />
         }
-        className='rounded-xl overflow-hidden'
+        className='overflow-hidden' style={{ borderRadius: 'var(--radius-lg)' }}
         size='middle'
         loading={loading || searching}
       />

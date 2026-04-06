@@ -1903,7 +1903,7 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
     >
       <Space vertical align='start' spacing={14} style={{ width: '100%' }}>
         <Card
-          className='!rounded-xl !border-0 w-full'
+          className='w-full' style={{ borderRadius: 'var(--radius-lg)', border: 'none' }}
           bodyStyle={{
             padding: 12,
             background: 'var(--semi-color-fill-0)',
@@ -2084,8 +2084,9 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
                                       setSelectedOperationId(operation.id);
                                     }
                                   }}
-                                  className='w-full rounded-xl px-3 py-3 cursor-pointer transition-colors'
+                                  className='w-full px-3 py-3 cursor-pointer transition-colors'
                                   style={{
+                                    borderRadius: 'var(--radius-lg)',
                                     background: isActive
                                       ? 'var(--semi-color-primary-light-default)'
                                       : 'var(--semi-color-bg-2)',
@@ -2290,8 +2291,9 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
                             {meta.value ? (
                               mode === 'return_error' && returnErrorDraft ? (
                                 <div
-                                  className='mt-2 rounded-xl p-3'
+                                  className='mt-2 p-3'
                                   style={{
+                                    borderRadius: 'var(--radius-lg)',
                                     background: 'var(--semi-color-bg-1)',
                                     border: '1px solid var(--semi-color-border)',
                                   }}
@@ -2512,8 +2514,9 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
                                 </div>
                               ) : mode === 'prune_objects' && pruneObjectsDraft ? (
                                 <div
-                                  className='mt-2 rounded-xl p-3'
+                                  className='mt-2 p-3'
                                   style={{
+                                    borderRadius: 'var(--radius-lg)',
                                     background: 'var(--semi-color-bg-1)',
                                     border: '1px solid var(--semi-color-border)',
                                   }}
@@ -3053,8 +3056,9 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
                             ) : null}
 
                             <div
-                              className='mt-3 rounded-xl p-3'
+                              className='mt-3 p-3'
                               style={{
+                                borderRadius: 'var(--radius-lg)',
                                 background: 'rgba(127, 127, 127, 0.08)',
                               }}
                             >
@@ -3381,7 +3385,7 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
           </div>
 
           <Card
-            className='!rounded-xl !border-0'
+            style={{ borderRadius: 'var(--radius-lg)', border: 'none' }}
             bodyStyle={{
               padding: 12,
               background: 'var(--semi-color-fill-0)',
@@ -3408,7 +3412,7 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
 
           {filteredFieldGuideSections.length === 0 ? (
             <Card
-              className='!rounded-xl !border-0'
+              style={{ borderRadius: 'var(--radius-lg)', border: 'none' }}
               bodyStyle={{
                 padding: 20,
                 background: 'var(--semi-color-fill-0)',
@@ -3421,7 +3425,7 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
               {filteredFieldGuideSections.map((section) => (
                 <Card
                   key={section.title}
-                  className='!rounded-xl !border-0'
+                  style={{ borderRadius: 'var(--radius-lg)', border: 'none' }}
                   bodyStyle={{
                     padding: 14,
                     background: 'var(--semi-color-fill-0)',

@@ -58,7 +58,7 @@ const InvitationCard = ({
       <Space vertical style={{ width: '100%' }}>
         {/* 统计数据统一卡片 */}
         <Card
-          className='!rounded-xl w-full'
+          className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
           cover={
             <div
               className='relative h-30'
@@ -195,7 +195,7 @@ const InvitationCard = ({
 
         {/* 奖励说明 */}
         <Card
-          className='!rounded-xl w-full'
+          className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}
           title={<Text type='tertiary'>{t('奖励说明')}</Text>}
         >
           <div className='space-y-3'>

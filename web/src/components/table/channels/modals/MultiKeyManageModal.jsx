@@ -482,8 +482,9 @@ const MultiKeyManageModal = ({ visible, onCancel, channel, onRefresh }) => {
       <div className='flex flex-col mb-5'>
         {/* Stats & Mode */}
         <div
-          className='rounded-xl p-4 mb-3'
+          className='p-4 mb-3'
           style={{
+            borderRadius: 'var(--radius-lg)',
             background: 'var(--semi-color-bg-1)',
             border: '1px solid var(--semi-color-border)',
           }}
@@ -597,7 +598,7 @@ const MultiKeyManageModal = ({ visible, onCancel, channel, onRefresh }) => {
         {/* Table */}
         <div className='flex-1 flex flex-col min-h-0'>
           <Spin spinning={loading}>
-            <Card className='!rounded-xl'>
+            <Card style={{ borderRadius: 'var(--radius-lg)' }}>
               <Table
                 title={() => (
                   <Row gutter={12} style={{ width: '100%' }}>

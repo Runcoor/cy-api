@@ -106,8 +106,7 @@ const SubscriptionPurchaseModal = ({
                 </Text>
                 <Typography.Text
                   ellipsis={{ rows: 1, showTooltip: true }}
-                  style={{ color: 'var(--text-primary)' }}
-                  style={{ maxWidth: 200 }}
+                  style={{ color: 'var(--text-primary)', maxWidth: 200 }}
                 >
                   {plan.title}
                 </Typography.Text>

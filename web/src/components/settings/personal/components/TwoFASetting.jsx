@@ -490,7 +490,7 @@ const TwoFASetting = ({ t }) => {
             </Steps>
 
             {/* 步骤内容 */}
-            <div className='rounded-xl'>
+            <div style={{ borderRadius: 'var(--radius-lg)' }}>
               {currentStep === 0 && (
                 <div>
                   <Paragraph className='mb-4' style={{ color: 'var(--text-secondary)' }}>
@@ -563,7 +563,7 @@ const TwoFASetting = ({ t }) => {
       >
         <div className='space-y-6'>
           {/* 警告提示 */}
-          <div className='rounded-xl'>
+          <div style={{ borderRadius: 'var(--radius-lg)' }}>
             <Banner
               type='warning'
               description={t(
@@ -659,7 +659,7 @@ const TwoFASetting = ({ t }) => {
           {backupCodes.length === 0 ? (
             <>
               {/* 警告提示 */}
-              <div className='rounded-xl'>
+              <div style={{ borderRadius: 'var(--radius-lg)' }}>
                 <Banner
                   type='warning'
                   description={t(

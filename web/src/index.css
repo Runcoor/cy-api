@@ -1284,47 +1284,6 @@ html.dark .sbg-variant-green {
   }
 }
 
-/* ==================== Pastel Balls (Banner Decoration) ==================== */
-.with-pastel-balls {
-  position: relative;
-  overflow: hidden;
-  --pb1: #ffd1dc;
-  --pb2: #e5d4ff;
-  --pb3: #d1fff6;
-  --pb4: #ffe5d9;
-  --pb-opacity: 0.55;
-  --pb-blur: 60px;
-}
-
-.with-pastel-balls::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at -5% -10%, var(--pb1) 0%, transparent 60%),
-    radial-gradient(circle at 105% -10%, var(--pb2) 0%, transparent 55%),
-    radial-gradient(circle at 5% 110%, var(--pb3) 0%, transparent 55%),
-    radial-gradient(circle at 105% 110%, var(--pb4) 0%, transparent 50%);
-  filter: blur(var(--pb-blur));
-  opacity: var(--pb-opacity);
-  transform: translateZ(0);
-}
-
-html.dark .with-pastel-balls {
-  --pb1: #ffd1dc;
-  --pb2: #e5d4ff;
-  --pb3: #d1fff6;
-  --pb4: #ffe5d9;
-  --pb-opacity: 0.36;
-  --pb-blur: 65px;
-}
-
-html.dark .with-pastel-balls::before {
-  mix-blend-mode: screen;
-}
-
 /* ==================== Skeleton Pulse (restrained) ==================== */
 @keyframes mv-skeleton-fade {
   0%, 100% { opacity: 1; }

@@ -354,7 +354,7 @@ const UserBindingManagementModal = ({
           </div>
 
           {visibleBindingItems.length === 0 ? (
-            <Card className='!rounded-xl border-dashed'>
+            <Card className='border-dashed' style={{ borderRadius: 'var(--radius-lg)' }}>
               <Text type='tertiary'>{t('暂无已绑定项')}</Text>
             </Card>
           ) : (
@@ -377,7 +377,7 @@ const UserBindingManagementModal = ({
                 return (
                   <Card
                     key={item.key}
-                    className={`!rounded-xl ${shouldSpanTwoColsOnDesktop ? 'lg:col-span-2' : ''}`}
+                    className={shouldSpanTwoColsOnDesktop ? 'lg:col-span-2' : ''} style={{ borderRadius: 'var(--radius-lg)' }}
                   >
                     <div className='flex items-center justify-between gap-3 min-h-[92px]'>
                       <div className='flex items-center flex-1 min-w-0'>

@@ -95,7 +95,7 @@ const PricingTable = ({
 
   const ModelTable = useMemo(
     () => (
-      <Card className='!rounded-xl overflow-hidden' bordered={false}>
+      <Card className='overflow-hidden' bordered={false} style={{ borderRadius: 'var(--radius-lg)' }}>
         <Table
           columns={processedColumns}
           dataSource={filteredModels}

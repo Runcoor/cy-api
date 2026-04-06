@@ -23,7 +23,6 @@ import {
   Button,
   Progress,
   Typography,
-  Spin,
   Tag,
   Descriptions,
   Collapse,
@@ -31,6 +30,8 @@ import {
 import { API, showError } from '../../../../helpers';
 
 const { Text } = Typography;
+
+const bars = Array.from({ length: 12 });
 
 const clampPercent = (value) => {
   const v = Number(value);
@@ -40,9 +41,9 @@ const clampPercent = (value) => {
 
 const pickStrokeColor = (percent) => {
   const p = clampPercent(percent);
-  if (p >= 95) return '#ef4444';
-  if (p >= 80) return '#f59e0b';
-  return '#3b82f6';
+  if (p >= 95) return 'var(--error)';
+  if (p >= 80) return 'var(--warning)';
+  return 'var(--accent)';
 };
 
 const normalizePlanType = (value) => {
@@ -191,9 +192,10 @@ const AccountInfoValue = ({ t, value, onCopy, monospace = false }) => {
   return (
     <div className='flex min-w-0 items-start justify-between gap-2'>
       <div
-        className={`min-w-0 flex-1 break-all text-xs leading-5 text-semi-color-text-1 ${
+        className={`min-w-0 flex-1 break-all text-xs leading-5 ${
           monospace ? 'font-mono' : ''
         }`}
+        style={{ color: 'var(--text-primary)' }}
       >
         {hasValue ? text : '-'}
       </div>
@@ -223,13 +225,20 @@ const RateLimitWindowCard = ({ t, title, windowData }) => {
   const limitWindowSeconds = windowData?.limit_window_seconds;
 
   return (
-    <div className='rounded-lg border border-semi-color-border bg-semi-color-bg-0 p-3'>
+    <div
+      className='p-3'
+      style={{
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-default)',
+        background: 'var(--surface)',
+      }}
+    >
       <div className='flex items-center justify-between gap-2'>
-        <div className='font-medium'>{title}</div>
-        <Text type='tertiary' size='small'>
+        <div className='font-medium' style={{ color: 'var(--text-primary)' }}>{title}</div>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {tt('重置时间：')}
           {formatUnixSeconds(resetAt)}
-        </Text>
+        </span>
       </div>
 
       {hasWindowData ? (
@@ -241,10 +250,10 @@ const RateLimitWindowCard = ({ t, title, windowData }) => {
           />
         </div>
       ) : (
-        <div className='mt-3 text-sm text-semi-color-text-2'>-</div>
+        <div className='mt-3 text-sm' style={{ color: 'var(--text-muted)' }}>-</div>
       )}
 
-      <div className='mt-1 flex flex-wrap items-center gap-2 text-xs text-semi-color-text-2'>
+      <div className='mt-1.5 flex flex-wrap items-center gap-3 text-xs' style={{ color: 'var(--text-secondary)' }}>
         <div>
           {tt('已使用：')}
           {hasWindowData ? `${percent}%` : '-'}
@@ -285,15 +294,34 @@ const CodexUsageView = ({ t, record, payload, onCopy, onRefresh }) => {
   return (
     <div className='flex flex-col gap-4'>
       {errorMessage && (
-        <div className='px-4 py-3 text-sm' style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--error)', background: 'var(--error-light)', color: 'var(--error)' }}>
+        <div
+          className='px-4 py-3 text-sm'
+          style={{
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--error)',
+            background: 'var(--error-light)',
+            color: 'var(--error)',
+          }}
+        >
           {errorMessage}
         </div>
       )}
 
-      <div className='rounded-xl border border-semi-color-border bg-semi-color-bg-0 p-3'>
+      {/* Account info card */}
+      <div
+        className='p-4'
+        style={{
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-default)',
+          background: 'var(--surface)',
+        }}
+      >
         <div className='flex flex-wrap items-start justify-between gap-2'>
           <div className='min-w-0'>
-            <div className='text-xs font-medium text-semi-color-text-2'>
+            <div
+              className='text-xs font-medium'
+              style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}
+            >
               {tt('Codex 帐号')}
             </div>
             <div className='mt-2 flex flex-wrap items-center gap-2'>
@@ -318,7 +346,13 @@ const CodexUsageView = ({ t, record, payload, onCopy, onRefresh }) => {
           </Button>
         </div>
 
-        <div className='mt-2 rounded-lg bg-semi-color-fill-0 px-3 py-2'>
+        <div
+          className='mt-3 px-3 py-2'
+          style={{
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-muted)',
+          }}
+        >
           <Descriptions>
             <Descriptions.Item itemKey='User ID'>
               <AccountInfoValue
@@ -342,24 +376,29 @@ const CodexUsageView = ({ t, record, payload, onCopy, onRefresh }) => {
           </Descriptions>
         </div>
 
-        <div className='mt-2 text-xs text-semi-color-text-2'>
+        <div className='mt-2 text-xs' style={{ color: 'var(--text-muted)' }}>
           {tt('渠道：')}
           {record?.name || '-'} ({tt('编号：')}
           {record?.id || '-'})
         </div>
       </div>
 
+      {/* Rate limit section header */}
       <div>
         <div className='mb-2'>
-          <div className='text-sm font-semibold text-semi-color-text-0'>
+          <h3
+            className='text-sm font-semibold'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
+          >
             {tt('额度窗口')}
-          </div>
-          <Text type='tertiary' size='small'>
+          </h3>
+          <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>
             {tt('用于观察当前帐号在 Codex 上游的限额使用情况')}
-          </Text>
+          </p>
         </div>
       </div>
 
+      {/* Rate limit window cards */}
       <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
         <RateLimitWindowCard
           t={tt}
@@ -373,6 +412,7 @@ const CodexUsageView = ({ t, record, payload, onCopy, onRefresh }) => {
         />
       </div>
 
+      {/* Raw JSON collapse */}
       <Collapse
         activeKey={showRawJson ? ['raw-json'] : []}
         onChange={(activeKey) => {
@@ -392,7 +432,15 @@ const CodexUsageView = ({ t, record, payload, onCopy, onRefresh }) => {
               {tt('复制')}
             </Button>
           </div>
-          <pre className='max-h-[50vh] overflow-y-auto rounded-lg bg-semi-color-fill-0 p-3 text-xs text-semi-color-text-0'>
+          <pre
+            className='max-h-[50vh] overflow-y-auto p-3 text-xs'
+            style={{
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--bg-muted)',
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
             {rawText}
           </pre>
         </Collapse.Panel>
@@ -452,8 +500,15 @@ const CodexUsageLoader = ({ t, record, initialPayload, onCopy }) => {
 
   if (loading) {
     return (
-      <div className='flex items-center justify-center py-10'>
-        <Spin spinning={true} size='large' tip={tt('加载中...')} />
+      <div className='flex flex-col items-center justify-center py-10 gap-3'>
+        <div className='mv-loader mv-loader-medium'>
+          {bars.map((_, i) => (
+            <span key={i} className='mv-loader-bar' />
+          ))}
+        </div>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+          {tt('加载中...')}
+        </span>
       </div>
     );
   }
