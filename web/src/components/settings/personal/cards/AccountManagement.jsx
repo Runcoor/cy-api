@@ -169,22 +169,32 @@ const AccountManagement = ({
     : t('尚未使用');
 
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
-      {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='teal' className='mr-3'>
-          <UserPlus size={16} />
-        </Avatar>
+    <div
+      className='rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden'
+      style={{ background: 'var(--surface)' }}
+    >
+      {/* Card header — macOS panel style */}
+      <div className='px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3'>
+        <div
+          className='w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center'
+          style={{ background: 'var(--accent-light)' }}
+        >
+          <UserPlus size={16} style={{ color: 'var(--accent)' }} />
+        </div>
         <div>
-          <Typography.Text className='text-lg font-medium'>
+          <h3
+            className='text-base font-semibold leading-tight'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
+          >
             {t('账户管理')}
-          </Typography.Text>
-          <div className='text-xs' style={{ color: 'var(--text-secondary)' }}>
+          </h3>
+          <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)', margin: 0 }}>
             {t('账户绑定、安全设置和身份验证')}
-          </div>
+          </p>
         </div>
       </div>
 
+      <div className='p-5'>
       <Tabs type='card' defaultActiveKey='binding'>
         {/* 账户绑定 Tab */}
         <TabPane
@@ -767,7 +777,8 @@ const AccountManagement = ({
           </div>
         </TabPane>
       </Tabs>
-    </Card>
+      </div>
+    </div>
   );
 };
 

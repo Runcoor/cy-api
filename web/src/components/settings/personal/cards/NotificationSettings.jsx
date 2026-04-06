@@ -352,17 +352,40 @@ const NotificationSettings = ({
   };
 
   return (
-    <Card
-      style={{ borderRadius: 'var(--radius-lg)' }}
-      footer={
-        <div className='flex justify-end gap-3'>
+    <div
+      className='rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden'
+      style={{ background: 'var(--surface)' }}
+    >
+      {/* Card header — macOS panel style */}
+      <div className='px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3'>
+        <div
+          className='w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center'
+          style={{ background: 'var(--accent-light)' }}
+        >
+          <Bell size={16} style={{ color: 'var(--accent)' }} />
+        </div>
+        <div>
+          <h3
+            className='text-base font-semibold leading-tight'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
+          >
+            {t('其他设置')}
+          </h3>
+          <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)', margin: 0 }}>
+            {t('通知、价格和隐私相关设置')}
+          </p>
+        </div>
+      </div>
+
+      <div className='p-5'>
+        {/* Footer actions */}
+        <div className='flex justify-end gap-3 mb-4'>
           {activeTabKey === 'sidebar' ? (
-            // 边栏设置标签页的按钮
             <>
               <Button
                 type='tertiary'
                 onClick={resetSidebarModules}
-                style={{ borderRadius: 'var(--radius-md)' }}
+                className='!rounded-[var(--radius-md)]'
               >
                 {t('重置为默认')}
               </Button>
@@ -370,34 +393,17 @@ const NotificationSettings = ({
                 type='primary'
                 onClick={saveSidebarSettings}
                 loading={sidebarLoading}
-                style={{ borderRadius: 'var(--radius-md)' }}
+                className='!rounded-[var(--radius-md)]'
               >
                 {t('保存设置')}
               </Button>
             </>
           ) : (
-            // 其他标签页的通用保存按钮
-            <Button type='primary' onClick={handleSubmit}>
+            <Button type='primary' onClick={handleSubmit} className='!rounded-[var(--radius-md)]'>
               {t('保存设置')}
             </Button>
           )}
         </div>
-      }
-    >
-      {/* 卡片头部 */}
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='blue' className='mr-3'>
-          <Bell size={16} />
-        </Avatar>
-        <div>
-          <Typography.Text className='text-lg font-medium'>
-            {t('其他设置')}
-          </Typography.Text>
-          <div className='text-xs' style={{ color: 'var(--text-secondary)' }}>
-            {t('通知、价格和隐私相关设置')}
-          </div>
-        </div>
-      </div>
 
       <Form
         getFormApi={(api) => (formApiRef.current = api)}
@@ -945,7 +951,8 @@ const NotificationSettings = ({
           </Tabs>
         )}
       </Form>
-    </Card>
+      </div>
+    </div>
   );
 };
 

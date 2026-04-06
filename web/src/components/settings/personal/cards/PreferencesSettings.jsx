@@ -120,23 +120,33 @@ const PreferencesSettings = ({ t }) => {
 	};
 
 	return (
-		<Card style={{ borderRadius: 'var(--radius-lg)' }}>
-			{/* Card Header */}
-			<div className="flex items-center mb-4">
-				<Avatar size="small" color="violet" className="mr-3">
-					<Languages size={16} />
-				</Avatar>
+		<div
+			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden"
+			style={{ background: 'var(--surface)' }}
+		>
+			{/* Card header — macOS panel style */}
+			<div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3">
+				<div
+					className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center"
+					style={{ background: 'var(--accent-light)' }}
+				>
+					<Languages size={16} style={{ color: 'var(--accent)' }} />
+				</div>
 				<div>
-					<Typography.Text className="text-lg font-medium">
+					<h3
+						className="text-base font-semibold leading-tight"
+						style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
+					>
 						{t("偏好设置")}
-					</Typography.Text>
-					<div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+					</h3>
+					<p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)', margin: 0 }}>
 						{t("界面语言和其他个人偏好")}
-					</div>
+					</p>
 				</div>
 			</div>
-			{/* Language Setting Card */}
-			<Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
+			<div className="p-5">
+			{/* Language Setting */}
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] p-4" style={{ background: 'var(--bg-subtle)' }}>
 				<div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
 					<div className="flex items-start w-full sm:w-auto">
 						<div className="w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
@@ -165,7 +175,7 @@ const PreferencesSettings = ({ t }) => {
 						}))}
 					/>
 				</div>
-			</Card>
+			</div>
 
 			{/* Additional info */}
 			<div className="mt-4 text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -175,7 +185,8 @@ const PreferencesSettings = ({ t }) => {
 					)}
 				</Typography.Text>
 			</div>
-		</Card>
+			</div>
+		</div>
 	);
 };
 

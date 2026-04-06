@@ -213,7 +213,10 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
   };
 
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
+    <div
+      className='rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden'
+      style={{ background: 'var(--surface)' }}
+    >
       <Modal
         title='Security Check'
         visible={turnstileModalVisible}
@@ -238,27 +241,33 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
         </div>
       </Modal>
 
-      {/* 卡片头部 */}
-      <div className='flex items-center justify-between'>
+      {/* Card header — macOS panel style */}
+      <div className='px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between'>
         <div
-          className='flex items-center flex-1 cursor-pointer'
+          className='flex items-center flex-1 cursor-pointer gap-3'
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <Avatar size='small' color='green' className='mr-3'>
-            <CalendarCheck size={16} />
-          </Avatar>
+          <div
+            className='w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center flex-shrink-0'
+            style={{ background: 'var(--accent-light)' }}
+          >
+            <CalendarCheck size={16} style={{ color: 'var(--accent)' }} />
+          </div>
           <div className='flex-1'>
             <div className='flex items-center gap-2'>
-              <Typography.Text className='text-lg font-medium'>
+              <h3
+                className='text-base font-semibold leading-tight'
+                style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
+              >
                 {t('每日签到')}
-              </Typography.Text>
+              </h3>
               {isCollapsed ? (
-                <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />
+                <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
               ) : (
-                <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} />
+                <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} />
               )}
             </div>
-            <div className='text-xs' style={{ color: 'var(--text-muted)' }}>
+            <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)', margin: 0 }}>
               {!initialLoaded
                 ? t('正在加载签到状态...')
                 : checkinData.stats?.checked_in_today
@@ -266,7 +275,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
                     ` ${checkinData.stats?.total_checkins || 0} ` +
                     t('天')
                   : t('每日签到可获得随机额度奖励')}
-            </div>
+            </p>
           </div>
         </div>
         <Button
@@ -288,6 +297,7 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
 
       {/* 可折叠内容 */}
       <Collapsible isOpen={isCollapsed === false} keepDOM>
+        <div className='px-5 pb-5'>
         {/* 签到统计 */}
         <div className='grid grid-cols-3 gap-3 mb-4 mt-4'>
           <div className='text-center p-2.5 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
@@ -376,8 +386,9 @@ const CheckinCalendar = ({ t, status, turnstileEnabled, turnstileSiteKey }) => {
             </ul>
           </Typography.Text>
         </div>
+        </div>
       </Collapsible>
-    </Card>
+    </div>
   );
 };
 

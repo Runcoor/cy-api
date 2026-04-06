@@ -152,7 +152,7 @@ const DeploymentAccessGuard = ({
                     width: '32px',
                     height: '32px',
                     borderRadius: '8px',
-                    backgroundColor: 'rgba(var(--semi-blue-4), 0.15)',
+                    backgroundColor: 'var(--accent-light)',
                   }}
                 >
                   <Server size={20} color='var(--accent)' />

@@ -61,7 +61,7 @@ const DebugPanel = ({
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: '100%',
-      background: 'rgba(var(--semi-grey-1), 1)',
+      background: 'var(--surface-active)',
       color: 'var(--text-primary)',
       cursor: 'pointer',
     };
