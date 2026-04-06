@@ -54,7 +54,7 @@ export const useDashboardStats = (
             icon: <IconMoneyExchangeStroked />,
             avatarColor: 'blue',
             trendData: [],
-            trendColor: '#3b82f6',
+            trendColor: '#007AFF',
           },
           {
             title: t('历史消耗'),
@@ -62,7 +62,7 @@ export const useDashboardStats = (
             icon: <IconHistogram />,
             avatarColor: 'purple',
             trendData: [],
-            trendColor: '#8b5cf6',
+            trendColor: '#AF52DE',
           },
         ],
       },
@@ -76,7 +76,7 @@ export const useDashboardStats = (
             icon: <IconSend />,
             avatarColor: 'green',
             trendData: [],
-            trendColor: '#10b981',
+            trendColor: '#34C759',
           },
           {
             title: t('统计次数'),
@@ -84,7 +84,7 @@ export const useDashboardStats = (
             icon: <IconPulse />,
             avatarColor: 'cyan',
             trendData: trendData.times,
-            trendColor: '#06b6d4',
+            trendColor: '#5AC8FA',
           },
         ],
       },
@@ -98,7 +98,7 @@ export const useDashboardStats = (
             icon: <IconCoinMoneyStroked />,
             avatarColor: 'yellow',
             trendData: trendData.consumeQuota,
-            trendColor: '#f59e0b',
+            trendColor: '#FF9500',
           },
           {
             title: t('统计Tokens'),
@@ -106,13 +106,13 @@ export const useDashboardStats = (
             icon: <IconTextStroked />,
             avatarColor: 'pink',
             trendData: trendData.tokens,
-            trendColor: '#ec4899',
+            trendColor: '#FF2D55',
           },
         ],
       },
       {
         title: createSectionTitle(Gauge, t('性能指标')),
-        color: 'bg-indigo-50',
+        color: 'info',
         items: [
           {
             title: t('平均RPM'),
@@ -120,7 +120,7 @@ export const useDashboardStats = (
             icon: <IconStopwatchStroked />,
             avatarColor: 'indigo',
             trendData: trendData.rpm,
-            trendColor: '#6366f1',
+            trendColor: '#5856D6',
           },
           {
             title: t('平均TPM'),
@@ -128,7 +128,7 @@ export const useDashboardStats = (
             icon: <IconTypograph />,
             avatarColor: 'orange',
             trendData: trendData.tpm,
-            trendColor: '#f97316',
+            trendColor: '#FF9500',
           },
         ],
       },

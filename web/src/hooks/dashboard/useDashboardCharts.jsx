@@ -68,12 +68,12 @@ export const useDashboardCharts = (
       state: {
         hover: {
           outerRadius: 0.85,
-          stroke: '#000',
+          stroke: 'rgba(128,128,128,0.2)',
           lineWidth: 1,
         },
         selected: {
           outerRadius: 0.85,
-          stroke: '#000',
+          stroke: 'rgba(128,128,128,0.2)',
           lineWidth: 1,
         },
       },
@@ -129,7 +129,7 @@ export const useDashboardCharts = (
     bar: {
       state: {
         hover: {
-          stroke: '#000',
+          stroke: 'rgba(128,128,128,0.2)',
           lineWidth: 1,
         },
       },
@@ -239,7 +239,7 @@ export const useDashboardCharts = (
     bar: {
       state: {
         hover: {
-          stroke: '#000',
+          stroke: 'rgba(128,128,128,0.2)',
           lineWidth: 1,
         },
       },

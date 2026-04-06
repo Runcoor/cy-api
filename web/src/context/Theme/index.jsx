@@ -23,6 +23,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useLayoutEffect,
 } from 'react';
 
 const ThemeContext = createContext(null);
@@ -34,7 +35,6 @@ export const useActualTheme = () => useContext(ActualThemeContext);
 const SetThemeContext = createContext(null);
 export const useSetTheme = () => useContext(SetThemeContext);
 
-// 检测系统主题偏好
 const getSystemTheme = () => {
   if (typeof window !== 'undefined' && window.matchMedia) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -42,6 +42,26 @@ const getSystemTheme = () => {
       : 'light';
   }
   return 'light';
+};
+
+/**
+ * Apply theme to DOM — sets html.dark class, body theme-mode attribute,
+ * and updates meta theme-color for the browser chrome.
+ */
+const applyThemeToDOM = (resolvedTheme) => {
+  const html = document.documentElement;
+  const body = document.body;
+  const meta = document.getElementById('meta-theme-color');
+
+  if (resolvedTheme === 'dark') {
+    html.classList.add('dark');
+    body.setAttribute('theme-mode', 'dark');
+    if (meta) meta.setAttribute('content', '#1c1c1e');
+  } else {
+    html.classList.remove('dark');
+    body.removeAttribute('theme-mode');
+    if (meta) meta.setAttribute('content', '#F5F5F7');
+  }
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -55,10 +75,9 @@ export const ThemeProvider = ({ children }) => {
 
   const [systemTheme, setSystemTheme] = useState(getSystemTheme());
 
-  // 计算实际应用的主题
   const actualTheme = theme === 'auto' ? systemTheme : theme;
 
-  // 监听系统主题变化
+  // Listen for system theme changes (for auto mode)
   useEffect(() => {
     if (typeof window !== 'undefined' && window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -75,26 +94,20 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // 应用主题到DOM
-  useEffect(() => {
-    const body = document.body;
-    if (actualTheme === 'dark') {
-      body.setAttribute('theme-mode', 'dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      body.removeAttribute('theme-mode');
-      document.documentElement.classList.remove('dark');
-    }
+  // Apply theme to DOM synchronously to avoid flash.
+  // The inline script in index.html handles the very first paint;
+  // useLayoutEffect handles React-driven updates (toggle, system change).
+  useLayoutEffect(() => {
+    applyThemeToDOM(actualTheme);
   }, [actualTheme]);
 
   const setTheme = useCallback((newTheme) => {
     let themeValue;
 
     if (typeof newTheme === 'boolean') {
-      // 向后兼容原有的 boolean 参数
+      // Backward compatibility with boolean parameter
       themeValue = newTheme ? 'dark' : 'light';
     } else if (typeof newTheme === 'string') {
-      // 新的字符串参数支持 'light', 'dark', 'auto'
       themeValue = newTheme;
     } else {
       themeValue = 'auto';

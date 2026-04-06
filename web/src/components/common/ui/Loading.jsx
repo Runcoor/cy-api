@@ -29,11 +29,24 @@ const sizeMap = {
 
 /**
  * macOS-style 12-bar radiating activity indicator.
- * Replaces the default Semi Design Spin component.
+ *
+ * @param {string} size - 'small' | 'medium' | 'large'
+ * @param {boolean} fullscreen - If true, covers entire viewport (initial app load).
+ *                                If false (default), fills parent container (route Suspense).
  */
-const Loading = ({ size = 'medium' }) => {
+const Loading = ({ size = 'medium', fullscreen = false }) => {
+  const className = fullscreen
+    ? 'fixed inset-0 w-screen h-screen flex items-center justify-center'
+    : 'flex items-center justify-center w-full';
+
   return (
-    <div className='fixed inset-0 w-screen h-screen flex items-center justify-center' style={{ background: 'var(--bg-base)' }}>
+    <div
+      className={className}
+      style={{
+        background: fullscreen ? 'var(--bg-base)' : 'transparent',
+        minHeight: fullscreen ? undefined : '320px',
+      }}
+    >
       <div className={`mv-loader ${sizeMap[size] || sizeMap.medium}`}>
         {bars.map((_, i) => (
           <span key={i} className='mv-loader-bar' />

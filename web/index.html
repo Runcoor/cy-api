@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" id="meta-theme-color" content="#F5F5F7" />
     <meta
       name="description"
       lang="zh"
@@ -17,6 +17,27 @@
     />
     <meta name="generator" content="new-api" />
     <title>New API</title>
+    <!-- FOUC prevention: apply theme + initial bg before React/CSS loads -->
+    <style>
+      html.dark body { background-color: #1c1c1e; color: rgba(255,255,255,0.95); }
+      html:not(.dark) body { background-color: #F5F5F7; color: rgba(0,0,0,0.85); }
+    </style>
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('theme-mode') || 'auto';
+          var isDark = stored === 'dark' ||
+            (stored === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('meta-theme-color').setAttribute('content', '#1c1c1e');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('meta-theme-color').setAttribute('content', '#F5F5F7');
+          }
+        } catch(e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />

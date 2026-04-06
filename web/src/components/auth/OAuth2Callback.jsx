@@ -101,7 +101,7 @@ const OAuth2Callback = (props) => {
     sendCode(code, state);
   }, []);
 
-  return <Loading />;
+  return <Loading fullscreen />;
 };
 
 export default OAuth2Callback;

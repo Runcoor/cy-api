@@ -18,9 +18,13 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTokenKeys } from '../../hooks/chat/useTokenKeys';
 
+const bars = Array.from({ length: 12 });
+
 const chat2page = () => {
+  const { t } = useTranslation();
   const { keys, chatLink, serverAddress, isLoading } = useTokenKeys();
 
   const comLink = (key) => {
@@ -36,8 +40,27 @@ const chat2page = () => {
   }
 
   return (
-    <div className='mt-[60px] px-2'>
-      <h3>正在加载，请稍候...</h3>
+    <div
+      className='flex flex-col items-center justify-center gap-3'
+      style={{
+        minHeight: '320px',
+        background: 'var(--bg-base)',
+      }}
+    >
+      <div className='mv-loader mv-loader-medium'>
+        {bars.map((_, i) => (
+          <span key={i} className='mv-loader-bar' />
+        ))}
+      </div>
+      <p
+        className='text-sm mt-2'
+        style={{
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-sans)',
+        }}
+      >
+        {t('加载中...')}
+      </p>
     </div>
   );
 };

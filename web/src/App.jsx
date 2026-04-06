@@ -89,6 +89,7 @@ function App() {
 
   return (
     <SetupCheck>
+      <div key={location.pathname} className='mv-fade-in'>
       <Routes>
         <Route
           path='/'
@@ -379,6 +380,7 @@ function App() {
         />
         <Route path='*' element={<NotFound />} />
       </Routes>
+      </div>
     </SetupCheck>
   );
 }
