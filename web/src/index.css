@@ -180,6 +180,13 @@ code {
   font-family: var(--font-mono);
 }
 
+/* ==================== JSON Syntax Highlighting (theme-aware) ==================== */
+.mv-json-key    { color: var(--accent); }
+.mv-json-string { color: var(--warning); }
+.mv-json-number { color: var(--success); }
+.mv-json-keyword { color: #AF52DE; }
+html.dark .mv-json-keyword { color: #BF5AF2; }
+
 /* Serif headings */
 h1, h2, h3, .mv-heading {
   font-family: var(--font-serif);
@@ -1285,20 +1292,20 @@ html.dark .sbg-variant-green {
 
 /* ==================== Channel Affinity Tag ==================== */
 .semi-tag.channel-affinity-tag {
-  border: 1px solid rgba(var(--semi-cyan-5), 0.35);
-  background-color: rgba(var(--semi-cyan-5), 0.15);
-  color: rgba(var(--semi-cyan-9), 1);
+  border: 1px solid var(--border-default);
+  background-color: var(--info-light);
+  color: var(--info);
   cursor: help;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
 .semi-tag.channel-affinity-tag:hover {
-  background-color: rgba(var(--semi-cyan-5), 0.22);
-  border-color: rgba(var(--semi-cyan-5), 0.6);
+  background-color: var(--accent-light);
+  border-color: var(--accent);
 }
 
 .semi-tag.channel-affinity-tag:active {
-  background-color: rgba(var(--semi-cyan-5), 0.28);
+  background-color: var(--accent-light);
 }
 
 .semi-tag.channel-affinity-tag .channel-affinity-tag-content {

@@ -179,7 +179,7 @@ function renderIsStream(bool, t, streamStatus) {
                 right: -4,
                 top: -4,
                 lineHeight: 1,
-                color: '#ef4444',
+                color: 'var(--error)',
                 cursor: 'pointer',
                 userSelect: 'none',
               }}
@@ -586,7 +586,7 @@ export const getLogsColumns = ({
                       top: -4,
                       lineHeight: 1,
                       fontWeight: 600,
-                      color: '#f59e0b',
+                      color: 'var(--warning)',
                       cursor: 'pointer',
                       userSelect: 'none',
                     }}

@@ -29,18 +29,18 @@ const PERFORMANCE_CONFIG = {
   VERY_LARGE_MULTIPLIER: 2, // 超大内容倍数
 };
 
+/* ---------- Theme-aware style objects ---------- */
 const codeThemeStyles = {
   container: {
-    backgroundColor: '#1e1e1e',
-    color: '#d4d4d4',
-    fontFamily: 'Consolas, "Courier New", Monaco, "SF Mono", monospace',
+    backgroundColor: 'var(--bg-base)',
+    color: 'var(--text-primary)',
+    fontFamily: 'var(--font-mono)',
     fontSize: '13px',
     lineHeight: '1.4',
-    borderRadius: '8px',
-    border: '1px solid #3c3c3c',
+    borderRadius: 'var(--radius-lg)',
+    border: '1px solid var(--border-default)',
     position: 'relative',
     overflow: 'hidden',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
   },
   content: {
     height: '100%',
@@ -50,39 +50,38 @@ const codeThemeStyles = {
     margin: 0,
     whiteSpace: 'pre',
     wordBreak: 'normal',
-    background: '#1e1e1e',
+    background: 'var(--bg-base)',
   },
   actionButton: {
     position: 'absolute',
     zIndex: 10,
-    backgroundColor: 'rgba(45, 45, 45, 0.9)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    color: '#d4d4d4',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease',
+    backgroundColor: 'var(--surface-active)',
+    border: '1px solid var(--border-default)',
+    color: 'var(--text-secondary)',
+    borderRadius: 'var(--radius-sm)',
+    transition: 'background-color 150ms ease-out',
   },
   actionButtonHover: {
-    backgroundColor: 'rgba(60, 60, 60, 0.95)',
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    transform: 'scale(1.05)',
+    backgroundColor: 'var(--surface-hover)',
+    borderColor: 'var(--border-default)',
   },
   noContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    color: '#666',
+    color: 'var(--text-muted)',
     fontSize: '14px',
     fontStyle: 'italic',
     backgroundColor: 'var(--surface-hover)',
-    borderRadius: '8px',
+    borderRadius: 'var(--radius-md)',
   },
   performanceWarning: {
     padding: '8px 12px',
-    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-    border: '1px solid rgba(255, 193, 7, 0.3)',
-    borderRadius: '6px',
-    color: '#ffc107',
+    backgroundColor: 'var(--warning-light)',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-sm)',
+    color: 'var(--warning)',
     fontSize: '12px',
     marginBottom: '8px',
     display: 'flex',
@@ -100,6 +99,11 @@ const escapeHtml = (str) => {
     .replace(/'/g, '&#039;');
 };
 
+/*
+ * JSON syntax highlighting using CSS variables for theme-awareness.
+ * We use classes instead of inline colors, styled via index.css.
+ * Fallback: semantic inline colors that work in both light & dark.
+ */
 const highlightJson = (str) => {
   const tokenRegex =
     /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g;
@@ -113,14 +117,14 @@ const highlightJson = (str) => {
     result += escapeHtml(str.slice(lastIndex, match.index));
 
     const token = match[0];
-    let color = '#b5cea8';
+    let cls = 'mv-json-number';
     if (/^"/.test(token)) {
-      color = /:$/.test(token) ? '#9cdcfe' : '#ce9178';
+      cls = /:$/.test(token) ? 'mv-json-key' : 'mv-json-string';
     } else if (/true|false|null/.test(token)) {
-      color = '#569cd6';
+      cls = 'mv-json-keyword';
     }
     // Escape token content before wrapping in span
-    result += `<span style="color: ${color}">${escapeHtml(token)}</span>`;
+    result += `<span class="${cls}">${escapeHtml(token)}</span>`;
     lastIndex = tokenRegex.lastIndex;
   }
 
@@ -274,10 +278,10 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
 
   return (
     <div style={codeThemeStyles.container} className='h-full'>
-      {/* 性能警告 */}
+      {/* Performance warning */}
       {contentMetrics.isLarge && (
         <div style={codeThemeStyles.performanceWarning}>
-          <span>⚡</span>
+          <span style={{ color: 'var(--warning)' }}>&#9889;</span>
           <span>
             {contentMetrics.isVeryLarge
               ? t('内容较大，已启用性能优化模式')
@@ -286,7 +290,7 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
         </div>
       )}
 
-      {/* 复制按钮 */}
+      {/* Copy button */}
       <div
         style={{
           ...codeThemeStyles.actionButton,
@@ -306,14 +310,14 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
             style={{
               backgroundColor: 'transparent',
               border: 'none',
-              color: copied ? '#4ade80' : '#d4d4d4',
+              color: copied ? 'var(--success)' : 'var(--text-secondary)',
               padding: '6px',
             }}
           />
         </Tooltip>
       </div>
 
-      {/* 代码内容 */}
+      {/* Code content */}
       <div
         style={{
           ...codeThemeStyles.content,
@@ -330,20 +334,11 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
               alignItems: 'center',
               justifyContent: 'center',
               height: '200px',
-              color: '#888',
+              color: 'var(--text-muted)',
+              gap: '10px',
             }}
           >
-            <div
-              style={{
-                width: '20px',
-                height: '20px',
-                border: '2px solid #444',
-                borderTop: '2px solid #888',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginRight: '8px',
-              }}
-            />
+            <div className='mv-loader' style={{ width: '20px', height: '20px' }} />
             {t('正在处理大内容...')}
           </div>
         ) : (
@@ -351,7 +346,7 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
         )}
       </div>
 
-      {/* 展开/收起按钮 */}
+      {/* Expand/collapse button */}
       {contentMetrics.isLarge && !isProcessing && (
         <div
           style={{
@@ -372,7 +367,7 @@ const CodeViewer = ({ content, title, language = 'json' }) => {
               style={{
                 backgroundColor: 'transparent',
                 border: 'none',
-                color: '#d4d4d4',
+                color: 'var(--text-secondary)',
                 padding: '6px 12px',
               }}
             >

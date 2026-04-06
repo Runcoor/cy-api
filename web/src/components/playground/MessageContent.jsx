@@ -21,7 +21,7 @@ import React, { useRef, useEffect } from 'react';
 import { Typography, TextArea, Button } from '@douyinfe/semi-ui';
 import MarkdownRenderer from '../common/markdown/MarkdownRenderer';
 import ThinkingContent from './ThinkingContent';
-import { Loader2, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MessageContent = ({
@@ -177,13 +177,7 @@ const MessageContent = ({
         className={`${className} flex items-center gap-2 sm:gap-4`}
         style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)' }}
       >
-        <div className='w-5 h-5 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent)' }}>
-          <Loader2
-            className='animate-spin'
-            style={{ color: '#fff' }}
-            size={styleState.isMobile ? 16 : 20}
-          />
-        </div>
+        <div className='mv-loader' style={{ width: '20px', height: '20px' }} />
       </div>
     );
   }
