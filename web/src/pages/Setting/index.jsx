@@ -60,8 +60,8 @@ const Setting = () => {
   if (isRoot()) {
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Settings size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Settings size={16} />
           {t('运营设置')}
         </span>
       ),
@@ -70,8 +70,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <LayoutDashboard size={18} />
+        <span className='flex items-center gap-1.5'>
+          <LayoutDashboard size={16} />
           {t('仪表盘设置')}
         </span>
       ),
@@ -80,8 +80,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <MessageSquare size={18} />
+        <span className='flex items-center gap-1.5'>
+          <MessageSquare size={16} />
           {t('聊天设置')}
         </span>
       ),
@@ -90,8 +90,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Palette size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Palette size={16} />
           {t('绘图设置')}
         </span>
       ),
@@ -100,8 +100,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <CreditCard size={18} />
+        <span className='flex items-center gap-1.5'>
+          <CreditCard size={16} />
           {t('支付设置')}
         </span>
       ),
@@ -110,8 +110,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Calculator size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Calculator size={16} />
           {t('分组与模型定价设置')}
         </span>
       ),
@@ -120,8 +120,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Gauge size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Gauge size={16} />
           {t('速率限制设置')}
         </span>
       ),
@@ -130,8 +130,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Shapes size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Shapes size={16} />
           {t('模型相关设置')}
         </span>
       ),
@@ -140,8 +140,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Server size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Server size={16} />
           {t('模型部署设置')}
         </span>
       ),
@@ -150,8 +150,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Activity size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Activity size={16} />
           {t('性能设置')}
         </span>
       ),
@@ -160,8 +160,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <Cog size={18} />
+        <span className='flex items-center gap-1.5'>
+          <Cog size={16} />
           {t('系统设置')}
         </span>
       ),
@@ -170,8 +170,8 @@ const Setting = () => {
     });
     panes.push({
       tab: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <MoreHorizontal size={18} />
+        <span className='flex items-center gap-1.5'>
+          <MoreHorizontal size={16} />
           {t('其他设置')}
         </span>
       ),
@@ -194,22 +194,64 @@ const Setting = () => {
   }, [location.search]);
   return (
     <div className='mt-[60px] px-2'>
-      <Layout>
-        <Layout.Content>
-          <Tabs
-            type='card'
-            collapsible
-            activeKey={tabActiveKey}
-            onChange={(key) => onChangeTab(key)}
+      <div
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Panel Header */}
+        <div
+          className='px-5 py-3 flex items-center gap-2.5'
+          style={{
+            background: 'var(--bg-subtle)',
+            borderBottom: '1px solid var(--border-subtle)',
+          }}
+        >
+          <div
+            className='flex items-center justify-center'
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
           >
-            {panes.map((pane) => (
-              <TabPane itemKey={pane.itemKey} tab={pane.tab} key={pane.itemKey}>
-                {tabActiveKey === pane.itemKey && pane.content}
-              </TabPane>
-            ))}
-          </Tabs>
-        </Layout.Content>
-      </Layout>
+            <Cog size={15} />
+          </div>
+          <h2
+            className='text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              margin: 0,
+            }}
+          >
+            {t('系统设置')}
+          </h2>
+        </div>
+
+        {/* Tabs Content */}
+        <Layout>
+          <Layout.Content>
+            <Tabs
+              type='card'
+              collapsible
+              activeKey={tabActiveKey}
+              onChange={(key) => onChangeTab(key)}
+            >
+              {panes.map((pane) => (
+                <TabPane itemKey={pane.itemKey} tab={pane.tab} key={pane.itemKey}>
+                  {tabActiveKey === pane.itemKey && pane.content}
+                </TabPane>
+              ))}
+            </Tabs>
+          </Layout.Content>
+        </Layout>
+      </div>
     </div>
   );
 };
