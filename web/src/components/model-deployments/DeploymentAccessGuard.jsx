@@ -42,7 +42,7 @@ const DeploymentAccessGuard = ({
   if (loading) {
     return (
       <div
-        className='mt-[60px] px-4 flex items-center justify-center'
+        className='px-4 flex items-center justify-center'
         style={{ minHeight: 'calc(100vh - 120px)' }}
       >
         <div className='text-center'>
@@ -58,7 +58,7 @@ const DeploymentAccessGuard = ({
   if (!isEnabled) {
     return (
       <div
-        className='mt-[60px] px-4 flex items-center justify-center'
+        className='px-4 flex items-center justify-center'
         style={{ minHeight: 'calc(100vh - 120px)' }}
       >
         <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
@@ -188,7 +188,7 @@ const DeploymentAccessGuard = ({
   if (connectionLoading || (connectionOk === null && !connectionError)) {
     return (
       <div
-        className='mt-[60px] px-4 flex items-center justify-center'
+        className='px-4 flex items-center justify-center'
         style={{ minHeight: 'calc(100vh - 120px)' }}
       >
         <div className='text-center'>
@@ -211,7 +211,7 @@ const DeploymentAccessGuard = ({
 
     return (
       <div
-        className='mt-[60px] px-4 flex items-center justify-center'
+        className='px-4 flex items-center justify-center'
         style={{ minHeight: 'calc(100vh - 120px)' }}
       >
         <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>

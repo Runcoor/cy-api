@@ -713,7 +713,7 @@ const TopUp = () => {
   };
 
   return (
-    <div className='w-full max-w-7xl mx-auto relative min-h-screen lg:min-h-0 mt-[60px] px-3 md:px-6'>
+    <div className='w-full max-w-7xl mx-auto relative min-h-screen lg:min-h-0'>
       {/* 划转模态框 */}
       <TransferModal
         t={t}

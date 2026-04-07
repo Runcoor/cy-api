@@ -22,7 +22,7 @@ import ChannelsTable from '../../components/table/channels';
 
 const File = () => {
   return (
-    <div className='mt-[60px] px-3 md:px-6'>
+    <div>
       <ChannelsTable />
     </div>
   );
