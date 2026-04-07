@@ -1165,8 +1165,22 @@ html.dark .semi-skeleton-content .semi-skeleton-paragraph li {
 }
 
 .semi-navigation-item-selected {
-  background: var(--surface-active) !important;
+  background: var(--accent-light) !important;
   color: var(--accent) !important;
+  position: relative;
+}
+
+/* macOS-style active indicator bar on left edge */
+.semi-navigation-item-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
 }
 
 .semi-navigation-item:hover {
@@ -1281,38 +1295,7 @@ html.dark .semi-sidesheet-inner {
   display: none;
 }
 
-/* Sidebar nav items */
-.sidebar-nav-item {
-  border-radius: var(--radius-md);
-  margin: 1px 8px;
-  transition: background-color var(--ease-micro), color var(--ease-micro);
-  padding: 6px 12px;
-  position: relative;
-}
-
-.sidebar-nav-item:hover {
-  background-color: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-.sidebar-nav-item-selected {
-  background-color: var(--accent-light);
-  color: var(--accent);
-  font-weight: 500;
-}
-
-/* macOS-style active indicator bar */
-.sidebar-nav-item-selected::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 16px;
-  background: var(--accent);
-  border-radius: 0 2px 2px 0;
-}
+/* Sidebar nav items — styled via Semi global overrides (.semi-navigation-item-selected etc.) */
 
 /* Icon containers */
 .sidebar-icon-container {
@@ -1650,6 +1633,52 @@ html.dark .sbg-variant-green {
 }
 
 /* ==================== Scrollbar Styles ==================== */
+
+/* macOS-style thin overlay scrollbar for all scrollable areas */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html.dark *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Firefox thin scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+html.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
 /* Generic hide-scrollbar utility */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -1662,43 +1691,7 @@ html.dark .sbg-variant-green {
   display: none !important;
 }
 
-/* Table scrollbar - thin, subtle */
-.semi-table-body::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.semi-table-body::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
-
-.semi-table-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.semi-table-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* SideSheet scrollbar */
-.semi-sidesheet-body::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.semi-sidesheet-body::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
-
-.semi-sidesheet-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.semi-sidesheet-body::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* Table & SideSheet scrollbar — handled by global thin scrollbar above */
 
 /* Content area scrollbar hiding */
 .pricing-scroll-hide,
@@ -1724,24 +1717,7 @@ html.dark .sbg-variant-green {
   display: none;
 }
 
-/* Image list scrollbar */
-.image-list-scroll::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.image-list-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
-
-.image-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.image-list-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* Image list scrollbar — handled by global thin scrollbar above */
 
 /* ==================== Transfer Component ==================== */
 .components-transfer-source-item,
@@ -1846,22 +1822,7 @@ html.dark .sbg-variant-green {
   overflow-y: auto;
 }
 
-.table-scroll-card .semi-card-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.table-scroll-card .semi-card-body::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
-
-.table-scroll-card .semi-card-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.table-scroll-card .semi-card-body::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* Table-scroll-card scrollbar — handled by global thin scrollbar */
 
 @media (max-width: 767px) {
   .table-scroll-card {
@@ -1890,22 +1851,7 @@ html.dark .sbg-variant-green {
   flex: 0 0 auto;
 }
 
-.mv-card-pro .mv-card-pro-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 3px;
-}
-
-.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.mv-card-pro .mv-card-pro-body::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* CardPro body scrollbar — handled by global thin scrollbar */
 
 @media (max-width: 767px) {
   .mv-card-pro {

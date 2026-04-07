@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Chat, Button } from '@douyinfe/semi-ui';
+import { Chat, Button } from '@douyinfe/semi-ui';
 import { MessageSquare, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import CustomInputRender from './CustomInputRender';
@@ -47,10 +47,9 @@ const ChatArea = ({
   }, []);
 
   return (
-    <Card
+    <div
       className='h-full'
-      bordered={false}
-      bodyStyle={{
+      style={{
         padding: 0,
         height: 'calc(100vh - 66px)',
         display: 'flex',
@@ -122,7 +121,7 @@ const ChatArea = ({
           placeholder={t('请输入您的问题...')}
         />
       </div>
-    </Card>
+    </div>
   );
 };
 
