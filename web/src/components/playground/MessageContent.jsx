@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useRef, useEffect } from 'react';
-import { Typography, TextArea, Button } from '@douyinfe/semi-ui';
+import { TextArea, Button } from '@douyinfe/semi-ui';
 import MarkdownRenderer from '../common/markdown/MarkdownRenderer';
 import ThinkingContent from './ThinkingContent';
 import { Check, X } from 'lucide-react';
@@ -66,7 +66,7 @@ const MessageContent = ({
 
     return (
       <div className={`${className}`}>
-        <Typography.Text style={{ color: 'var(--error)' }}>{errorText}</Typography.Text>
+        <span style={{ color: 'var(--error)' }}>{errorText}</span>
       </div>
     );
   }
@@ -191,13 +191,13 @@ const MessageContent = ({
             style={{ background: 'var(--surface-hover)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}
           >
             <div className='w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--warning)' }}>
-              <Typography.Text className='text-xs font-bold' style={{ color: '#fff' }}>
+              <span className='text-xs font-bold' style={{ color: '#fff' }}>
                 S
-              </Typography.Text>
+              </span>
             </div>
-            <Typography.Text className='text-xs sm:text-sm font-medium' style={{ color: 'var(--warning)' }}>
+            <span className='text-xs sm:text-sm font-medium' style={{ color: 'var(--warning)' }}>
               {t('系统消息')}
-            </Typography.Text>
+            </span>
           </div>
         </div>
       )}

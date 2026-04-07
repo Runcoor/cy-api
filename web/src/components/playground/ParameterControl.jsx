@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Input, Slider, Typography, Button, Tag } from '@douyinfe/semi-ui';
+import { Input, Slider, Button, Tag } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 import {
   Hash,
@@ -49,9 +49,9 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Thermometer size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Temperature
-            </Typography.Text>
+            </span>
             <Tag size='small' shape='circle'>
               {inputs.temperature}
             </Tag>
@@ -72,9 +72,9 @@ const ParameterControl = ({
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('控制输出的随机性和创造性')}
-        </Typography.Text>
+        </span>
         <Slider
           step={0.1}
           min={0.1}
@@ -93,9 +93,9 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Target size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Top P
-            </Typography.Text>
+            </span>
             <Tag size='small' shape='circle'>
               {inputs.top_p}
             </Tag>
@@ -112,9 +112,9 @@ const ParameterControl = ({
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('核采样，控制词汇选择的多样性')}
-        </Typography.Text>
+        </span>
         <Slider
           step={0.1}
           min={0.1}
@@ -133,9 +133,9 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Repeat size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Frequency Penalty
-            </Typography.Text>
+            </span>
             <Tag size='small' shape='circle'>
               {inputs.frequency_penalty}
             </Tag>
@@ -156,9 +156,9 @@ const ParameterControl = ({
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('频率惩罚，减少重复词汇的出现')}
-        </Typography.Text>
+        </span>
         <Slider
           step={0.1}
           min={-2}
@@ -177,9 +177,9 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Ban size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Presence Penalty
-            </Typography.Text>
+            </span>
             <Tag size='small' shape='circle'>
               {inputs.presence_penalty}
             </Tag>
@@ -200,9 +200,9 @@ const ParameterControl = ({
             disabled={disabled}
           />
         </div>
-        <Typography.Text className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2' style={{ color: 'var(--text-muted)' }}>
           {t('存在惩罚，鼓励讨论新话题')}
-        </Typography.Text>
+        </span>
         <Slider
           step={0.1}
           min={-2}
@@ -221,9 +221,9 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Hash size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Max Tokens
-            </Typography.Text>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.max_tokens ? 'solid' : 'borderless'}
@@ -261,12 +261,12 @@ const ParameterControl = ({
         <div className='flex items-center justify-between mb-2'>
           <div className='flex items-center gap-2'>
             <Shuffle size={16} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text strong className='text-sm'>
+            <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Seed
-            </Typography.Text>
-            <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
+            </span>
+            <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
               ({t('可选，用于复现结果')})
-            </Typography.Text>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.seed ? 'solid' : 'borderless'}

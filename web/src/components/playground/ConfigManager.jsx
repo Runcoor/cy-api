@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useRef } from 'react';
-import { Button, Typography, Toast, Modal, Dropdown } from '@douyinfe/semi-ui';
+import { Button, Toast, Modal, Dropdown } from '@douyinfe/semi-ui';
 import { Download, Upload, RotateCcw, Settings2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -229,9 +229,9 @@ const ConfigManager = ({
     <div className='space-y-3'>
       {/* 配置状态信息和重置按钮 */}
       <div className='flex items-center justify-between'>
-        <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {getConfigStatus()}
-        </Typography.Text>
+        </span>
         <Button
           icon={<RotateCcw size={12} />}
           size='small'

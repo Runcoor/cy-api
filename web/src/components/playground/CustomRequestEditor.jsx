@@ -20,7 +20,6 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useState, useEffect } from 'react';
 import {
   TextArea,
-  Typography,
   Button,
   Switch,
   Banner,
@@ -122,9 +121,9 @@ const CustomRequestEditor = ({
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <Code size={16} style={{ color: 'var(--text-muted)' }} />
-          <Typography.Text strong className='text-sm'>
+          <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
             {t('自定义请求体模式')}
-          </Typography.Text>
+          </span>
         </div>
         <Switch
           checked={customRequestMode}
@@ -151,23 +150,23 @@ const CustomRequestEditor = ({
           {/* JSON编辑器 */}
           <div>
             <div className='flex items-center justify-between mb-2'>
-              <Typography.Text strong className='text-sm'>
+              <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                 {t('请求体 JSON')}
-              </Typography.Text>
+              </span>
               <div className='flex items-center gap-2'>
                 {isValid ? (
                   <div className='flex items-center gap-1' style={{ color: 'var(--success)' }}>
                     <Check size={14} />
-                    <Typography.Text className='text-xs'>
+                    <span className='text-xs' style={{ color: 'inherit' }}>
                       {t('格式正确')}
-                    </Typography.Text>
+                    </span>
                   </div>
                 ) : (
                   <div className='flex items-center gap-1' style={{ color: 'var(--error)' }}>
                     <X size={14} />
-                    <Typography.Text className='text-xs'>
+                    <span className='text-xs' style={{ color: 'inherit' }}>
                       {t('格式错误')}
-                    </Typography.Text>
+                    </span>
                   </div>
                 )}
                 <Button
@@ -199,16 +198,16 @@ const CustomRequestEditor = ({
             />
 
             {!isValid && errorMessage && (
-              <Typography.Text type='danger' className='text-xs mt-1 block'>
+              <span className='text-xs mt-1 block' style={{ color: 'var(--error)' }}>
                 {errorMessage}
-              </Typography.Text>
+              </span>
             )}
 
-            <Typography.Text className='text-xs mt-2 block' style={{ color: 'var(--text-muted)' }}>
+            <span className='text-xs mt-2 block' style={{ color: 'var(--text-muted)' }}>
               {t(
                 '请输入有效的JSON格式的请求体。您可以参考预览面板中的默认请求体格式。',
               )}
-            </Typography.Text>
+            </span>
           </div>
         </>
       )}

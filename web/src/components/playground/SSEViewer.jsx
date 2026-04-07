@@ -24,7 +24,6 @@ import {
   Toast,
   Collapse,
   Badge,
-  Typography,
 } from '@douyinfe/semi-ui';
 import {
   Copy,
@@ -136,9 +135,9 @@ const SSEViewer = ({ sseData }) => {
       return (
         <div className='flex items-center gap-2 p-3 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
           <CheckCircle size={16} style={{ color: 'var(--success)' }} />
-          <Typography.Text className='font-medium' style={{ color: 'var(--success)' }}>
+          <span className='font-medium' style={{ color: 'var(--success)' }}>
             {t('流式响应完成')} [DONE]
-          </Typography.Text>
+          </span>
         </div>
       );
     }
@@ -148,9 +147,9 @@ const SSEViewer = ({ sseData }) => {
         <div className='space-y-2'>
           <div className='flex items-center gap-2 p-3 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
             <XCircle size={16} style={{ color: 'var(--error)' }} />
-            <Typography.Text style={{ color: 'var(--error)' }}>
+            <span style={{ color: 'var(--error)' }}>
               {t('解析错误')}: {item.error}
-            </Typography.Text>
+            </span>
           </div>
           <div className='p-3 rounded-lg font-mono text-xs overflow-auto' style={{ background: 'var(--surface-hover)' }}>
             <pre>{item.raw}</pre>
@@ -220,7 +219,7 @@ const SSEViewer = ({ sseData }) => {
       <div className='flex items-center justify-between p-4 flex-shrink-0' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <div className='flex items-center gap-3'>
           <Zap size={16} style={{ color: 'var(--accent)' }} />
-          <Typography.Text strong>{t('SSE数据流')}</Typography.Text>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('SSE数据流')}</span>
           <Badge count={stats.total} type='primary' />
           {stats.errors > 0 && (
             <Badge count={`${stats.errors} ${t('错误')}`} type='danger' />

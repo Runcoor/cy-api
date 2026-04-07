@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Input, Typography, Button, Switch } from '@douyinfe/semi-ui';
+import { Input, Button, Switch } from '@douyinfe/semi-ui';
 import { IconFile } from '@douyinfe/semi-icons';
 import { FileText, Plus, X, Image } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -55,13 +55,13 @@ const ImageUrlInput = ({
             size={16}
             style={{ color: imageEnabled && !disabled ? 'var(--accent)' : 'var(--text-muted)' }}
           />
-          <Typography.Text strong className='text-sm'>
+          <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
             {t('图片地址')}
-          </Typography.Text>
+          </span>
           {disabled && (
-            <Typography.Text className='text-xs' style={{ color: 'var(--warning)' }}>
+            <span className='text-xs' style={{ color: 'var(--warning)' }}>
               ({t('已在自定义模式中忽略')})
-            </Typography.Text>
+            </span>
           )}
         </div>
         <div className='flex items-center gap-2'>
@@ -87,22 +87,22 @@ const ImageUrlInput = ({
       </div>
 
       {!imageEnabled ? (
-        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {disabled
             ? t('图片功能在自定义请求体模式下不可用')
             : t('启用后可添加图片URL进行多模态对话')}
-        </Typography.Text>
+        </span>
       ) : imageUrls.length === 0 ? (
-        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {disabled
             ? t('图片功能在自定义请求体模式下不可用')
             : t('点击 + 按钮添加图片URL进行多模态对话')}
-        </Typography.Text>
+        </span>
       ) : (
-        <Typography.Text className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
+        <span className='text-xs mb-2 block' style={{ color: 'var(--text-muted)' }}>
           {t('已添加')} {imageUrls.length} {t('张图片')}
           {disabled ? ` (${t('自定义模式下不可用')})` : ''}
-        </Typography.Text>
+        </span>
       )}
 
       <div

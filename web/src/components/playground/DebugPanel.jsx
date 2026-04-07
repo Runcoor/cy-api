@@ -20,7 +20,6 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useState, useEffect } from 'react';
 import {
   Card,
-  Typography,
   Tabs,
   TabPane,
   Button,
@@ -112,9 +111,9 @@ const DebugPanel = ({
           <div className='w-10 h-10 flex items-center justify-center mr-3' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
             <Code size={20} style={{ color: 'var(--text-secondary)' }} />
           </div>
-          <Typography.Title heading={5} className='mb-0'>
+          <h5 className='mb-0 text-base' style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)' }}>
             {t('调试信息')}
-          </Typography.Title>
+          </h5>
         </div>
 
         {styleState.isMobile && onCloseDebugPanel && (
@@ -207,13 +206,13 @@ const DebugPanel = ({
         {(debugData.timestamp || debugData.previewTimestamp) && (
           <div className='flex items-center gap-2'>
             <Clock size={14} style={{ color: 'var(--text-muted)' }} />
-            <Typography.Text className='text-xs' style={{ color: 'var(--text-muted)' }}>
+            <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
               {activeKey === 'preview' && debugData.previewTimestamp
                 ? `${t('预览更新')}: ${new Date(debugData.previewTimestamp).toLocaleString()}`
                 : debugData.timestamp
                   ? `${t('最后请求')}: ${new Date(debugData.timestamp).toLocaleString()}`
                   : ''}
-            </Typography.Text>
+            </span>
           </div>
         )}
       </div>
