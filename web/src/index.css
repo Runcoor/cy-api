@@ -1890,22 +1890,21 @@ html.dark .sbg-variant-green {
 
 /* ==================== Pricing Layout ==================== */
 .pricing-layout {
-  height: calc(100vh - 60px);
+  height: calc(100vh - var(--header-height));
   overflow: hidden;
-  margin-top: 60px;
 }
 
 .pricing-sidebar {
   width: clamp(280px, 24vw, 520px) !important;
   min-width: clamp(280px, 24vw, 520px) !important;
   max-width: clamp(280px, 24vw, 520px) !important;
-  height: calc(100vh - 60px);
+  height: calc(100vh - var(--header-height));
   background-color: var(--bg-subtle);
   overflow: auto;
 }
 
 .pricing-content {
-  height: calc(100vh - 60px);
+  height: calc(100vh - var(--header-height));
   background-color: var(--bg-base);
   display: flex;
   flex-direction: column;

@@ -19,13 +19,11 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import {
-  Card,
   Tooltip,
   Checkbox,
   Empty,
   Pagination,
   Button,
-  Avatar,
 } from '@douyinfe/semi-ui';
 import { IconHelpCircle } from '@douyinfe/semi-icons';
 import { Copy } from 'lucide-react';
@@ -122,7 +120,16 @@ const PricingCardView = ({
     if (!model || !model.model_name) {
       return (
         <div className={CARD_STYLES.container}>
-          <Avatar size='large'>?</Avatar>
+          <div
+            className='w-12 h-12 flex items-center justify-center text-base font-semibold'
+            style={{
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--surface-active)',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            ?
+          </div>
         </div>
       );
     }
@@ -147,23 +154,21 @@ const PricingCardView = ({
       );
     }
 
-    // 如果没有供应商图标，使用模型名称生成头像
-
+    // 如果没有供应商图标，使用模型名称生成头像 — native tinted square
     const avatarText = model.model_name.slice(0, 2).toUpperCase();
+    const bgColor = stringToColor(model.model_name);
     return (
       <div className={CARD_STYLES.container}>
-        <Avatar
-          size='large'
+        <div
+          className='w-12 h-12 flex items-center justify-center text-base font-semibold'
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            fontSize: 16,
-            fontWeight: 'bold',
+            borderRadius: 'var(--radius-lg)',
+            background: `${bgColor}1A`,
+            color: bgColor,
           }}
         >
           {avatarText}
-        </Avatar>
+        </div>
       </div>
     );
   };
@@ -270,15 +275,15 @@ const PricingCardView = ({
           });
 
           return (
-            <Card
+            <div
               key={modelKey || index}
               className='w-full h-full cursor-pointer transition-colors duration-150'
               style={{
                 borderRadius: 'var(--radius-lg)',
                 background: isSelected ? 'var(--accent-light)' : 'var(--surface)',
                 border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border-default)',
+                padding: '16px',
               }}
-              bodyStyle={{ height: '100%' }}
               onClick={() => openModelDetail && openModelDetail(model)}
             >
               <div className='flex flex-col h-full'>
@@ -287,7 +292,14 @@ const PricingCardView = ({
                   <div className='flex items-start space-x-3 flex-1 min-w-0'>
                     {getModelIcon(model)}
                     <div className='flex-1 min-w-0'>
-                      <h3 className='text-lg font-bold truncate' style={{ color: 'var(--text-primary)' }}>
+                      <h3
+                        className='text-base font-semibold truncate'
+                        style={{
+                          color: 'var(--text-primary)',
+                          fontFamily: 'var(--font-serif)',
+                          letterSpacing: '-0.01em',
+                        }}
+                      >
                         {model.model_name}
                       </h3>
                       <div className='flex flex-col gap-1 text-xs mt-1'>
@@ -300,12 +312,16 @@ const PricingCardView = ({
                     {/* 复制按钮 */}
                     <Button
                       size='small'
-                      theme='outline'
+                      theme='borderless'
                       type='tertiary'
                       icon={<Copy size={12} />}
                       onClick={(e) => {
                         e.stopPropagation();
                         copyText(model.model_name);
+                      }}
+                      style={{
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--text-muted)',
                       }}
                     />
 
@@ -339,9 +355,18 @@ const PricingCardView = ({
 
                   {/* 倍率信息（可选） */}
                   {showRatio && (
-                    <div className='pt-3'>
+                    <div
+                      className='pt-3 mt-3'
+                      style={{ borderTop: '1px solid var(--border-subtle)' }}
+                    >
                       <div className='flex items-center space-x-1 mb-2'>
-                        <span className='text-xs font-medium' style={{ color: 'var(--text-secondary)' }}>
+                        <span
+                          className='text-xs font-medium'
+                          style={{
+                            color: 'var(--text-secondary)',
+                            fontFamily: 'var(--font-serif)',
+                          }}
+                        >
                           {t('倍率信息')}
                         </span>
                         <Tooltip
@@ -359,26 +384,33 @@ const PricingCardView = ({
                           />
                         </Tooltip>
                       </div>
-                      <div className='grid grid-cols-3 gap-2 text-xs' style={{ color: 'var(--text-secondary)' }}>
+                      <div
+                        className='grid grid-cols-3 gap-2 text-xs'
+                        style={{
+                          color: 'var(--text-secondary)',
+                          fontFamily: 'var(--font-mono)',
+                        }}
+                      >
                         <div>
-                          {t('模型')}:{' '}
+                          <span style={{ fontFamily: 'var(--font-sans)' }}>{t('模型')}: </span>
                           {model.quota_type === 0 ? model.model_ratio : t('无')}
                         </div>
                         <div>
-                          {t('补全')}:{' '}
+                          <span style={{ fontFamily: 'var(--font-sans)' }}>{t('补全')}: </span>
                           {model.quota_type === 0
                             ? parseFloat(model.completion_ratio.toFixed(3))
                             : t('无')}
                         </div>
                         <div>
-                          {t('分组')}: {priceData?.usedGroupRatio ?? '-'}
+                          <span style={{ fontFamily: 'var(--font-sans)' }}>{t('分组')}: </span>
+                          {priceData?.usedGroupRatio ?? '-'}
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>

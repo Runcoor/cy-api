@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Skeleton } from '@douyinfe/semi-ui';
+import { Skeleton } from '@douyinfe/semi-ui';
 
 const PricingCardSkeleton = ({
   skeletonCount = 100,
@@ -29,10 +29,14 @@ const PricingCardSkeleton = ({
     <div className='px-2 pt-2'>
       <div className='grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4'>
         {Array.from({ length: skeletonCount }).map((_, index) => (
-          <Card
+          <div
             key={index}
-            style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', background: 'var(--surface)' }}
-            bodyStyle={{ padding: '24px' }}
+            style={{
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-default)',
+              background: 'var(--surface)',
+              padding: '16px',
+            }}
           >
             {/* 头部：图标 + 模型名称 + 操作按钮 */}
             <div className='flex items-start justify-between mb-3'>
@@ -41,7 +45,7 @@ const PricingCardSkeleton = ({
                 <div className='w-12 h-12 flex items-center justify-center relative' style={{ borderRadius: 'var(--radius-lg)' }}>
                   <Skeleton.Avatar
                     size='large'
-                    style={{ width: 48, height: 48, borderRadius: 16 }}
+                    style={{ width: 48, height: 48, borderRadius: 'var(--radius-lg)' }}
                   />
                 </div>
                 {/* 模型名称和价格区域 */}
@@ -99,7 +103,7 @@ const PricingCardSkeleton = ({
                   style={{
                     width: 64,
                     height: 18,
-                    borderRadius: 10,
+                    borderRadius: 'var(--radius-sm)',
                   }}
                 />
               ))}
@@ -127,7 +131,7 @@ const PricingCardSkeleton = ({
                 </div>
               </div>
             )}
-          </Card>
+          </div>
         ))}
       </div>
 

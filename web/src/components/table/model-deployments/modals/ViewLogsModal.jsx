@@ -682,8 +682,8 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
         <div className='flex-1 flex flex-col rounded-lg overflow-hidden' style={{ border: '1px solid var(--border-default)', background: 'var(--surface-hover)' }}>
           <div
             ref={logContainerRef}
-            className='flex-1 overflow-y-auto' style={{ background: 'var(--surface)' }}
-            style={{ maxHeight: '400px' }}
+            className='flex-1 overflow-y-auto'
+            style={{ background: 'var(--surface)', maxHeight: '400px' }}
           >
             {loading && logLines.length === 0 ? (
               <div className='flex items-center justify-center p-8'>

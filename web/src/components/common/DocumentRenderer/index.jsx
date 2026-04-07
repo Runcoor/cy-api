@@ -19,8 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React, { useEffect, useState } from 'react';
 import { API, showError } from '../../../helpers';
-import { Empty, Card, Typography } from '@douyinfe/semi-ui';
-const { Title } = Typography;
+import { Empty } from '@douyinfe/semi-ui';
 import {
   IllustrationConstruction,
   IllustrationConstructionDark,
@@ -64,6 +63,44 @@ const sanitizeHtml = (html) => {
 
   return { content, styles };
 };
+
+/* ─── Shared panel wrapper ─── */
+const DocumentPanel = ({ title, children }) => (
+  <div className='min-h-screen' style={{ background: 'var(--bg-base)' }}>
+    <div className='max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
+      <div
+        className='overflow-hidden'
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 'var(--radius-lg)',
+        }}
+      >
+        {/* Panel header — serif title with subtle separator */}
+        <div
+          className='px-8 py-5'
+          style={{ borderBottom: '1px solid var(--border-subtle)' }}
+        >
+          <h2
+            className='text-center text-xl font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {title}
+          </h2>
+        </div>
+        {/* Panel body */}
+        <div className='px-8 py-6'>
+          {children}
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 /**
  * 通用文档渲染组件
@@ -185,16 +222,45 @@ const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
     );
   }
 
-  // 如果是 URL，显示链接卡片
+  // 如果是 URL，显示链接卡片 — macOS panel style
   if (isUrl(content)) {
     return (
-      <div className='flex justify-center items-center min-h-screen p-4' style={{ background: 'var(--bg-base)' }}>
-        <Card className='max-w-md w-full' style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-          <div className='text-center'>
-            <Title heading={4} className='mb-4'>
+      <div
+        className='flex justify-center items-center min-h-screen p-4'
+        style={{ background: 'var(--bg-base)' }}
+      >
+        <div
+          className='max-w-md w-full overflow-hidden'
+          style={{
+            background: 'var(--surface)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-float)',
+          }}
+        >
+          {/* Card header */}
+          <div
+            className='px-6 py-4'
+            style={{ borderBottom: '1px solid var(--border-subtle)' }}
+          >
+            <h3
+              className='text-center text-lg font-semibold'
+              style={{
+                fontFamily: 'var(--font-serif)',
+                color: 'var(--text-primary)',
+                margin: 0,
+                letterSpacing: '-0.01em',
+              }}
+            >
               {title}
-            </Title>
-            <p className='mb-4' style={{ color: 'var(--text-secondary)' }}>
+            </h3>
+          </div>
+          {/* Card body */}
+          <div className='px-6 py-6 text-center'>
+            <p
+              className='text-sm mb-5'
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {t('管理员设置了外部链接，点击下方按钮访问')}
             </p>
             <a
@@ -203,15 +269,21 @@ const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
               rel='noopener noreferrer'
               title={content.trim()}
               aria-label={`${t('访问' + title)}: ${content.trim()}`}
-              className='inline-block px-6 py-3 rounded-lg'
-              style={{ background: 'var(--accent)', color: '#fff', transition: 'opacity 150ms ease-out' }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              className='inline-block px-6 py-2.5 text-sm font-medium'
+              style={{
+                background: 'var(--accent)',
+                color: '#fff',
+                borderRadius: 'var(--radius-md)',
+                textDecoration: 'none',
+                transition: 'opacity 150ms ease-out',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
               {t('访问' + title)}
             </a>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -228,36 +300,26 @@ const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
     }, [content, styles, htmlStyles]);
 
     return (
-      <div className='min-h-screen' style={{ background: 'var(--bg-base)' }}>
-        <div className='max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
-          <div className='rounded-lg p-8' style={{ background: 'var(--surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg)' }}>
-            <Title heading={2} className='text-center mb-8' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
-              {title}
-            </Title>
-            <div
-              className='prose prose-lg max-w-none'
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
-            />
-          </div>
-        </div>
-      </div>
+      <DocumentPanel title={title}>
+        <div
+          className='prose prose-lg max-w-none'
+          style={{ color: 'var(--text-primary)', fontSize: '14px' }}
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+      </DocumentPanel>
     );
   }
 
   // 其他内容统一使用 Markdown 渲染器
   return (
-    <div className='min-h-screen' style={{ background: 'var(--bg-base)' }}>
-      <div className='max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
-        <div className='rounded-lg p-8' style={{ background: 'var(--surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg)' }}>
-          <Title heading={2} className='text-center mb-8'>
-            {title}
-          </Title>
-          <div className='prose prose-lg max-w-none'>
-            <MarkdownRenderer content={content} />
-          </div>
-        </div>
+    <DocumentPanel title={title}>
+      <div
+        className='prose prose-lg max-w-none'
+        style={{ color: 'var(--text-primary)', fontSize: '14px' }}
+      >
+        <MarkdownRenderer content={content} />
       </div>
-    </div>
+    </DocumentPanel>
   );
 };
 
