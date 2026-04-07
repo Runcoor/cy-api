@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Button, Progress, Tag, Typography } from '@douyinfe/semi-ui';
+import { Button, Progress, Typography } from '@douyinfe/semi-ui';
 import {
   Palette,
   ZoomIn,
@@ -47,244 +47,121 @@ import {
   Video,
 } from 'lucide-react';
 
-const colors = [
-  'amber',
-  'blue',
-  'cyan',
-  'green',
-  'grey',
-  'indigo',
-  'light-blue',
-  'lime',
-  'orange',
-  'pink',
-  'purple',
-  'red',
-  'teal',
-  'violet',
-  'yellow',
+// iOS system color palette for channel badges
+const channelColors = [
+  { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
+  { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+  { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)' },
+  { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
+  { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
+  { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)' },
+  { color: '#007AFF', bg: 'rgba(0, 122, 255, 0.12)' },
+  { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' },
+  { color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' },
+  { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)' },
+  { color: '#AF52DE', bg: 'rgba(175, 82, 222, 0.12)' },
+  { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)' },
+  { color: '#30B0C7', bg: 'rgba(48, 176, 199, 0.12)' },
+  { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.08)' },
+  { color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.15)' },
 ];
+
+// iOS-style inline badge helper
+const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+      whiteSpace: 'nowrap',
+      ...extraStyle,
+    }}
+    {...rest}
+  >
+    {children}
+  </span>
+);
+
+// MJ action type style map
+const mjTypeStyleMap = {
+  'IMAGINE': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Palette, label: '绘图' },
+  'UPSCALE': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: ZoomIn, label: '放大' },
+  'VIDEO': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Video, label: '视频' },
+  'EDITS': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Video, label: '编辑' },
+  'VARIATION': { color: '#AF52DE', bg: 'rgba(175, 82, 222, 0.12)', icon: Shuffle, label: '变换' },
+  'HIGH_VARIATION': { color: '#AF52DE', bg: 'rgba(175, 82, 222, 0.12)', icon: Shuffle, label: '强变换' },
+  'LOW_VARIATION': { color: '#AF52DE', bg: 'rgba(175, 82, 222, 0.12)', icon: Shuffle, label: '弱变换' },
+  'PAN': { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)', icon: Move, label: '平移' },
+  'DESCRIBE': { color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.15)', icon: FileText, label: '图生文' },
+  'BLEND': { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)', icon: Blend, label: '图混合' },
+  'UPLOAD': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Upload, label: '上传文件' },
+  'SHORTEN': { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)', icon: Minimize2, label: '缩词' },
+  'REROLL': { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)', icon: RotateCcw, label: '重绘' },
+  'INPAINT': { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.08)', icon: PaintBucket, label: '局部重绘-提交' },
+  'ZOOM': { color: '#30B0C7', bg: 'rgba(48, 176, 199, 0.12)', icon: Focus, label: '变焦' },
+  'CUSTOM_ZOOM': { color: '#30B0C7', bg: 'rgba(48, 176, 199, 0.12)', icon: Move3D, label: '自定义变焦-提交' },
+  'MODAL': { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: Monitor, label: '窗口处理' },
+  'SWAP_FACE': { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)', icon: UserCheck, label: '换脸' },
+};
+
+// MJ submission code style map
+const mjCodeStyleMap = {
+  1: { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: CheckCircle, label: '已提交' },
+  21: { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)', icon: Clock, label: '等待中' },
+  22: { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Copy, label: '重复提交' },
+  0: { color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.15)', icon: FileX, label: '未提交' },
+};
+
+// MJ task status style map
+const mjStatusStyleMap = {
+  'SUCCESS': { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: CheckCircle, label: '成功' },
+  'NOT_START': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Pause, label: '未启动' },
+  'SUBMITTED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Clock, label: '队列中' },
+  'IN_PROGRESS': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Loader, label: '执行中' },
+  'FAILURE': { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)', icon: XCircle, label: '失败' },
+  'MODAL': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: AlertCircle, label: '窗口等待' },
+};
 
 // Render functions
 function renderType(type, t) {
-  switch (type) {
-    case 'IMAGINE':
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Palette size={14} />}>
-          {t('绘图')}
-        </Tag>
-      );
-    case 'UPSCALE':
-      return (
-        <Tag color='orange' shape='circle' prefixIcon={<ZoomIn size={14} />}>
-          {t('放大')}
-        </Tag>
-      );
-    case 'VIDEO':
-      return (
-        <Tag color='orange' shape='circle' prefixIcon={<Video size={14} />}>
-          {t('视频')}
-        </Tag>
-      );
-    case 'EDITS':
-      return (
-        <Tag color='orange' shape='circle' prefixIcon={<Video size={14} />}>
-          {t('编辑')}
-        </Tag>
-      );
-    case 'VARIATION':
-      return (
-        <Tag color='purple' shape='circle' prefixIcon={<Shuffle size={14} />}>
-          {t('变换')}
-        </Tag>
-      );
-    case 'HIGH_VARIATION':
-      return (
-        <Tag color='purple' shape='circle' prefixIcon={<Shuffle size={14} />}>
-          {t('强变换')}
-        </Tag>
-      );
-    case 'LOW_VARIATION':
-      return (
-        <Tag color='purple' shape='circle' prefixIcon={<Shuffle size={14} />}>
-          {t('弱变换')}
-        </Tag>
-      );
-    case 'PAN':
-      return (
-        <Tag color='cyan' shape='circle' prefixIcon={<Move size={14} />}>
-          {t('平移')}
-        </Tag>
-      );
-    case 'DESCRIBE':
-      return (
-        <Tag color='yellow' shape='circle' prefixIcon={<FileText size={14} />}>
-          {t('图生文')}
-        </Tag>
-      );
-    case 'BLEND':
-      return (
-        <Tag color='lime' shape='circle' prefixIcon={<Blend size={14} />}>
-          {t('图混合')}
-        </Tag>
-      );
-    case 'UPLOAD':
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Upload size={14} />}>
-          上传文件
-        </Tag>
-      );
-    case 'SHORTEN':
-      return (
-        <Tag color='pink' shape='circle' prefixIcon={<Minimize2 size={14} />}>
-          {t('缩词')}
-        </Tag>
-      );
-    case 'REROLL':
-      return (
-        <Tag color='indigo' shape='circle' prefixIcon={<RotateCcw size={14} />}>
-          {t('重绘')}
-        </Tag>
-      );
-    case 'INPAINT':
-      return (
-        <Tag
-          color='violet'
-          shape='circle'
-          prefixIcon={<PaintBucket size={14} />}
-        >
-          {t('局部重绘-提交')}
-        </Tag>
-      );
-    case 'ZOOM':
-      return (
-        <Tag color='teal' shape='circle' prefixIcon={<Focus size={14} />}>
-          {t('变焦')}
-        </Tag>
-      );
-    case 'CUSTOM_ZOOM':
-      return (
-        <Tag color='teal' shape='circle' prefixIcon={<Move3D size={14} />}>
-          {t('自定义变焦-提交')}
-        </Tag>
-      );
-    case 'MODAL':
-      return (
-        <Tag color='green' shape='circle' prefixIcon={<Monitor size={14} />}>
-          {t('窗口处理')}
-        </Tag>
-      );
-    case 'SWAP_FACE':
-      return (
-        <Tag
-          color='light-green'
-          shape='circle'
-          prefixIcon={<UserCheck size={14} />}
-        >
-          {t('换脸')}
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-  }
+  const cfg = mjTypeStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
+  const Icon = cfg.icon;
+  return (
+    <InlineBadge color={cfg.color} bg={cfg.bg}>
+      <Icon size={14} />
+      {t(cfg.label)}
+    </InlineBadge>
+  );
 }
 
 function renderCode(code, t) {
-  switch (code) {
-    case 1:
-      return (
-        <Tag
-          color='green'
-          shape='circle'
-          prefixIcon={<CheckCircle size={14} />}
-        >
-          {t('已提交')}
-        </Tag>
-      );
-    case 21:
-      return (
-        <Tag color='lime' shape='circle' prefixIcon={<Clock size={14} />}>
-          {t('等待中')}
-        </Tag>
-      );
-    case 22:
-      return (
-        <Tag color='orange' shape='circle' prefixIcon={<Copy size={14} />}>
-          {t('重复提交')}
-        </Tag>
-      );
-    case 0:
-      return (
-        <Tag color='yellow' shape='circle' prefixIcon={<FileX size={14} />}>
-          {t('未提交')}
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-  }
+  const cfg = mjCodeStyleMap[code] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
+  const Icon = cfg.icon;
+  return (
+    <InlineBadge color={cfg.color} bg={cfg.bg}>
+      <Icon size={14} />
+      {t(cfg.label)}
+    </InlineBadge>
+  );
 }
 
 function renderStatus(type, t) {
-  switch (type) {
-    case 'SUCCESS':
-      return (
-        <Tag
-          color='green'
-          shape='circle'
-          prefixIcon={<CheckCircle size={14} />}
-        >
-          {t('成功')}
-        </Tag>
-      );
-    case 'NOT_START':
-      return (
-        <Tag color='grey' shape='circle' prefixIcon={<Pause size={14} />}>
-          {t('未启动')}
-        </Tag>
-      );
-    case 'SUBMITTED':
-      return (
-        <Tag color='yellow' shape='circle' prefixIcon={<Clock size={14} />}>
-          {t('队列中')}
-        </Tag>
-      );
-    case 'IN_PROGRESS':
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Loader size={14} />}>
-          {t('执行中')}
-        </Tag>
-      );
-    case 'FAILURE':
-      return (
-        <Tag color='red' shape='circle' prefixIcon={<XCircle size={14} />}>
-          {t('失败')}
-        </Tag>
-      );
-    case 'MODAL':
-      return (
-        <Tag
-          color='yellow'
-          shape='circle'
-          prefixIcon={<AlertCircle size={14} />}
-        >
-          {t('窗口等待')}
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-  }
+  const cfg = mjStatusStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
+  const Icon = cfg.icon;
+  return (
+    <InlineBadge color={cfg.color} bg={cfg.bg}>
+      <Icon size={14} />
+      {t(cfg.label)}
+    </InlineBadge>
+  );
 }
 
 const renderTimestamp = (timestampInSeconds) => {
@@ -306,12 +183,17 @@ function renderDuration(submit_time, finishTime, t) {
   const finish = new Date(finishTime);
   const durationMs = finish - start;
   const durationSec = (durationMs / 1000).toFixed(1);
-  const color = durationSec > 60 ? 'red' : 'green';
+  const isLong = durationSec > 60;
 
   return (
-    <Tag color={color} shape='circle' prefixIcon={<Clock size={14} />}>
+    <InlineBadge
+      mono
+      color={isLong ? 'var(--error)' : 'var(--success)'}
+      bg={isLong ? 'rgba(255, 59, 48, 0.12)' : 'rgba(52, 199, 89, 0.12)'}
+    >
+      <Clock size={14} />
       {durationSec} {t('秒')}
-    </Tag>
+    </InlineBadge>
   );
 }
 
@@ -347,17 +229,20 @@ export const getMjLogsColumns = ({
       render: (text, record, index) => {
         return isAdminUser ? (
           <div>
-            <Tag
-              color={colors[parseInt(text) % colors.length]}
-              shape='circle'
-              prefixIcon={<Hash size={14} />}
-              onClick={() => {
-                copyText(text);
-              }}
-            >
-              {' '}
-              {text}{' '}
-            </Tag>
+            {(() => {
+              const c = channelColors[parseInt(text) % channelColors.length];
+              return (
+                <InlineBadge
+                  mono
+                  color={c.color}
+                  bg={c.bg}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => { copyText(text); }}
+                >
+                  {text}
+                </InlineBadge>
+              );
+            })()}
           </div>
         ) : (
           <></>

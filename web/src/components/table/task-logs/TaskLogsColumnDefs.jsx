@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Progress, Tag, Tooltip, Typography } from '@douyinfe/semi-ui';
+import { Progress, Tooltip, Typography } from '@douyinfe/semi-ui';
 import {
   Music,
   FileText,
@@ -45,23 +45,48 @@ import { CHANNEL_OPTIONS } from '../../../constants/channel.constants';
 import { stringToColor } from '../../../helpers/render';
 import { Avatar, Space } from '@douyinfe/semi-ui';
 
-const colors = [
-  'amber',
-  'blue',
-  'cyan',
-  'green',
-  'grey',
-  'indigo',
-  'light-blue',
-  'lime',
-  'orange',
-  'pink',
-  'purple',
-  'red',
-  'teal',
-  'violet',
-  'yellow',
+// iOS system color palette for channel badges
+const channelColors = [
+  { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
+  { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+  { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)' },
+  { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
+  { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
+  { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)' },
+  { color: '#007AFF', bg: 'rgba(0, 122, 255, 0.12)' },
+  { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' },
+  { color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' },
+  { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)' },
+  { color: '#AF52DE', bg: 'rgba(175, 82, 222, 0.12)' },
+  { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)' },
+  { color: '#30B0C7', bg: 'rgba(48, 176, 199, 0.12)' },
+  { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.08)' },
+  { color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.15)' },
 ];
+
+// iOS-style inline badge helper
+const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+      whiteSpace: 'nowrap',
+      ...extraStyle,
+    }}
+    {...rest}
+  >
+    {children}
+  </span>
+);
 
 // Render functions
 const renderTimestamp = (timestampInSeconds) => {
@@ -80,67 +105,37 @@ const renderTimestamp = (timestampInSeconds) => {
 function renderDuration(submit_time, finishTime) {
   if (!submit_time || !finishTime) return 'N/A';
   const durationSec = finishTime - submit_time;
-  const color = durationSec > 60 ? 'red' : 'green';
-
-  // 返回带有样式的颜色标签
+  const isLong = durationSec > 60;
   return (
-    <Tag color={color} shape='circle'>
+    <InlineBadge
+      mono
+      color={isLong ? 'var(--error)' : 'var(--success)'}
+      bg={isLong ? 'rgba(255, 59, 48, 0.12)' : 'rgba(52, 199, 89, 0.12)'}
+    >
       {durationSec} s
-    </Tag>
+    </InlineBadge>
   );
 }
 
+const taskTypeStyleMap = {
+  'MUSIC': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Music, label: '生成音乐' },
+  'LYRICS': { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)', icon: FileText, label: '生成歌词' },
+  [TASK_ACTION_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '图生视频' },
+  [TASK_ACTION_TEXT_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '文生视频' },
+  [TASK_ACTION_FIRST_TAIL_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '首尾生视频' },
+  [TASK_ACTION_REFERENCE_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '参照生视频' },
+  [TASK_ACTION_REMIX_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '视频Remix' },
+};
+
 const renderType = (type, t) => {
-  switch (type) {
-    case 'MUSIC':
-      return (
-        <Tag color='grey' shape='circle' prefixIcon={<Music size={14} />}>
-          {t('生成音乐')}
-        </Tag>
-      );
-    case 'LYRICS':
-      return (
-        <Tag color='pink' shape='circle' prefixIcon={<FileText size={14} />}>
-          {t('生成歌词')}
-        </Tag>
-      );
-    case TASK_ACTION_GENERATE:
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Sparkles size={14} />}>
-          {t('图生视频')}
-        </Tag>
-      );
-    case TASK_ACTION_TEXT_GENERATE:
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Sparkles size={14} />}>
-          {t('文生视频')}
-        </Tag>
-      );
-    case TASK_ACTION_FIRST_TAIL_GENERATE:
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Sparkles size={14} />}>
-          {t('首尾生视频')}
-        </Tag>
-      );
-    case TASK_ACTION_REFERENCE_GENERATE:
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Sparkles size={14} />}>
-          {t('参照生视频')}
-        </Tag>
-      );
-    case TASK_ACTION_REMIX_GENERATE:
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Sparkles size={14} />}>
-          {t('视频Remix')}
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-  }
+  const cfg = taskTypeStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
+  const Icon = cfg.icon;
+  return (
+    <InlineBadge color={cfg.color} bg={cfg.bg}>
+      <Icon size={14} />
+      {t(cfg.label)}
+    </InlineBadge>
+  );
 };
 
 const renderPlatform = (platform, t) => {
@@ -148,89 +143,34 @@ const renderPlatform = (platform, t) => {
     (opt) => String(opt.value) === String(platform),
   );
   if (option) {
-    return (
-      <Tag color={option.color} shape='circle'>
-        {option.label}
-      </Tag>
-    );
+    return <InlineBadge>{option.label}</InlineBadge>;
   }
-  switch (platform) {
-    case 'suno':
-      return (
-        <Tag color='green' shape='circle'>
-          Suno
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle'>
-          {t('未知')}
-        </Tag>
-      );
+  if (platform === 'suno') {
+    return <InlineBadge color='var(--success)' bg='rgba(52, 199, 89, 0.12)'>Suno</InlineBadge>;
   }
+  return <InlineBadge>{t('未知')}</InlineBadge>;
+};
+
+const taskStatusStyleMap = {
+  'SUCCESS': { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: CheckCircle, label: '成功' },
+  'NOT_START': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Pause, label: '未启动' },
+  'SUBMITTED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Clock, label: '队列中' },
+  'IN_PROGRESS': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Play, label: '执行中' },
+  'FAILURE': { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)', icon: XCircle, label: '失败' },
+  'QUEUED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.08)', icon: List, label: '排队中' },
+  'UNKNOWN': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' },
+  '': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Loader, label: '正在提交' },
 };
 
 const renderStatus = (type, t) => {
-  switch (type) {
-    case 'SUCCESS':
-      return (
-        <Tag
-          color='green'
-          shape='circle'
-          prefixIcon={<CheckCircle size={14} />}
-        >
-          {t('成功')}
-        </Tag>
-      );
-    case 'NOT_START':
-      return (
-        <Tag color='grey' shape='circle' prefixIcon={<Pause size={14} />}>
-          {t('未启动')}
-        </Tag>
-      );
-    case 'SUBMITTED':
-      return (
-        <Tag color='yellow' shape='circle' prefixIcon={<Clock size={14} />}>
-          {t('队列中')}
-        </Tag>
-      );
-    case 'IN_PROGRESS':
-      return (
-        <Tag color='blue' shape='circle' prefixIcon={<Play size={14} />}>
-          {t('执行中')}
-        </Tag>
-      );
-    case 'FAILURE':
-      return (
-        <Tag color='red' shape='circle' prefixIcon={<XCircle size={14} />}>
-          {t('失败')}
-        </Tag>
-      );
-    case 'QUEUED':
-      return (
-        <Tag color='orange' shape='circle' prefixIcon={<List size={14} />}>
-          {t('排队中')}
-        </Tag>
-      );
-    case 'UNKNOWN':
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-    case '':
-      return (
-        <Tag color='grey' shape='circle' prefixIcon={<Loader size={14} />}>
-          {t('正在提交')}
-        </Tag>
-      );
-    default:
-      return (
-        <Tag color='white' shape='circle' prefixIcon={<HelpCircle size={14} />}>
-          {t('未知')}
-        </Tag>
-      );
-  }
+  const cfg = taskStatusStyleMap[type] || taskStatusStyleMap['UNKNOWN'];
+  const Icon = cfg.icon;
+  return (
+    <InlineBadge color={cfg.color} bg={cfg.bg}>
+      <Icon size={14} />
+      {t(cfg.label)}
+    </InlineBadge>
+  );
 };
 
 export const getTaskLogsColumns = ({
@@ -274,16 +214,20 @@ export const getTaskLogsColumns = ({
       render: (text, record, index) => {
         return isAdminUser ? (
           <div>
-            <Tag
-              color={colors[parseInt(text) % colors.length]}
-              size='large'
-              shape='circle'
-              onClick={() => {
-                copyText(text);
-              }}
-            >
-              {text}
-            </Tag>
+            {(() => {
+              const c = channelColors[parseInt(text) % channelColors.length];
+              return (
+                <InlineBadge
+                  mono
+                  color={c.color}
+                  bg={c.bg}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => { copyText(text); }}
+                >
+                  {text}
+                </InlineBadge>
+              );
+            })()}
           </div>
         ) : (
           <></>

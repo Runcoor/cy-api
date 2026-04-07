@@ -22,11 +22,9 @@ import {
   Button,
   Modal,
   Space,
-  Tag,
   Typography,
   Popover,
   Divider,
-  Badge,
   Tooltip,
 } from '@douyinfe/semi-ui';
 import { renderQuota } from '../../../helpers';
@@ -148,23 +146,41 @@ const renderDuration = (text, record, t) => {
 
 const renderEnabled = (text, record, t) => {
   return text ? (
-    <Tag
-      color='white'
-      shape='circle'
-      type='light'
-      prefixIcon={<Badge dot type='success' />}
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '1px 8px',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '12px',
+        fontWeight: 500,
+        color: 'var(--success)',
+        background: 'rgba(52, 199, 89, 0.12)',
+        lineHeight: '20px',
+      }}
     >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)' }} />
       {t('启用')}
-    </Tag>
+    </span>
   ) : (
-    <Tag
-      color='white'
-      shape='circle'
-      type='light'
-      prefixIcon={<Badge dot type='danger' />}
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '1px 8px',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '12px',
+        fontWeight: 500,
+        color: 'var(--error)',
+        background: 'rgba(255, 59, 48, 0.12)',
+        lineHeight: '20px',
+      }}
     >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--error)' }} />
       {t('禁用')}
-    </Tag>
+    </span>
   );
 };
 
@@ -202,6 +218,17 @@ const renderResetPeriod = (text, record, t) => {
   );
 };
 
+const paymentBadgeStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '1px 8px',
+  borderRadius: 'var(--radius-sm)',
+  fontSize: '12px',
+  fontWeight: 500,
+  lineHeight: '20px',
+  whiteSpace: 'nowrap',
+};
+
 const renderPaymentConfig = (text, record, t, enableEpay) => {
   const hasStripe = !!record?.plan?.stripe_price_id;
   const hasCreem = !!record?.plan?.creem_product_id;
@@ -210,19 +237,19 @@ const renderPaymentConfig = (text, record, t, enableEpay) => {
   return (
     <Space spacing={4}>
       {hasStripe && (
-        <Tag color='violet' shape='circle'>
+        <span style={{ ...paymentBadgeStyle, color: '#5856D6', background: 'rgba(88, 86, 214, 0.12)' }}>
           Stripe
-        </Tag>
+        </span>
       )}
       {hasCreem && (
-        <Tag color='cyan' shape='circle'>
+        <span style={{ ...paymentBadgeStyle, color: '#32ADE6', background: 'rgba(50, 173, 230, 0.12)' }}>
           Creem
-        </Tag>
+        </span>
       )}
       {hasEpay && (
-        <Tag color='light-green' shape='circle'>
+        <span style={{ ...paymentBadgeStyle, color: 'var(--success)', background: 'rgba(52, 199, 89, 0.12)' }}>
           {t('易支付')}
-        </Tag>
+        </span>
       )}
     </Space>
   );
