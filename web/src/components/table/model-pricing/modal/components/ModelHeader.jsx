@@ -18,10 +18,9 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Typography, Toast, Avatar } from '@douyinfe/semi-ui';
-import { getLobeHubIcon } from '../../../../../helpers';
-
-const { Paragraph } = Typography;
+import { Toast } from '@douyinfe/semi-ui';
+import { Copy } from 'lucide-react';
+import { getLobeHubIcon, stringToColor, copy } from '../../../../../helpers';
 
 const CARD_STYLES = {
   container:
@@ -53,41 +52,66 @@ const ModelHeader = ({ modelData, vendorsMap = {}, t }) => {
       );
     }
 
-    // 如果没有供应商图标，使用模型名称的前两个字符
+    // 如果没有供应商图标，使用模型名称生成 tinted square
     const avatarText = modelData?.model_name?.slice(0, 2).toUpperCase() || 'AI';
+    const bgColor = stringToColor(modelData?.model_name || 'AI');
     return (
       <div className={CARD_STYLES.container}>
-        <Avatar
-          size='large'
+        <div
+          className='w-12 h-12 flex items-center justify-center text-base font-semibold'
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            fontSize: 16,
-            fontWeight: 'bold',
+            borderRadius: 'var(--radius-lg)',
+            background: `${bgColor}1A`,
+            color: bgColor,
           }}
         >
           {avatarText}
-        </Avatar>
+        </div>
       </div>
     );
+  };
+
+  const handleCopy = async () => {
+    const ok = await copy(modelData?.model_name || '');
+    if (ok) {
+      Toast.success({ content: t('已复制模型名称') });
+    }
   };
 
   return (
     <div className='flex items-center'>
       {getModelIcon()}
-      <div className='ml-3 font-normal'>
-        <Paragraph
-          className='!mb-0 !text-lg !font-medium'
-          copyable={{
-            content: modelData?.model_name || '',
-            onCopy: () => Toast.success({ content: t('已复制模型名称') }),
-          }}
-        >
-          <span className='truncate max-w-60 font-bold'>
+      <div className='ml-3 flex-1 min-w-0'>
+        <div className='flex items-center gap-2'>
+          <span
+            className='truncate text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+              maxWidth: '280px',
+            }}
+          >
             {modelData?.model_name || t('未知模型')}
           </span>
-        </Paragraph>
+          <button
+            onClick={handleCopy}
+            className='flex items-center justify-center w-6 h-6 flex-shrink-0'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--text-muted)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'color 150ms ease-out',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+            title={t('复制')}
+          >
+            <Copy size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );

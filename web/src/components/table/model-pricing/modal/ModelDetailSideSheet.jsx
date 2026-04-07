@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { SideSheet, Typography, Button } from '@douyinfe/semi-ui';
+import { SideSheet, Button } from '@douyinfe/semi-ui';
 import { IconClose } from '@douyinfe/semi-icons';
 
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
@@ -26,8 +26,6 @@ import ModelHeader from './components/ModelHeader';
 import ModelBasicInfo from './components/ModelBasicInfo';
 import ModelEndpoints from './components/ModelEndpoints';
 import ModelPricingTable from './components/ModelPricingTable';
-
-const { Text } = Typography;
 
 const ModelDetailSideSheet = ({
   visible,
@@ -74,7 +72,7 @@ const ModelDetailSideSheet = ({
       <div className='p-2'>
         {!modelData && (
           <div className='flex justify-center items-center py-10'>
-            <Text type='secondary'>{t('加载中...')}</Text>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{t('加载中...')}</span>
           </div>
         )}
         {modelData && (

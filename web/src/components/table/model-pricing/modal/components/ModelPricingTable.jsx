@@ -18,11 +18,9 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Typography, Table } from '@douyinfe/semi-ui';
-import { IconCoinMoneyStroked } from '@douyinfe/semi-icons';
+import { Table } from '@douyinfe/semi-ui';
+import { Coins } from 'lucide-react';
 import { calculateModelPrice, getModelPriceItems } from '../../../../../helpers';
-
-const { Text } = Typography;
 
 // iOS-style inline badge helper
 const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
@@ -178,13 +176,36 @@ const ModelPricingTable = ({
   };
 
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)' }}>
+    <div
+      className='p-4'
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-lg)',
+      }}
+    >
       <div className='flex items-center mb-4'>
-        <Avatar size='small' color='orange' className='mr-2'>
-          <IconCoinMoneyStroked size={16} />
-        </Avatar>
+        <div
+          className='w-8 h-8 flex items-center justify-center mr-2 flex-shrink-0'
+          style={{
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(255, 149, 0, 0.12)',
+            color: 'var(--warning)',
+          }}
+        >
+          <Coins size={16} />
+        </div>
         <div>
-          <Text className='text-lg font-medium'>{t('分组价格')}</Text>
+          <span
+            className='text-lg font-medium block'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t('分组价格')}
+          </span>
           <div className='text-xs text-mv-text-secondary'>
             {t('不同用户分组的价格信息')}
           </div>
@@ -206,7 +227,7 @@ const ModelPricingTable = ({
         </div>
       )}
       {renderGroupPriceTable()}
-    </Card>
+    </div>
   );
 };
 

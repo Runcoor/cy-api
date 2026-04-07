@@ -18,11 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Typography, Space } from '@douyinfe/semi-ui';
-import { IconInfoCircle } from '@douyinfe/semi-icons';
+import { Info } from 'lucide-react';
 import { stringToColor } from '../../../../../helpers';
-
-const { Text } = Typography;
 
 // iOS-style inline badge helper
 const InlineBadge = ({ color, bg, children, style: extraStyle, ...rest }) => (
@@ -81,13 +78,36 @@ const ModelBasicInfo = ({ modelData, vendorsMap = {}, t }) => {
   };
 
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
+    <div
+      className='mb-6 p-4'
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-lg)',
+      }}
+    >
       <div className='flex items-center mb-4'>
-        <Avatar size='small' color='blue' className='mr-2'>
-          <IconInfoCircle size={16} />
-        </Avatar>
+        <div
+          className='w-8 h-8 flex items-center justify-center mr-2 flex-shrink-0'
+          style={{
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(0, 122, 255, 0.12)',
+            color: 'var(--accent)',
+          }}
+        >
+          <Info size={16} />
+        </div>
         <div>
-          <Text className='text-lg font-medium'>{t('基本信息')}</Text>
+          <span
+            className='text-lg font-medium block'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t('基本信息')}
+          </span>
           <div className='text-xs text-mv-text-secondary'>
             {t('模型的详细描述和基本特性')}
           </div>
@@ -96,16 +116,16 @@ const ModelBasicInfo = ({ modelData, vendorsMap = {}, t }) => {
       <div className='mv-text-secondary'>
         <p className='mb-4'>{getModelDescription()}</p>
         {getModelTags().length > 0 && (
-          <Space wrap>
+          <div className='flex flex-wrap gap-2'>
             {getModelTags().map((tag, index) => (
               <InlineBadge key={index} color={tag.color} bg={`${tag.color}1F`}>
                 {tag.text}
               </InlineBadge>
             ))}
-          </Space>
+          </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 

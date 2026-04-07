@@ -18,10 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Typography, Badge } from '@douyinfe/semi-ui';
-import { IconLink } from '@douyinfe/semi-icons';
-
-const { Text } = Typography;
+import { Link2 } from 'lucide-react';
 
 const ModelEndpoints = ({ modelData, endpointMap = {}, t }) => {
   const renderAPIEndpoints = () => {
@@ -46,7 +43,16 @@ const ModelEndpoints = ({ modelData, endpointMap = {}, t }) => {
           style={{ borderColor: 'var(--border-default)' }}
         >
           <span className='flex items-center pr-5'>
-            <Badge dot type='success' className='mr-2' />
+            <span
+              className='mr-2 flex-shrink-0'
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: 'var(--success)',
+                display: 'inline-block',
+              }}
+            />
             {type}
             {path && '：'}
             {path && (
@@ -62,20 +68,43 @@ const ModelEndpoints = ({ modelData, endpointMap = {}, t }) => {
   };
 
   return (
-    <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-6'>
+    <div
+      className='mb-6 p-4'
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-lg)',
+      }}
+    >
       <div className='flex items-center mb-4'>
-        <Avatar size='small' color='purple' className='mr-2'>
-          <IconLink size={16} />
-        </Avatar>
+        <div
+          className='w-8 h-8 flex items-center justify-center mr-2 flex-shrink-0'
+          style={{
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(175, 82, 222, 0.12)',
+            color: '#AF52DE',
+          }}
+        >
+          <Link2 size={16} />
+        </div>
         <div>
-          <Text className='text-lg font-medium'>{t('API端点')}</Text>
+          <span
+            className='text-lg font-medium block'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t('API端点')}
+          </span>
           <div className='text-xs text-mv-text-secondary'>
             {t('模型支持的接口端点信息')}
           </div>
         </div>
       </div>
       {renderAPIEndpoints()}
-    </Card>
+    </div>
   );
 };
 
