@@ -837,6 +837,125 @@ html.dark .semi-transfer-right {
   background-color: var(--bg-base);
 }
 
+/* --- Timeline Overrides --- */
+.semi-timeline-item-head-custom {
+  background: transparent !important;
+}
+
+.semi-timeline-item-head {
+  border-color: var(--accent) !important;
+  background-color: var(--accent) !important;
+}
+
+.semi-timeline-item-tail {
+  border-left-color: var(--border-subtle) !important;
+}
+
+.semi-timeline-item-content-time {
+  color: var(--text-muted) !important;
+  font-size: 12px !important;
+}
+
+/* --- Empty State Overrides --- */
+.semi-empty {
+  color: var(--text-secondary);
+}
+
+.semi-empty-title {
+  color: var(--text-primary) !important;
+  font-family: var(--font-serif) !important;
+}
+
+.semi-empty-description {
+  color: var(--text-secondary) !important;
+}
+
+/* --- Collapse Overrides --- */
+.semi-collapse {
+  border-color: var(--border-default) !important;
+  background: transparent !important;
+}
+
+.semi-collapse-item {
+  border-bottom-color: var(--border-subtle) !important;
+}
+
+.semi-collapse-header {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+.semi-collapse-header:hover {
+  background: var(--surface-hover) !important;
+}
+
+.semi-collapse-content {
+  color: var(--text-secondary) !important;
+}
+
+/* --- Tabs Active Indicator --- */
+.semi-tabs-ink-bar {
+  background-color: var(--accent) !important;
+}
+
+.semi-tabs-tab-active {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+.semi-tabs-tab {
+  color: var(--text-secondary) !important;
+  transition: color var(--ease-micro) !important;
+}
+
+.semi-tabs-tab:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Button-style tabs */
+.semi-tabs-tab-button.semi-tabs-tab-active {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+/* --- Anchor Overrides --- */
+.semi-anchor-link-title-active {
+  color: var(--accent) !important;
+}
+
+.semi-anchor-link-title:hover {
+  color: var(--text-primary) !important;
+}
+
+.semi-anchor-slide-bar {
+  background-color: var(--accent) !important;
+}
+
+/* --- Notification Badge --- */
+.semi-badge-dot {
+  background-color: var(--error) !important;
+}
+
+.semi-badge-count {
+  background-color: var(--error) !important;
+  color: #fff !important;
+}
+
+/* --- InputNumber Overrides --- */
+.semi-input-number .semi-input-wrapper {
+  border-radius: var(--radius-md) !important;
+}
+
+/* --- TreeSelect / Cascader Overrides --- */
+.semi-tree-option-selected {
+  background-color: var(--accent-light) !important;
+}
+
+.semi-tree-option-active,
+.semi-cascader-option-active {
+  background-color: var(--surface-hover) !important;
+}
+
 /* --- Prose/Markdown Content Overrides (dark mode) --- */
 .prose {
   color: var(--text-primary);
