@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Tag, Divider, Empty } from '@douyinfe/semi-ui';
+import { Empty } from '@douyinfe/semi-ui';
 import { Server, Gauge, ExternalLink } from 'lucide-react';
 import {
   IllustrationConstruction,
@@ -36,74 +36,115 @@ const ApiInfoPanel = ({
   t,
 }) => {
   return (
-    <Card
-      {...CARD_PROPS}
+    <div
+      className='rounded-[var(--radius-lg)] border overflow-hidden'
       style={{
         background: 'var(--surface)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border-default)',
+        borderColor: 'var(--border-subtle)',
       }}
-      title={
-        <div className={FLEX_CENTER_GAP2}>
-          <Server size={16} />
-          {t('API信息')}
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
     >
+      {/* Panel header */}
+      <div
+        className='px-5 py-3 border-b flex items-center gap-2'
+        style={{ borderColor: 'var(--border-subtle)' }}
+      >
+        <div
+          className='w-6 h-6 rounded-[var(--radius-sm)] flex items-center justify-center'
+          style={{
+            background: 'var(--success-light)',
+            color: 'var(--success)',
+          }}
+        >
+          <Server size={14} />
+        </div>
+        <span
+          className='text-sm font-semibold'
+          style={{
+            fontFamily: 'var(--font-serif)',
+            color: 'var(--text-primary)',
+          }}
+        >
+          {t('API信息')}
+        </span>
+      </div>
+
+      {/* Body */}
       <ScrollableContainer maxHeight='24rem'>
         {apiInfoData.length > 0 ? (
-          apiInfoData.map((api) => (
-            <React.Fragment key={api.id}>
-              <div className='flex p-2 rounded-lg cursor-pointer' style={{ transition: 'background-color 150ms ease-out' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <div className='flex-shrink-0 mr-3'>
-                  <Avatar size='extra-small' color={api.color}>
-                    {api.route.substring(0, 2)}
-                  </Avatar>
+          <div className='p-2'>
+            {apiInfoData.map((api, index) => (
+              <div
+                key={api.id}
+                className='flex p-3 rounded-[var(--radius-md)] cursor-pointer transition-colors duration-150'
+                style={{ background: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                {/* Route icon badge */}
+                <div
+                  className='w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center flex-shrink-0 mr-3 text-xs font-semibold'
+                  style={{
+                    background: 'var(--accent-light)',
+                    color: 'var(--accent)',
+                  }}
+                >
+                  {api.route.substring(0, 2).toUpperCase()}
                 </div>
-                <div className='flex-1'>
+                <div className='flex-1 min-w-0'>
                   <div className='flex flex-wrap items-center justify-between mb-1 w-full gap-2'>
-                    <span className='text-sm break-all' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    <span
+                      className='text-sm break-all font-semibold'
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {api.route}
                     </span>
-                    <div className='flex items-center gap-1 mt-1 lg:mt-0'>
-                      <Tag
-                        prefixIcon={<Gauge size={12} />}
-                        size='small'
-                        color='white'
-                        shape='circle'
+                    <div className='flex items-center gap-1'>
+                      <button
+                        className='flex items-center gap-1 text-xs px-2 py-1 rounded-[var(--radius-sm)] transition-colors duration-150'
+                        style={{
+                          background: 'var(--surface-active)',
+                          color: 'var(--text-secondary)',
+                          border: '1px solid var(--border-subtle)',
+                          cursor: 'pointer',
+                        }}
                         onClick={() => handleSpeedTest(api.url)}
-                        className='cursor-pointer hover:opacity-80 text-xs'
                       >
+                        <Gauge size={12} />
                         {t('测速')}
-                      </Tag>
-                      <Tag
-                        prefixIcon={<ExternalLink size={12} />}
-                        size='small'
-                        color='white'
-                        shape='circle'
+                      </button>
+                      <button
+                        className='flex items-center gap-1 text-xs px-2 py-1 rounded-[var(--radius-sm)] transition-colors duration-150'
+                        style={{
+                          background: 'var(--surface-active)',
+                          color: 'var(--text-secondary)',
+                          border: '1px solid var(--border-subtle)',
+                          cursor: 'pointer',
+                        }}
                         onClick={() =>
                           window.open(api.url, '_blank', 'noopener,noreferrer')
                         }
-                        className='cursor-pointer hover:opacity-80 text-xs'
                       >
+                        <ExternalLink size={12} />
                         {t('跳转')}
-                      </Tag>
+                      </button>
                     </div>
                   </div>
                   <div
-                    className='break-all cursor-pointer hover:underline mb-1'
+                    className='break-all cursor-pointer text-xs mb-1 transition-colors duration-150'
                     style={{ color: 'var(--accent)' }}
                     onClick={() => handleCopyUrl(api.url)}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
                     {api.url}
                   </div>
-                  <div style={{ color: 'var(--text-muted)' }}>{api.description}</div>
+                  <div className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                    {api.description}
+                  </div>
                 </div>
               </div>
-              <Divider />
-            </React.Fragment>
-          ))
+            ))}
+          </div>
         ) : (
           <div className='flex justify-center items-center min-h-[20rem] w-full'>
             <Empty
@@ -117,7 +158,7 @@ const ApiInfoPanel = ({
           </div>
         )}
       </ScrollableContainer>
-    </Card>
+    </div>
   );
 };
 

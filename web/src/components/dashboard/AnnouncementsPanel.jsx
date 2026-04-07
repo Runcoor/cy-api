@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Tag, Timeline, Empty } from '@douyinfe/semi-ui';
+import { Timeline, Empty } from '@douyinfe/semi-ui';
 import { Bell } from 'lucide-react';
 import { marked } from 'marked';
 import {
@@ -35,83 +35,108 @@ const AnnouncementsPanel = ({
   t,
 }) => {
   return (
-    <Card
-      {...CARD_PROPS}
-      className='lg:col-span-2'
+    <div
+      className='lg:col-span-2 rounded-[var(--radius-lg)] border overflow-hidden'
       style={{
         background: 'var(--surface)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border-default)',
+        borderColor: 'var(--border-subtle)',
       }}
-      title={
-        <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 w-full'>
-          <div className='flex items-center gap-2'>
-            <Bell size={16} />
-            {t('系统公告')}
-            <Tag color='white' shape='circle'>
-              {t('显示最新20条')}
-            </Tag>
-          </div>
-          {/* 图例 */}
-          <div className='flex flex-wrap gap-3 text-xs'>
-            {announcementLegendData.map((legend, index) => (
-              <div key={index} className='flex items-center gap-1'>
-                <div
-                  className='w-2 h-2 rounded-full'
-                  style={{
-                    backgroundColor:
-                      legend.color === 'grey'
-                        ? 'var(--text-muted)'
-                        : legend.color === 'blue'
-                          ? 'var(--accent)'
-                          : legend.color === 'green'
-                            ? 'var(--success)'
-                            : legend.color === 'orange'
-                              ? 'var(--warning)'
-                              : legend.color === 'red'
-                                ? 'var(--error)'
-                                : 'var(--text-muted)',
-                  }}
-                />
-                <span style={{ color: 'var(--text-secondary)' }}>{legend.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
     >
+      {/* Panel header */}
+      <div
+        className='px-5 py-3 border-b flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2'
+        style={{ borderColor: 'var(--border-subtle)' }}
+      >
+        <div className='flex items-center gap-2'>
+          <div
+            className='w-6 h-6 rounded-[var(--radius-sm)] flex items-center justify-center'
+            style={{
+              background: 'var(--warning-light)',
+              color: 'var(--warning)',
+            }}
+          >
+            <Bell size={14} />
+          </div>
+          <span
+            className='text-sm font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('系统公告')}
+          </span>
+          <span
+            className='text-xs px-2 py-0.5 rounded-[var(--radius-sm)]'
+            style={{
+              background: 'var(--surface-active)',
+              color: 'var(--text-muted)',
+            }}
+          >
+            {t('显示最新20条')}
+          </span>
+        </div>
+        {/* Legend */}
+        <div className='flex flex-wrap gap-3 text-xs'>
+          {announcementLegendData.map((legend, index) => (
+            <div key={index} className='flex items-center gap-1'>
+              <div
+                className='w-2 h-2 rounded-full'
+                style={{
+                  backgroundColor:
+                    legend.color === 'grey'
+                      ? 'var(--text-muted)'
+                      : legend.color === 'blue'
+                        ? 'var(--accent)'
+                        : legend.color === 'green'
+                          ? 'var(--success)'
+                          : legend.color === 'orange'
+                            ? 'var(--warning)'
+                            : legend.color === 'red'
+                              ? 'var(--error)'
+                              : 'var(--text-muted)',
+                }}
+              />
+              <span style={{ color: 'var(--text-secondary)' }}>{legend.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Body */}
       <ScrollableContainer maxHeight='24rem'>
         {announcementData.length > 0 ? (
-          <Timeline mode='left'>
-            {announcementData.map((item, idx) => {
-              const htmlExtra = item.extra ? marked.parse(item.extra) : '';
-              return (
-                <Timeline.Item
-                  key={idx}
-                  type={item.type || 'default'}
-                  time={`${item.relative ? item.relative + ' ' : ''}${item.time}`}
-                  extra={
-                    item.extra ? (
+          <div className='p-4'>
+            <Timeline mode='left'>
+              {announcementData.map((item, idx) => {
+                const htmlExtra = item.extra ? marked.parse(item.extra) : '';
+                return (
+                  <Timeline.Item
+                    key={idx}
+                    type={item.type || 'default'}
+                    time={`${item.relative ? item.relative + ' ' : ''}${item.time}`}
+                    extra={
+                      item.extra ? (
+                        <div
+                          className='text-xs'
+                          style={{ color: 'var(--text-muted)' }}
+                          dangerouslySetInnerHTML={{ __html: htmlExtra }}
+                        />
+                      ) : null
+                    }
+                  >
+                    <div>
                       <div
-                        className='text-xs'
-                        style={{ color: 'var(--text-muted)' }}
-                        dangerouslySetInnerHTML={{ __html: htmlExtra }}
+                        dangerouslySetInnerHTML={{
+                          __html: marked.parse(item.content || ''),
+                        }}
                       />
-                    ) : null
-                  }
-                >
-                  <div>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: marked.parse(item.content || ''),
-                      }}
-                    />
-                  </div>
-                </Timeline.Item>
-              );
-            })}
-          </Timeline>
+                    </div>
+                  </Timeline.Item>
+                );
+              })}
+            </Timeline>
+          </div>
         ) : (
           <div className='flex justify-center items-center py-8'>
             <Empty
@@ -125,7 +150,7 @@ const AnnouncementsPanel = ({
           </div>
         )}
       </ScrollableContainer>
-    </Card>
+    </div>
   );
 };
 

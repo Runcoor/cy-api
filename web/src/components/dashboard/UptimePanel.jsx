@@ -19,11 +19,9 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import {
-  Card,
   Button,
   Tabs,
   TabPane,
-  Tag,
   Empty,
 } from '@douyinfe/semi-ui';
 import { Gauge, RefreshCw } from 'lucide-react';
@@ -47,37 +45,55 @@ const UptimePanel = ({
   t,
 }) => {
   return (
-    <Card
-      {...CARD_PROPS}
-      className='lg:col-span-1'
+    <div
+      className='lg:col-span-1 rounded-[var(--radius-lg)] border overflow-hidden'
       style={{
         background: 'var(--surface)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border-default)',
+        borderColor: 'var(--border-subtle)',
       }}
-      title={
-        <div className='flex items-center justify-between w-full gap-2'>
-          <div className='flex items-center gap-2'>
-            <Gauge size={16} />
-            {t('服务可用性')}
-          </div>
-          <Button
-            icon={<RefreshCw size={14} />}
-            onClick={loadUptimeData}
-            loading={uptimeLoading}
-            size='small'
-            theme='borderless'
-            type='tertiary'
-            style={{
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--text-secondary)',
-            }}
-          />
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
     >
-      {/* 内容区域 */}
+      {/* Panel header */}
+      <div
+        className='px-5 py-3 border-b flex items-center justify-between'
+        style={{ borderColor: 'var(--border-subtle)' }}
+      >
+        <div className='flex items-center gap-2'>
+          <div
+            className='w-6 h-6 rounded-[var(--radius-sm)] flex items-center justify-center'
+            style={{
+              background: 'var(--success-light)',
+              color: 'var(--success)',
+            }}
+          >
+            <Gauge size={14} />
+          </div>
+          <span
+            className='text-sm font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('服务可用性')}
+          </span>
+        </div>
+        <button
+          className='w-7 h-7 flex items-center justify-center rounded-[var(--radius-sm)] transition-colors duration-150'
+          style={{
+            color: 'var(--text-secondary)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={loadUptimeData}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          <RefreshCw size={14} />
+        </button>
+      </div>
+
+      {/* Body */}
       <div className='relative'>
         <MacSpinner spinning={uptimeLoading}>
           {uptimeData.length > 0 ? (
@@ -99,17 +115,19 @@ const UptimePanel = ({
                       <span className='flex items-center gap-2'>
                         <Gauge size={14} />
                         {group.categoryName}
-                        <Tag
-                          color={
-                            activeUptimeTab === group.categoryName
-                              ? 'red'
-                              : 'grey'
-                          }
-                          size='small'
-                          shape='circle'
+                        <span
+                          className='text-xs px-1.5 py-0 rounded-[var(--radius-sm)] font-medium'
+                          style={{
+                            background: activeUptimeTab === group.categoryName
+                              ? 'var(--error-light)'
+                              : 'var(--surface-active)',
+                            color: activeUptimeTab === group.categoryName
+                              ? 'var(--error)'
+                              : 'var(--text-muted)',
+                          }}
                         >
                           {group.monitors ? group.monitors.length : 0}
-                        </Tag>
+                        </span>
                       </span>
                     }
                     itemKey={group.categoryName}
@@ -137,9 +155,15 @@ const UptimePanel = ({
         </MacSpinner>
       </div>
 
-      {/* 图例 */}
+      {/* Legend footer */}
       {uptimeData.length > 0 && (
-        <div className='p-3' style={{ background: 'var(--surface-hover)', borderRadius: '0 0 var(--radius-lg) var(--radius-lg)' }}>
+        <div
+          className='px-4 py-2.5 border-t'
+          style={{
+            background: 'var(--surface-hover)',
+            borderColor: 'var(--border-subtle)',
+          }}
+        >
           <div className='flex flex-wrap gap-3 text-xs justify-center'>
             {uptimeLegendData.map((legend, index) => (
               <div key={index} className='flex items-center gap-1'>
@@ -153,7 +177,7 @@ const UptimePanel = ({
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

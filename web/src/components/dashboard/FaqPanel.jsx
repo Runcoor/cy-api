@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Collapse, Empty } from '@douyinfe/semi-ui';
+import { Collapse, Empty } from '@douyinfe/semi-ui';
 import { HelpCircle } from 'lucide-react';
 import { IconPlus, IconMinus } from '@douyinfe/semi-icons';
 import { marked } from 'marked';
@@ -36,22 +36,39 @@ const FaqPanel = ({
   t,
 }) => {
   return (
-    <Card
-      {...CARD_PROPS}
-      className='lg:col-span-1'
+    <div
+      className='lg:col-span-1 rounded-[var(--radius-lg)] border overflow-hidden'
       style={{
         background: 'var(--surface)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border-default)',
+        borderColor: 'var(--border-subtle)',
       }}
-      title={
-        <div className={FLEX_CENTER_GAP2}>
-          <HelpCircle size={16} />
-          {t('常见问答')}
-        </div>
-      }
-      bodyStyle={{ padding: 0 }}
     >
+      {/* Panel header */}
+      <div
+        className='px-5 py-3 border-b flex items-center gap-2'
+        style={{ borderColor: 'var(--border-subtle)' }}
+      >
+        <div
+          className='w-6 h-6 rounded-[var(--radius-sm)] flex items-center justify-center'
+          style={{
+            background: 'var(--accent-light)',
+            color: 'var(--accent)',
+          }}
+        >
+          <HelpCircle size={14} />
+        </div>
+        <span
+          className='text-sm font-semibold'
+          style={{
+            fontFamily: 'var(--font-serif)',
+            color: 'var(--text-primary)',
+          }}
+        >
+          {t('常见问答')}
+        </span>
+      </div>
+
+      {/* Body */}
       <ScrollableContainer maxHeight='24rem'>
         {faqData.length > 0 ? (
           <Collapse
@@ -86,7 +103,7 @@ const FaqPanel = ({
           </div>
         )}
       </ScrollableContainer>
-    </Card>
+    </div>
   );
 };
 

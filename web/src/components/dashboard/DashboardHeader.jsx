@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Button } from '@douyinfe/semi-ui';
 import { RefreshCw, Search } from 'lucide-react';
 
 const DashboardHeader = ({
@@ -29,13 +28,15 @@ const DashboardHeader = ({
   loading,
   t,
 }) => {
-  const iconBtnStyle = {
-    borderRadius: 'var(--radius-md)',
+  const iconBtnBaseStyle = {
     color: 'var(--text-secondary)',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
   };
 
   return (
-    <div className='flex items-center justify-between mb-4'>
+    <div className='flex items-center justify-between mb-5'>
       <h2
         style={{
           fontFamily: 'var(--font-serif)',
@@ -45,26 +46,31 @@ const DashboardHeader = ({
           letterSpacing: '-0.01em',
           opacity: greetingVisible ? 1 : 0,
           transition: 'opacity 500ms ease-out',
+          margin: 0,
         }}
       >
         {getGreeting}
       </h2>
-      <div className='flex gap-2'>
-        <Button
-          type='tertiary'
-          theme='borderless'
-          icon={<Search size={16} />}
+      <div className='flex items-center gap-1'>
+        <button
+          className='w-8 h-8 flex items-center justify-center rounded-[var(--radius-sm)] transition-colors duration-150'
+          style={iconBtnBaseStyle}
           onClick={showSearchModal}
-          style={iconBtnStyle}
-        />
-        <Button
-          type='tertiary'
-          theme='borderless'
-          icon={<RefreshCw size={16} />}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          <Search size={16} />
+        </button>
+        <button
+          className='w-8 h-8 flex items-center justify-center rounded-[var(--radius-sm)] transition-colors duration-150'
+          style={iconBtnBaseStyle}
           onClick={refresh}
-          loading={loading}
-          style={iconBtnStyle}
-        />
+          disabled={loading}
+          onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = 'var(--surface-hover)'; }}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          <RefreshCw size={16} style={loading ? { opacity: 0.4 } : undefined} />
+        </button>
       </div>
     </div>
   );
