@@ -23,15 +23,12 @@ import {
   Form,
   Row,
   Col,
-  Typography,
   Modal,
   Banner,
   TagInput,
-  Card,
   Radio,
   Select,
 } from '@douyinfe/semi-ui';
-const { Text } = Typography;
 import {
   API,
   removeTrailingSlash,
@@ -703,15 +700,8 @@ const SystemSetting = () => {
           getFormApi={(api) => (formApiRef.current = api)}
         >
           {({ formState, values, formApi }) => (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                marginTop: '10px',
-              }}
-            >
-              <Card>
+            <div className='mv-settings-stack'>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('通用设置')}>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
@@ -731,9 +721,9 @@ const SystemSetting = () => {
                     {t('更新服务器地址')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('代理设置')}>
                   <Banner
                     type='info'
@@ -742,7 +732,7 @@ const SystemSetting = () => {
                     )}
                     style={{ marginBottom: 20, marginTop: 16 }}
                   />
-                  <Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     {t('仅支持')}{' '}
                     <a
                       href='https://github.com/Calcium-Ion/new-api-worker'
@@ -752,7 +742,7 @@ const SystemSetting = () => {
                       new-api-worker
                     </a>{' '}
                     {t('或其兼容new-api-worker格式的其他版本')}
-                  </Text>
+                  </span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -780,13 +770,13 @@ const SystemSetting = () => {
                   </Form.Checkbox>
                   <Button onClick={submitWorker}>{t('更新Worker设置')}</Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('SSRF防护设置')}>
-                  <Text extraText={t('SSRF防护详细说明')}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     {t('配置服务器端请求伪造(SSRF)防护，用于保护内网资源安全')}
-                  </Text>
+                  </span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -849,17 +839,16 @@ const SystemSetting = () => {
                       >
                         {t('对域名启用 IP 过滤（推荐开启）')}
                       </Form.Checkbox>
-                      <Text strong>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '13px' }}>
                         {t(domainFilterMode ? '域名白名单' : '域名黑名单')}
-                      </Text>
-                      <Text
-                        type='secondary'
-                        style={{ display: 'block', marginBottom: 8 }}
+                      </span>
+                      <span
+                        style={{ display: 'block', marginBottom: 8, color: 'var(--text-secondary)', fontSize: '13px' }}
                       >
                         {t(
                           '支持通配符格式，如：example.com, *.api.example.com',
                         )}
-                      </Text>
+                      </span>
                       <Radio.Group
                         type='button'
                         value={domainFilterMode ? 'whitelist' : 'blacklist'}
@@ -899,15 +888,14 @@ const SystemSetting = () => {
                     style={{ marginTop: 16 }}
                   >
                     <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                      <Text strong>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '13px' }}>
                         {t(ipFilterMode ? 'IP白名单' : 'IP黑名单')}
-                      </Text>
-                      <Text
-                        type='secondary'
-                        style={{ display: 'block', marginBottom: 8 }}
+                      </span>
+                      <span
+                        style={{ display: 'block', marginBottom: 8, color: 'var(--text-secondary)', fontSize: '13px' }}
                       >
                         {t('支持CIDR格式，如：8.8.8.8, 192.168.1.0/24')}
-                      </Text>
+                      </span>
                       <Radio.Group
                         type='button'
                         value={ipFilterMode ? 'whitelist' : 'blacklist'}
@@ -947,13 +935,12 @@ const SystemSetting = () => {
                     style={{ marginTop: 16 }}
                   >
                     <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                      <Text strong>{t('允许的端口')}</Text>
-                      <Text
-                        type='secondary'
-                        style={{ display: 'block', marginBottom: 8 }}
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '13px' }}>{t('允许的端口')}</span>
+                      <span
+                        style={{ display: 'block', marginBottom: 8, color: 'var(--text-secondary)', fontSize: '13px' }}
                       >
                         {t('支持单个端口和端口范围，如：80, 443, 8000-8999')}
-                      </Text>
+                      </span>
                       <TagInput
                         value={allowedPorts}
                         onChange={(value) => {
@@ -967,12 +954,11 @@ const SystemSetting = () => {
                         placeholder={t('输入端口后回车，如：80 或 8000-8999')}
                         style={{ width: '100%' }}
                       />
-                      <Text
-                        type='secondary'
-                        style={{ display: 'block', marginBottom: 8 }}
+                      <span
+                        style={{ display: 'block', marginBottom: 8, color: 'var(--text-secondary)', fontSize: '13px' }}
                       >
                         {t('端口配置详细说明')}
-                      </Text>
+                      </span>
                     </Col>
                   </Row>
 
@@ -980,9 +966,9 @@ const SystemSetting = () => {
                     {t('更新SSRF防护设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置登录注册')}>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
@@ -1092,11 +1078,11 @@ const SystemSetting = () => {
                     </Col>
                   </Row>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 Passkey')}>
-                  <Text>{t('用以支持基于 WebAuthn 的无密码登录注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持基于 WebAuthn 的无密码登录注册')}</span>
                   <Banner
                     type='info'
                     description={t(
@@ -1221,11 +1207,11 @@ const SystemSetting = () => {
                     {t('保存 Passkey 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置邮箱域名白名单')}>
-                  <Text>{t('用以防止恶意用户利用临时邮箱批量注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以防止恶意用户利用临时邮箱批量注册')}</span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1287,10 +1273,10 @@ const SystemSetting = () => {
                     {t('保存邮箱域名白名单设置')}
                   </Button>
                 </Form.Section>
-              </Card>
-              <Card>
+              </div>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 SMTP')}>
-                  <Text>{t('用以支持系统的邮件发送')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持系统的邮件发送')}</span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1339,24 +1325,24 @@ const SystemSetting = () => {
                   </Row>
                   <Button onClick={submitSMTP}>{t('保存 SMTP 设置')}</Button>
                 </Form.Section>
-              </Card>
-              <Card>
+              </div>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 OIDC')}>
-                  <Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     {t(
                       '用以支持通过 OIDC 登录，例如 Okta、Auth0 等兼容 OIDC 协议的 IdP',
                     )}
-                  </Text>
+                  </span>
                   <Banner
                     type='info'
                     description={`${t('主页链接填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}，${t('重定向 URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}/oauth/oidc`}
                     style={{ marginBottom: 20, marginTop: 16 }}
                   />
-                  <Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     {t(
                       '若你的 OIDC Provider 支持 Discovery Endpoint，你可以仅填写 OIDC Well-Known URL，系统会自动获取 OIDC 配置',
                     )}
-                  </Text>
+                  </span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1416,11 +1402,11 @@ const SystemSetting = () => {
                     {t('保存 OIDC 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 GitHub OAuth App')}>
-                  <Text>{t('用以支持通过 GitHub 进行登录注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持通过 GitHub 进行登录注册')}</span>
                   <Banner
                     type='info'
                     description={`${t('Homepage URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}，${t('Authorization callback URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}/oauth/github`}
@@ -1448,10 +1434,10 @@ const SystemSetting = () => {
                     {t('保存 GitHub OAuth 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
-              <Card>
+              </div>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 Discord OAuth')}>
-                  <Text>{t('用以支持通过 Discord 进行登录注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持通过 Discord 进行登录注册')}</span>
                   <Banner
                     type='info'
                     description={`${t('Homepage URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}，${t('Authorization callback URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}/oauth/discord`}
@@ -1479,10 +1465,10 @@ const SystemSetting = () => {
                     {t('保存 Discord OAuth 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
-              <Card>
+              </div>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 Linux DO OAuth')}>
-                  <Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     {t('用以支持通过 Linux DO 进行登录注册')}
                     <a
                       href='https://connect.linux.do/'
@@ -1497,7 +1483,7 @@ const SystemSetting = () => {
                       {t('点击此处')}
                     </a>
                     {t('管理你的 LinuxDO OAuth App')}
-                  </Text>
+                  </span>
                   <Banner
                     type='info'
                     description={`${t('回调 URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}/oauth/linuxdo`}
@@ -1533,13 +1519,13 @@ const SystemSetting = () => {
                     {t('保存 Linux DO OAuth 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
               <CustomOAuthSetting serverAddress={inputs.ServerAddress} />
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 WeChat Server')}>
-                  <Text>{t('用以支持通过微信进行登录注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持通过微信进行登录注册')}</span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1568,11 +1554,11 @@ const SystemSetting = () => {
                     {t('保存 WeChat Server 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 Telegram 登录')}>
-                  <Text>{t('用以支持通过 Telegram 进行登录注册')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持通过 Telegram 进行登录注册')}</span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1595,11 +1581,11 @@ const SystemSetting = () => {
                     {t('保存 Telegram 登录设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
-              <Card>
+              <div className='mv-settings-section'>
                 <Form.Section text={t('配置 Turnstile')}>
-                  <Text>{t('用以支持用户校验')}</Text>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{t('用以支持用户校验')}</span>
                   <Row
                     gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
                   >
@@ -1622,7 +1608,7 @@ const SystemSetting = () => {
                     {t('保存 Turnstile 设置')}
                   </Button>
                 </Form.Section>
-              </Card>
+              </div>
 
               <Modal
                 title={t('确认取消密码登录')}

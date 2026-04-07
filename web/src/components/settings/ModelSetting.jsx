@@ -18,8 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Tabs } from '@douyinfe/semi-ui';
-
 import { API, showError, showSuccess, toBoolean } from '../../helpers';
 import { useTranslation } from 'react-i18next';
 import SettingGeminiModel from '../../pages/Setting/Model/SettingGeminiModel';
@@ -110,26 +108,28 @@ const ModelSetting = () => {
   return (
     <>
       <MacSpinner spinning={loading} size='large'>
-        {/* OpenAI */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingGlobalModel options={inputs} refresh={onRefresh} />
-        </Card>
-        {/* Channel affinity */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsChannelAffinity options={inputs} refresh={onRefresh} />
-        </Card>
-        {/* Gemini */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingGeminiModel options={inputs} refresh={onRefresh} />
-        </Card>
-        {/* Claude */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingClaudeModel options={inputs} refresh={onRefresh} />
-        </Card>
-        {/* Grok */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingGrokModel options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          {/* OpenAI */}
+          <div className='mv-settings-section'>
+            <SettingGlobalModel options={inputs} refresh={onRefresh} />
+          </div>
+          {/* Channel affinity */}
+          <div className='mv-settings-section'>
+            <SettingsChannelAffinity options={inputs} refresh={onRefresh} />
+          </div>
+          {/* Gemini */}
+          <div className='mv-settings-section'>
+            <SettingGeminiModel options={inputs} refresh={onRefresh} />
+          </div>
+          {/* Claude */}
+          <div className='mv-settings-section'>
+            <SettingClaudeModel options={inputs} refresh={onRefresh} />
+          </div>
+          {/* Grok */}
+          <div className='mv-settings-section'>
+            <SettingGrokModel options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );

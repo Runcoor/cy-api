@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@douyinfe/semi-ui';
 import { API, showError, toBoolean } from '../../helpers';
 import { useTranslation } from 'react-i18next';
 import SettingModelDeployment from '../../pages/Setting/Model/SettingModelDeployment';
@@ -75,9 +74,11 @@ const ModelDeploymentSetting = () => {
   return (
     <>
       <MacSpinner spinning={loading} size='large'>
-        <Card style={{ marginTop: '10px' }}>
-          <SettingModelDeployment options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          <div className='mv-settings-section'>
+            <SettingModelDeployment options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );

@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Card, Button, Modal } from '@douyinfe/semi-ui';
+import { Button, Modal } from '@douyinfe/semi-ui';
 import { API, showError, showSuccess, toBoolean } from '../../helpers';
 import SettingsAPIInfo from '../../pages/Setting/Dashboard/SettingsAPIInfo';
 import SettingsAnnouncements from '../../pages/Setting/Dashboard/SettingsAnnouncements';
@@ -142,30 +142,32 @@ const DashboardSetting = () => {
           </p>
         </Modal>
 
-        {/* 数据看板设置 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsDataDashboard options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          {/* 数据看板设置 */}
+          <div className='mv-settings-section'>
+            <SettingsDataDashboard options={inputs} refresh={onRefresh} />
+          </div>
 
-        {/* 系统公告管理 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsAnnouncements options={inputs} refresh={onRefresh} />
-        </Card>
+          {/* 系统公告管理 */}
+          <div className='mv-settings-section'>
+            <SettingsAnnouncements options={inputs} refresh={onRefresh} />
+          </div>
 
-        {/* API信息管理 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsAPIInfo options={inputs} refresh={onRefresh} />
-        </Card>
+          {/* API信息管理 */}
+          <div className='mv-settings-section'>
+            <SettingsAPIInfo options={inputs} refresh={onRefresh} />
+          </div>
 
-        {/* 常见问答管理 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsFAQ options={inputs} refresh={onRefresh} />
-        </Card>
+          {/* 常见问答管理 */}
+          <div className='mv-settings-section'>
+            <SettingsFAQ options={inputs} refresh={onRefresh} />
+          </div>
 
-        {/* Uptime Kuma 监控设置 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsUptimeKuma options={inputs} refresh={onRefresh} />
-        </Card>
+          {/* Uptime Kuma 监控设置 */}
+          <div className='mv-settings-section'>
+            <SettingsUptimeKuma options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );

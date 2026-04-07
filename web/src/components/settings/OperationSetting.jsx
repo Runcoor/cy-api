@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@douyinfe/semi-ui';
 import SettingsGeneral from '../../pages/Setting/Operation/SettingsGeneral';
 import SettingsHeaderNavModules from '../../pages/Setting/Operation/SettingsHeaderNavModules';
 import SettingsSidebarModulesAdmin from '../../pages/Setting/Operation/SettingsSidebarModulesAdmin';
@@ -121,42 +120,42 @@ const OperationSetting = () => {
   }, []);
 
   return (
-    <>
-      <MacSpinner spinning={loading} size='large'>
+    <MacSpinner spinning={loading} size='large'>
+      <div className='mv-settings-stack'>
         {/* 通用设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsGeneral options={inputs} refresh={onRefresh} />
-        </Card>
+        </div>
         {/* 顶栏模块管理 */}
-        <div style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsHeaderNavModules options={inputs} refresh={onRefresh} />
         </div>
         {/* 左侧边栏模块管理（管理员） */}
-        <div style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsSidebarModulesAdmin options={inputs} refresh={onRefresh} />
         </div>
         {/* 屏蔽词过滤设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsSensitiveWords options={inputs} refresh={onRefresh} />
-        </Card>
+        </div>
         {/* 日志设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsLog options={inputs} refresh={onRefresh} />
-        </Card>
+        </div>
         {/* 监控设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsMonitoring options={inputs} refresh={onRefresh} />
-        </Card>
+        </div>
         {/* 额度设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsCreditLimit options={inputs} refresh={onRefresh} />
-        </Card>
+        </div>
         {/* 签到设置 */}
-        <Card style={{ marginTop: '10px' }}>
+        <div className='mv-settings-section'>
           <SettingsCheckin options={inputs} refresh={onRefresh} />
-        </Card>
-      </MacSpinner>
-    </>
+        </div>
+      </div>
+    </MacSpinner>
   );
 };
 

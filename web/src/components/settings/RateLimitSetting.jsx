@@ -18,8 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@douyinfe/semi-ui';
-
 import { API, showError, toBoolean } from '../../helpers';
 import { useTranslation } from 'react-i18next';
 import RequestRateLimit from '../../pages/Setting/RateLimit/SettingsRequestRateLimit';
@@ -78,10 +76,11 @@ const RateLimitSetting = () => {
   return (
     <>
       <MacSpinner spinning={loading} size='large'>
-        {/* AI请求速率限制 */}
-        <Card style={{ marginTop: '10px' }}>
-          <RequestRateLimit options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          <div className='mv-settings-section'>
+            <RequestRateLimit options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );

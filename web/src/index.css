@@ -364,6 +364,32 @@ h1, h2, h3, h4, h5, h6, .mv-heading {
   padding: 10px !important;
 }
 
+/* --- Settings Section Panel --- */
+/* Native macOS-style section panel for settings pages.
+   More generous padding than default card, proper visual hierarchy. */
+.mv-settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  padding: 6px 20px 20px;
+  transition: background-color var(--ease-micro), border-color var(--ease-micro);
+}
+
+@media (max-width: 767px) {
+  .mv-settings-section {
+    padding: 4px 12px 14px;
+  }
+}
+
+/* Stack of settings sections with consistent gap */
+.mv-settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+}
+
 /* --- Button Overrides --- */
 .semi-button {
   transition: background-color var(--ease-micro), color var(--ease-micro), border-color var(--ease-micro);

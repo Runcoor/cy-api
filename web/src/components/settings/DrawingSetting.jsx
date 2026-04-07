@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@douyinfe/semi-ui';
 import SettingsDrawing from '../../pages/Setting/Drawing/SettingsDrawing';
 import { API, showError, toBoolean } from '../../helpers';
 import MacSpinner from '../common/ui/MacSpinner';
@@ -73,10 +72,11 @@ const DrawingSetting = () => {
   return (
     <>
       <MacSpinner spinning={loading} size='large'>
-        {/* 绘图设置 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsDrawing options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          <div className='mv-settings-section'>
+            <SettingsDrawing options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );

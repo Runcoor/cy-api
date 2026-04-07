@@ -25,14 +25,11 @@ import {
   Form,
   Row,
   Modal,
-  Space,
-  Card,
 } from '@douyinfe/semi-ui';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 import { marked } from 'marked';
 import { useTranslation } from 'react-i18next';
 import { StatusContext } from '../../context/Status';
-import Text from '@douyinfe/semi-ui/lib/es/typography/text';
 
 const LEGAL_USER_AGREEMENT_KEY = 'legal.user_agreement';
 const LEGAL_PRIVACY_POLICY_KEY = 'legal.privacy_policy';
@@ -314,55 +311,53 @@ const OtherSetting = () => {
   };
 
   return (
-    <Row>
-      <Col
-        span={24}
-        style={{
-          marginTop: '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}
-      >
-        {/* 版本信息 */}
+    <>
+    <div className='mv-settings-stack'>
+      {/* 版本信息 */}
+      <div className='mv-settings-section'>
         <Form>
-          <Card>
-            <Form.Section text={t('系统信息')}>
-              <Row>
-                <Col span={16}>
-                  <Space>
-                    <Text>
-                      {t('当前版本')}：
+          <Form.Section text={t('系统信息')}>
+            <Row>
+              <Col span={16}>
+                <div className='flex items-center gap-3'>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {t('当前版本')}：
+                    <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                       {statusState?.status?.version || t('未知')}
-                    </Text>
-                    <Button
-                      type='primary'
-                      onClick={checkUpdate}
-                      loading={loadingInput['CheckUpdate']}
-                    >
-                      {t('检查更新')}
-                    </Button>
-                  </Space>
-                </Col>
-              </Row>
-              <Row>
-                <Col span={16}>
-                  <Text>
-                    {t('启动时间')}：{getStartTimeString()}
-                  </Text>
-                </Col>
-              </Row>
-            </Form.Section>
-          </Card>
+                    </span>
+                  </span>
+                  <Button
+                    type='primary'
+                    onClick={checkUpdate}
+                    loading={loadingInput['CheckUpdate']}
+                  >
+                    {t('检查更新')}
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={16}>
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  {t('启动时间')}：
+                  <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                    {getStartTimeString()}
+                  </span>
+                </span>
+              </Col>
+            </Row>
+          </Form.Section>
         </Form>
-        {/* 通用设置 */}
+      </div>
+
+      {/* 通用设置 */}
+      <div className='mv-settings-section'>
         <Form
           values={inputs}
           getFormApi={(formAPI) => (formAPISettingGeneral.current = formAPI)}
         >
-          <Card>
-            <Form.Section text={t('通用设置')}>
-              <Form.TextArea
+          <Form.Section text={t('通用设置')}>
+            <Form.TextArea
                 label={t('公告')}
                 placeholder={t(
                   '在此输入新的公告内容，支持 Markdown & HTML 代码',
@@ -414,14 +409,15 @@ const OtherSetting = () => {
                 {t('设置隐私政策')}
               </Button>
             </Form.Section>
-          </Card>
-        </Form>
+          </Form>
+        </div>
+
         {/* 个性化设置 */}
-        <Form
-          values={inputs}
-          getFormApi={(formAPI) => (formAPIPersonalization.current = formAPI)}
-        >
-          <Card>
+        <div className='mv-settings-section'>
+          <Form
+            values={inputs}
+            getFormApi={(formAPI) => (formAPIPersonalization.current = formAPI)}
+          >
             <Form.Section text={t('个性化设置')}>
               <Form.Input
                 label={t('系统名称')}
@@ -495,9 +491,9 @@ const OtherSetting = () => {
                 {t('设置页脚')}
               </Button>
             </Form.Section>
-          </Card>
-        </Form>
-      </Col>
+          </Form>
+        </div>
+      </div>
       <Modal
         title={t('新版本') + '：' + updateData.tag_name}
         visible={showUpdateModal}
@@ -517,7 +513,7 @@ const OtherSetting = () => {
       >
         <div dangerouslySetInnerHTML={{ __html: updateData.content }}></div>
       </Modal>
-    </Row>
+    </>
   );
 };
 

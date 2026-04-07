@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState } from 'react';
-import { Card } from '@douyinfe/semi-ui';
 import SettingsPerformance from '../../pages/Setting/Performance/SettingsPerformance';
 import { API, showError, toBoolean } from '../../helpers';
 import MacSpinner from '../common/ui/MacSpinner';
@@ -69,10 +68,11 @@ const PerformanceSetting = () => {
   return (
     <>
       <MacSpinner spinning={loading} size='large'>
-        {/* 性能设置 */}
-        <Card style={{ marginTop: '10px' }}>
-          <SettingsPerformance options={inputs} refresh={onRefresh} />
-        </Card>
+        <div className='mv-settings-stack'>
+          <div className='mv-settings-section'>
+            <SettingsPerformance options={inputs} refresh={onRefresh} />
+          </div>
+        </div>
       </MacSpinner>
     </>
   );
