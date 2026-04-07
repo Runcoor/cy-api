@@ -18,10 +18,9 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Form, Tag, Typography } from '@douyinfe/semi-ui';
+import { Form } from '@douyinfe/semi-ui';
 
 export default function HttpStatusCodeRulesInput(props) {
-  const { Text } = Typography;
   const {
     label,
     field,
@@ -51,19 +50,33 @@ export default function HttpStatusCodeRulesInput(props) {
           }}
         >
           {parsed.tokens.map((token) => (
-            <Tag key={token} size='small'>
+            <span
+              key={token}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {token}
-            </Tag>
+            </span>
           ))}
         </div>
       )}
       {!parsed?.ok && (
-        <Text type='danger' style={{ display: 'block', marginTop: 8 }}>
+        <span style={{ display: 'block', marginTop: 8, fontSize: '13px', color: 'var(--error)' }}>
           {invalidText}
           {parsed?.invalidTokens && parsed.invalidTokens.length > 0
             ? `: ${parsed.invalidTokens.join(', ')}`
             : ''}
-        </Text>
+        </span>
       )}
     </>
   );

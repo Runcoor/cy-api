@@ -28,7 +28,6 @@ import {
   Select,
   SideSheet,
   Space,
-  Tag,
   Typography,
 } from '@douyinfe/semi-ui';
 import {
@@ -202,13 +201,17 @@ const AddEditSubscriptionModal = ({
         title={
           <Space>
             {isEdit ? (
-              <Tag color='blue' shape='circle'>
-                {t('更新')}
-              </Tag>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                color: 'var(--accent)', background: 'rgba(10, 132, 255, 0.12)', lineHeight: '20px',
+              }}>{t('更新')}</span>
             ) : (
-              <Tag color='green' shape='circle'>
-                {t('新建')}
-              </Tag>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                color: 'var(--success)', background: 'rgba(52, 199, 89, 0.12)', lineHeight: '20px',
+              }}>{t('新建')}</span>
             )}
             <Title heading={4} className='m-0'>
               {isEdit ? t('更新套餐信息') : t('创建新的订阅套餐')}

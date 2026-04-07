@@ -20,7 +20,6 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 import {
   Avatar,
-  Tag,
   Divider,
 } from '@douyinfe/semi-ui';
 import {
@@ -76,30 +75,37 @@ const UserInfoHeader = ({ t, userState }) => {
               {getUsername()}
             </h2>
             <div className='flex flex-wrap items-center gap-2 mt-1.5'>
-              <Tag
-                size='small'
-                shape='circle'
+              <span
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '1px 8px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  lineHeight: '20px',
                   color: 'var(--accent)',
-                  background: 'var(--accent-light)',
-                  border: '1px solid var(--border-subtle)',
+                  background: 'rgba(10, 132, 255, 0.12)',
                   borderRadius: 'var(--radius-sm)',
                 }}
               >
                 {getRoleLabel()}
-              </Tag>
-              <Tag
-                size='small'
-                shape='circle'
+              </span>
+              <span
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '1px 8px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  fontFamily: 'var(--font-mono)',
+                  lineHeight: '20px',
                   color: 'var(--text-muted)',
                   background: 'var(--surface-active)',
-                  border: '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-sm)',
                 }}
               >
                 ID: {userState?.user?.id}
-              </Tag>
+              </span>
             </div>
           </div>
         </div>

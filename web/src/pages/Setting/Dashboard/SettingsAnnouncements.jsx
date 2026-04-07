@@ -27,7 +27,6 @@ import {
   Empty,
   Divider,
   Modal,
-  Tag,
   Switch,
   TextArea,
   Tooltip,
@@ -83,15 +82,15 @@ const SettingsAnnouncements = ({ options, refresh }) => {
     { value: 'error', label: t('错误') },
   ];
 
-  const getTypeColor = (type) => {
-    const colorMap = {
-      default: 'grey',
-      ongoing: 'blue',
-      success: 'green',
-      warning: 'orange',
-      error: 'red',
+  const getTypeStyle = (type) => {
+    const styleMap = {
+      default: { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
+      ongoing: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+      success: { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
+      warning: { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
+      error: { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)' },
     };
-    return colorMap[type] || 'grey';
+    return styleMap[type] || styleMap.default;
   };
 
   const columns = [
@@ -141,11 +140,18 @@ const SettingsAnnouncements = ({ options, refresh }) => {
       dataIndex: 'type',
       key: 'type',
       width: 100,
-      render: (type) => (
-        <Tag color={getTypeColor(type)} shape='circle'>
-          {typeOptions.find((opt) => opt.value === type)?.label || type}
-        </Tag>
-      ),
+      render: (type) => {
+        const s = getTypeStyle(type);
+        return (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+            borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+            color: s.color, background: s.bg, lineHeight: '20px',
+          }}>
+            {typeOptions.find((opt) => opt.value === type)?.label || type}
+          </span>
+        );
+      },
     },
     {
       title: t('说明'),

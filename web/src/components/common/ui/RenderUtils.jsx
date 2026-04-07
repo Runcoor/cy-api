@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Space, Tag, Typography, Popover } from '@douyinfe/semi-ui';
+import { Popover, Typography } from '@douyinfe/semi-ui';
 
 const { Text } = Typography;
 
@@ -28,25 +28,38 @@ export function renderLimitedItems({ items, renderItem, maxDisplay = 3 }) {
   const displayItems = items.slice(0, maxDisplay);
   const remainingItems = items.slice(maxDisplay);
   return (
-    <Space spacing={1} wrap>
+    <div className='flex flex-wrap items-center gap-1'>
       {displayItems.map((item, idx) => renderItem(item, idx))}
       {remainingItems.length > 0 && (
         <Popover
           content={
             <div className='p-2'>
-              <Space spacing={1} wrap>
+              <div className='flex flex-wrap items-center gap-1'>
                 {remainingItems.map((item, idx) => renderItem(item, idx))}
-              </Space>
+              </div>
             </div>
           }
           position='top'
         >
-          <Tag size='small' shape='circle' color='grey'>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '1px 8px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'var(--text-muted)',
+              background: 'var(--surface-active)',
+              lineHeight: '20px',
+              cursor: 'pointer',
+            }}
+          >
             +{remainingItems.length}
-          </Tag>
+          </span>
         </Popover>
       )}
-    </Space>
+    </div>
   );
 }
 

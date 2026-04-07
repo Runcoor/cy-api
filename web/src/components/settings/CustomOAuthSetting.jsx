@@ -30,7 +30,6 @@ import {
   Collapse,
   Switch,
   Table,
-  Tag,
   Popconfirm,
   Space,
 } from '@douyinfe/semi-ui';
@@ -545,16 +544,27 @@ const CustomOAuthSetting = ({ serverAddress }) => {
       title: 'Slug',
       dataIndex: 'slug',
       key: 'slug',
-      render: (slug) => <Tag>{slug}</Tag>,
+      render: (slug) => <span style={{
+        display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+        borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+        fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
+        background: 'var(--surface-active)', lineHeight: '20px',
+      }}>{slug}</span>,
     },
     {
       title: t('状态'),
       dataIndex: 'enabled',
       key: 'enabled',
       render: (enabled) => (
-        <Tag color={enabled ? 'green' : 'grey'}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+          borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+          color: enabled ? 'var(--success)' : 'var(--text-muted)',
+          background: enabled ? 'rgba(52, 199, 89, 0.12)' : 'var(--surface-active)',
+          lineHeight: '20px',
+        }}>
           {enabled ? t('已启用') : t('已禁用')}
-        </Tag>
+        </span>
       ),
     },
     {
@@ -655,9 +665,15 @@ const CustomOAuthSetting = ({ serverAddress }) => {
                   size='large'
                   onChange={(checked) => mergeFormValues({ enabled: !!checked })}
                 />
-                <Tag color={formValues.enabled ? 'green' : 'grey'}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                  borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                  color: formValues.enabled ? 'var(--success)' : 'var(--text-muted)',
+                  background: formValues.enabled ? 'rgba(52, 199, 89, 0.12)' : 'var(--surface-active)',
+                  lineHeight: '20px',
+                }}>
                   {formValues.enabled ? t('已启用') : t('已禁用')}
-                </Tag>
+                </span>
               </Space>
               <Button onClick={closeModal}>{t('取消')}</Button>
               <Button type='primary' onClick={handleSubmit}>

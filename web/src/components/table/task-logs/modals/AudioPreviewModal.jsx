@@ -18,11 +18,11 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, Typography, Tag, Button } from '@douyinfe/semi-ui';
+import { Modal, Typography, Button } from '@douyinfe/semi-ui';
 import { IconExternalOpen, IconCopy } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const formatDuration = (seconds) => {
   if (!seconds || seconds <= 0) return '--:--';
@@ -86,9 +86,22 @@ const AudioClipCard = ({ clip }) => {
             {title}
           </Text>
           {duration > 0 && (
-            <Tag size='small' color='grey' shape='circle'>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-muted)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {formatDuration(duration)}
-            </Tag>
+            </span>
           )}
         </div>
 

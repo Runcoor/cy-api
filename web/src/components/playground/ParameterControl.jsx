@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Input, Slider, Button, Tag } from '@douyinfe/semi-ui';
+import { Input, Slider, Button } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 import {
   Hash,
@@ -52,9 +52,22 @@ const ParameterControl = ({
             <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Temperature
             </span>
-            <Tag size='small' shape='circle'>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {inputs.temperature}
-            </Tag>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.temperature ? 'solid' : 'borderless'}
@@ -96,9 +109,22 @@ const ParameterControl = ({
             <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Top P
             </span>
-            <Tag size='small' shape='circle'>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {inputs.top_p}
-            </Tag>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.top_p ? 'solid' : 'borderless'}
@@ -136,9 +162,22 @@ const ParameterControl = ({
             <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Frequency Penalty
             </span>
-            <Tag size='small' shape='circle'>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {inputs.frequency_penalty}
-            </Tag>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.frequency_penalty ? 'solid' : 'borderless'}
@@ -180,9 +219,22 @@ const ParameterControl = ({
             <span className='text-sm' style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
               Presence Penalty
             </span>
-            <Tag size='small' shape='circle'>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--text-secondary)',
+                background: 'var(--surface-active)',
+                lineHeight: '20px',
+              }}
+            >
               {inputs.presence_penalty}
-            </Tag>
+            </span>
           </div>
           <Button
             theme={parameterEnabled.presence_penalty ? 'solid' : 'borderless'}

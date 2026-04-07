@@ -31,7 +31,6 @@ import {
   Space,
   Highlight,
   Select,
-  Tag,
 } from '@douyinfe/semi-ui';
 import { IconSearch } from '@douyinfe/semi-icons';
 
@@ -177,43 +176,24 @@ const ChannelSelectorModal = forwardRef(
     const renderStatusCell = (record) => {
       const status = record?._originalData?.status || 0;
       const official = isOfficialChannel(record);
-      let statusTag = null;
-      switch (status) {
-        case 1:
-          statusTag = (
-            <Tag color='green' shape='circle'>
-              {t('已启用')}
-            </Tag>
-          );
-          break;
-        case 2:
-          statusTag = (
-            <Tag color='red' shape='circle'>
-              {t('已禁用')}
-            </Tag>
-          );
-          break;
-        case 3:
-          statusTag = (
-            <Tag color='yellow' shape='circle'>
-              {t('自动禁用')}
-            </Tag>
-          );
-          break;
-        default:
-          statusTag = (
-            <Tag color='grey' shape='circle'>
-              {t('未知状态')}
-            </Tag>
-          );
-      }
+      const statusStyles = {
+        1: { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', label: t('已启用') },
+        2: { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)', label: t('已禁用') },
+        3: { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', label: t('自动禁用') },
+      };
+      const s = statusStyles[status] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', label: t('未知状态') };
+      const badgeStyle = {
+        display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+        borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+        lineHeight: '20px',
+      };
       return (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {statusTag}
+          <span style={{ ...badgeStyle, color: s.color, background: s.bg }}>{s.label}</span>
           {official && (
-            <Tag color='green' shape='circle' type='light'>
+            <span style={{ ...badgeStyle, color: 'var(--success)', background: 'rgba(52, 199, 89, 0.08)' }}>
               {t('官方')}
-            </Tag>
+            </span>
           )}
         </div>
       );

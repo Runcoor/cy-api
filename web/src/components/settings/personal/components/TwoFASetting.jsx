@@ -25,7 +25,6 @@ import {
   Divider,
   Input,
   Modal,
-  Tag,
   Typography,
   Steps,
   // Note: Typography kept for Text code copyable feature
@@ -382,18 +381,30 @@ const TwoFASetting = ({ t }) => {
                   {t('两步验证设置')}
                 </h6>
                 {status.enabled ? (
-                  <Tag color='green' shape='circle' size='small'>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                    borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                    color: 'var(--success)', background: 'rgba(52, 199, 89, 0.12)', lineHeight: '20px',
+                  }}>
                     {t('已启用')}
-                  </Tag>
+                  </span>
                 ) : (
-                  <Tag color='red' shape='circle' size='small'>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                    borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                    color: 'var(--error)', background: 'rgba(255, 59, 48, 0.12)', lineHeight: '20px',
+                  }}>
                     {t('未启用')}
-                  </Tag>
+                  </span>
                 )}
                 {status.locked && (
-                  <Tag color='orange' shape='circle' size='small'>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
+                    borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
+                    color: 'var(--warning)', background: 'rgba(255, 149, 0, 0.12)', lineHeight: '20px',
+                  }}>
                     {t('账户已锁定')}
-                  </Tag>
+                  </span>
                 )}
               </div>
               <span className='text-sm' style={{ color: 'var(--text-muted)' }}>

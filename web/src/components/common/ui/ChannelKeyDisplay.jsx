@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Button, Tag } from '@douyinfe/semi-ui';
+import { Button } from '@douyinfe/semi-ui';
 import { copy, showSuccess } from '../../../helpers';
 
 /**
@@ -152,12 +152,13 @@ const ChannelKeyDisplay = ({
 
         <div className='space-y-3 max-h-80 overflow-auto'>
           {parsedKeys.map((keyItem) => (
-            <Card
+            <div
               key={keyItem.id}
               style={{
                 borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border-subtle)',
                 background: 'var(--surface)',
+                padding: '12px',
               }}
             >
               <div className='space-y-2'>
@@ -169,16 +170,22 @@ const ChannelKeyDisplay = ({
                   </span>
                   <div className='flex items-center gap-2'>
                     {keyItem.type === 'json' && (
-                      <Tag
-                        size='small'
+                      <span
                         style={{
-                          background: 'var(--accent-light)',
-                          color: 'var(--accent)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '1px 8px',
                           borderRadius: 'var(--radius-sm)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          fontFamily: 'var(--font-mono)',
+                          background: 'rgba(10, 132, 255, 0.12)',
+                          color: 'var(--accent)',
+                          lineHeight: '20px',
                         }}
                       >
                         {t('JSON')}
-                      </Tag>
+                      </span>
                     )}
                     <Button
                       size='small'
@@ -240,7 +247,7 @@ const ChannelKeyDisplay = ({
                   </span>
                 )}
               </div>
-            </Card>
+            </div>
           ))}
         </div>
 

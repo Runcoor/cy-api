@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Typography, Tag } from '@douyinfe/semi-ui';
+// No Semi imports needed — using native elements with CSS variables
 import SkeletonWrapper from '../components/SkeletonWrapper';
 
 const HeaderLogo = ({
@@ -74,19 +74,22 @@ const HeaderLogo = ({
           </span>
         </SkeletonWrapper>
         {(isSelfUseMode || isDemoSiteMode) && !isLoading && (
-          <Tag
-            color={isSelfUseMode ? 'purple' : 'blue'}
-            size='small'
+          <span
             className='whitespace-nowrap'
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
               borderRadius: 'var(--radius-sm)',
               fontSize: '11px',
               padding: '0 6px',
               lineHeight: '20px',
+              fontWeight: 500,
+              color: isSelfUseMode ? '#AF52DE' : 'var(--accent)',
+              background: isSelfUseMode ? 'rgba(175, 82, 222, 0.12)' : 'rgba(10, 132, 255, 0.12)',
             }}
           >
             {isSelfUseMode ? t('自用模式') : t('演示站点')}
-          </Tag>
+          </span>
         )}
       </div>
     </Link>
