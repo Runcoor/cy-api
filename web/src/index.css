@@ -1039,6 +1039,156 @@ html.dark .semi-transfer-right {
   color: var(--text-muted);
 }
 
+/* --- Skeleton Overrides --- */
+.semi-skeleton-content .semi-skeleton-title,
+.semi-skeleton-content .semi-skeleton-paragraph li {
+  background: var(--surface-hover) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+html.dark .semi-skeleton-content .semi-skeleton-title,
+html.dark .semi-skeleton-content .semi-skeleton-paragraph li {
+  background: var(--surface-active) !important;
+}
+
+/* --- Avatar Overrides --- */
+.semi-avatar {
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+  background: var(--surface-hover) !important;
+}
+
+.semi-avatar-label {
+  color: var(--text-primary) !important;
+}
+
+/* --- Steps Overrides --- */
+.semi-steps-item-title {
+  color: var(--text-primary) !important;
+  font-family: var(--font-serif) !important;
+}
+
+.semi-steps-item-description {
+  color: var(--text-secondary) !important;
+}
+
+.semi-steps-item-process .semi-steps-item-icon {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.semi-steps-item-finish .semi-steps-item-icon {
+  background: transparent !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.semi-steps-item-wait .semi-steps-item-icon {
+  background: transparent !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-muted) !important;
+}
+
+.semi-steps-item-tail::after {
+  background: var(--border-default) !important;
+}
+
+.semi-steps-item-finish .semi-steps-item-tail::after {
+  background: var(--accent) !important;
+}
+
+/* --- Descriptions Overrides --- */
+.semi-descriptions-key {
+  color: var(--text-muted) !important;
+  font-size: 12px !important;
+}
+
+.semi-descriptions-value {
+  color: var(--text-primary) !important;
+}
+
+.semi-descriptions-row {
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.semi-descriptions-double .semi-descriptions-item {
+  padding: 8px 0 !important;
+}
+
+/* --- Popconfirm Overrides --- */
+.semi-popconfirm-body {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.semi-popconfirm-body-content {
+  color: var(--text-primary) !important;
+}
+
+.semi-popconfirm-header-title {
+  color: var(--text-primary) !important;
+  font-family: var(--font-serif) !important;
+  font-weight: 600 !important;
+}
+
+/* --- Nav Overrides (global, complements sidebar) --- */
+.semi-navigation {
+  background: transparent !important;
+  border-right: none !important;
+}
+
+.semi-navigation-item-selected {
+  background: var(--surface-active) !important;
+  color: var(--accent) !important;
+}
+
+.semi-navigation-item:hover {
+  background: var(--surface-hover) !important;
+}
+
+/* --- SideSheet Dark Mode --- */
+html.dark .semi-sidesheet-inner {
+  background: var(--surface) !important;
+  border-left: 1px solid var(--border-default) !important;
+}
+
+.semi-sidesheet-header {
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.semi-sidesheet-header-text {
+  font-family: var(--font-serif) !important;
+  color: var(--text-primary) !important;
+}
+
+/* --- ImagePreview Overrides --- */
+.semi-image-preview-footer {
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* --- Chat Component Overrides (Playground) --- */
+.semi-chat-inputBox {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.semi-chat-chatBox-bubble-wrapper-other .semi-chat-chatBox-content {
+  background: var(--surface-hover) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.semi-chat-chatBox-bubble-wrapper-self .semi-chat-chatBox-content {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-radius: var(--radius-lg) !important;
+}
+
 /* ==================== Navigation & Sidebar ==================== */
 .semi-navigation-item {
   margin-bottom: 4px !important;
