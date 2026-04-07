@@ -21,15 +21,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   Button,
-  Typography,
   Select,
   Input,
-  Space,
-  Card,
-  Tag,
   Empty,
   Switch,
-  Divider,
   Tooltip,
   Radio,
 } from '@douyinfe/semi-ui';
@@ -52,9 +47,47 @@ import {
 } from '../../../../helpers';
 import MacSpinner from '../../../common/ui/MacSpinner';
 
-const { Text } = Typography;
+/* ── iOS-style inline badge ── */
+const InlineBadge = ({ color, bg, mono, children }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+    }}
+  >
+    {children}
+  </span>
+);
 
 const ALL_CONTAINERS = '__all__';
+
+/* ── Status badge config ── */
+const getStatusBadge = (status, t) => {
+  if (!status) {
+    return { color: 'var(--text-muted)', bg: 'var(--surface-active)', label: t('未知状态') };
+  }
+  const normalized = typeof status === 'string' ? status.trim().toLowerCase() : '';
+  const statusMap = {
+    running: { color: 'var(--success)', bg: 'var(--success-light)', label: '运行中' },
+    pending: { color: 'var(--warning)', bg: 'var(--warning-light)', label: '准备中' },
+    deployed: { color: 'var(--accent)', bg: 'var(--accent-light)', label: '已部署' },
+    failed: { color: 'var(--error)', bg: 'var(--error-light)', label: '失败' },
+    destroyed: { color: 'var(--error)', bg: 'var(--error-light)', label: '已销毁' },
+    stopping: { color: 'var(--warning)', bg: 'var(--warning-light)', label: '停止中' },
+    terminated: { color: 'var(--text-muted)', bg: 'var(--surface-active)', label: '已终止' },
+  };
+  const config = statusMap[normalized] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', label: status };
+  return { ...config, label: t(config.label) };
+};
 
 const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
   const [logLines, setLogLines] = useState([]);
@@ -74,7 +107,6 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
   const logContainerRef = useRef(null);
   const autoRefreshRef = useRef(null);
 
-  // Auto scroll to bottom when new logs arrive
   const scrollToBottom = () => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
@@ -82,15 +114,9 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
   };
 
   const resolveStreamValue = (value) => {
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (value && typeof value.value === 'string') {
-      return value.value;
-    }
-    if (value && value.target && typeof value.target.value === 'string') {
-      return value.target.value;
-    }
+    if (typeof value === 'string') return value;
+    if (value && typeof value.value === 'string') return value.value;
+    if (value && value.target && typeof value.target.value === 'string') return value.target.value;
     return '';
   };
 
@@ -229,36 +255,6 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
     }
   };
 
-  const renderContainerStatusTag = (status) => {
-    if (!status) {
-      return (
-        <Tag color='grey' size='small'>
-          {t('未知状态')}
-        </Tag>
-      );
-    }
-
-    const normalized =
-      typeof status === 'string' ? status.trim().toLowerCase() : '';
-    const statusMap = {
-      running: { color: 'green', label: '运行中' },
-      pending: { color: 'orange', label: '准备中' },
-      deployed: { color: 'blue', label: '已部署' },
-      failed: { color: 'red', label: '失败' },
-      destroyed: { color: 'red', label: '已销毁' },
-      stopping: { color: 'orange', label: '停止中' },
-      terminated: { color: 'grey', label: '已终止' },
-    };
-
-    const config = statusMap[normalized] || { color: 'grey', label: status };
-
-    return (
-      <Tag color={config.color} size='small'>
-        {t(config.label)}
-      </Tag>
-    );
-  };
-
   const currentContainer =
     selectedContainerId !== ALL_CONTAINERS
       ? containers.find((ctr) => ctr.container_id === selectedContainerId)
@@ -384,7 +380,12 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
   const renderLogEntry = (line, index) => (
     <div
       key={`${index}-${line.slice(0, 20)}`}
-      className='py-1 px-3 font-mono text-sm border-b whitespace-pre-wrap break-words'
+      className='py-1 px-3 text-xs whitespace-pre-wrap break-words'
+      style={{
+        fontFamily: 'var(--font-mono)',
+        borderBottom: '1px solid var(--border-subtle)',
+        color: 'var(--text-primary)',
+      }}
     >
       {line}
     </div>
@@ -393,12 +394,29 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
   return (
     <Modal
       title={
-        <div className='flex items-center gap-2'>
-          <FaTerminal style={{ color: 'var(--accent)' }} />
-          <span>{t('容器日志')}</span>
-          <Text type='secondary' size='small'>
-            - {deployment?.container_name || deployment?.id}
-          </Text>
+        <div className='flex items-center gap-2.5'>
+          <span
+            className='w-7 h-7 flex items-center justify-center'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
+            <FaTerminal size={14} />
+          </span>
+          <span
+            className='text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('容器日志')}
+          </span>
+          <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+            — {deployment?.container_name || deployment?.id}
+          </span>
         </div>
       }
       visible={visible}
@@ -410,162 +428,200 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
       style={{ top: 20 }}
     >
       <div className='flex flex-col h-full max-h-[600px]'>
-        {/* Controls */}
-        <Card className='mb-4' style={{ border: '1px solid var(--border-default)' }}>
-          <div className='flex items-center justify-between flex-wrap gap-3'>
-            <Space wrap>
-              <Select
-                prefix={<FaServer />}
-                placeholder={t('选择容器')}
-                value={selectedContainerId}
-                onChange={handleContainerChange}
-                style={{ width: 240 }}
-                size='small'
-                loading={containersLoading}
-                dropdownStyle={{ maxHeight: 320, overflowY: 'auto' }}
-              >
-                <Select.Option value={ALL_CONTAINERS}>
-                  {t('全部容器')}
-                </Select.Option>
-                {containers.map((ctr) => (
-                  <Select.Option
-                    key={ctr.container_id}
-                    value={ctr.container_id}
-                  >
-                    <div className='flex flex-col'>
-                      <span className='font-mono text-xs'>
-                        {ctr.container_id}
-                      </span>
-                      <span className='text-xs'>
-                        {ctr.brand_name || 'IO.NET'}
-                        {ctr.hardware ? ` · ${ctr.hardware}` : ''}
-                      </span>
-                    </div>
-                  </Select.Option>
-                ))}
-              </Select>
-
-              <Input
-                prefix={<FaSearch />}
-                placeholder={t('搜索日志内容')}
-                value={searchTerm}
-                onChange={setSearchTerm}
-                style={{ width: 200 }}
-                size='small'
-              />
-
-              <Space align='center' className='ml-2'>
-                <Text size='small' type='secondary'>
-                  {t('日志流')}
-                </Text>
-                <Radio.Group
-                  type='button'
+        {/* Controls Panel */}
+        <div
+          className='mb-3 rounded-[var(--radius-lg)] overflow-hidden'
+          style={{
+            border: '1px solid var(--border-subtle)',
+            background: 'var(--surface)',
+          }}
+        >
+          {/* Toolbar row */}
+          <div
+            className='px-4 py-3'
+            style={{
+              background: 'var(--bg-subtle)',
+              borderBottom: '1px solid var(--border-subtle)',
+            }}
+          >
+            <div className='flex items-center justify-between flex-wrap gap-3'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <Select
+                  prefix={<FaServer style={{ color: 'var(--text-muted)' }} />}
+                  placeholder={t('选择容器')}
+                  value={selectedContainerId}
+                  onChange={handleContainerChange}
+                  style={{ width: 240 }}
                   size='small'
-                  value={streamFilter}
-                  onChange={handleStreamChange}
+                  loading={containersLoading}
+                  dropdownStyle={{ maxHeight: 320, overflowY: 'auto' }}
                 >
-                  <Radio value='stdout'>STDOUT</Radio>
-                  <Radio value='stderr'>STDERR</Radio>
-                </Radio.Group>
-              </Space>
+                  <Select.Option value={ALL_CONTAINERS}>
+                    {t('全部容器')}
+                  </Select.Option>
+                  {containers.map((ctr) => (
+                    <Select.Option
+                      key={ctr.container_id}
+                      value={ctr.container_id}
+                    >
+                      <div className='flex flex-col'>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+                          {ctr.container_id}
+                        </span>
+                        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                          {ctr.brand_name || 'IO.NET'}
+                          {ctr.hardware ? ` · ${ctr.hardware}` : ''}
+                        </span>
+                      </div>
+                    </Select.Option>
+                  ))}
+                </Select>
 
-              <div className='flex items-center gap-2'>
-                <Switch
-                  checked={autoRefresh}
-                  onChange={setAutoRefresh}
+                <Input
+                  prefix={<FaSearch style={{ color: 'var(--text-muted)' }} />}
+                  placeholder={t('搜索日志内容')}
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  style={{ width: 200 }}
                   size='small'
                 />
-                <Text size='small'>{t('自动刷新')}</Text>
+
+                <div className='flex items-center gap-1.5 ml-1'>
+                  <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                    {t('日志流')}
+                  </span>
+                  <Radio.Group
+                    type='button'
+                    size='small'
+                    value={streamFilter}
+                    onChange={handleStreamChange}
+                  >
+                    <Radio value='stdout'>STDOUT</Radio>
+                    <Radio value='stderr'>STDERR</Radio>
+                  </Radio.Group>
+                </div>
+
+                <div className='flex items-center gap-1.5'>
+                  <Switch
+                    checked={autoRefresh}
+                    onChange={setAutoRefresh}
+                    size='small'
+                  />
+                  <span className='text-xs' style={{ color: 'var(--text-secondary)' }}>
+                    {t('自动刷新')}
+                  </span>
+                </div>
+
+                <div className='flex items-center gap-1.5'>
+                  <Switch
+                    checked={following}
+                    onChange={setFollowing}
+                    size='small'
+                  />
+                  <span className='text-xs' style={{ color: 'var(--text-secondary)' }}>
+                    {t('跟随日志')}
+                  </span>
+                </div>
               </div>
 
-              <div className='flex items-center gap-2'>
-                <Switch
-                  checked={following}
-                  onChange={setFollowing}
-                  size='small'
-                />
-                <Text size='small'>{t('跟随日志')}</Text>
+              <div className='flex items-center gap-1'>
+                <Tooltip content={t('刷新日志')}>
+                  <Button
+                    icon={<IconRefresh />}
+                    onClick={refreshLogs}
+                    loading={loading}
+                    size='small'
+                    theme='borderless'
+                    style={{ borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}
+                  />
+                </Tooltip>
+
+                <Tooltip content={t('复制日志')}>
+                  <Button
+                    icon={<FaCopy />}
+                    onClick={copyAllLogs}
+                    size='small'
+                    theme='borderless'
+                    disabled={logLines.length === 0}
+                    style={{ borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}
+                  />
+                </Tooltip>
+
+                <Tooltip content={t('下载日志')}>
+                  <Button
+                    icon={<IconDownload />}
+                    onClick={downloadLogs}
+                    size='small'
+                    theme='borderless'
+                    disabled={logLines.length === 0}
+                    style={{ borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}
+                  />
+                </Tooltip>
               </div>
-            </Space>
-
-            <Space>
-              <Tooltip content={t('刷新日志')}>
-                <Button
-                  icon={<IconRefresh />}
-                  onClick={refreshLogs}
-                  loading={loading}
-                  size='small'
-                  theme='borderless'
-                />
-              </Tooltip>
-
-              <Tooltip content={t('复制日志')}>
-                <Button
-                  icon={<FaCopy />}
-                  onClick={copyAllLogs}
-                  size='small'
-                  theme='borderless'
-                  disabled={logLines.length === 0}
-                />
-              </Tooltip>
-
-              <Tooltip content={t('下载日志')}>
-                <Button
-                  icon={<IconDownload />}
-                  onClick={downloadLogs}
-                  size='small'
-                  theme='borderless'
-                  disabled={logLines.length === 0}
-                />
-              </Tooltip>
-            </Space>
+            </div>
           </div>
 
-          {/* Status Info */}
-          <Divider margin='12px' />
-          <div className='flex items-center justify-between'>
-            <Space size='large'>
-              <Text size='small' type='secondary'>
+          {/* Status info strip */}
+          <div
+            className='flex items-center justify-between px-4 py-2'
+            style={{ borderBottom: '1px solid var(--border-subtle)' }}
+          >
+            <div className='flex items-center gap-3'>
+              <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                 {t('共 {{count}} 条日志', { count: logLines.length })}
-              </Text>
+              </span>
               {searchTerm && (
-                <Text size='small' type='secondary'>
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                   {t('(筛选后显示 {{count}} 条)', {
                     count: filteredLogs.length,
                   })}
-                </Text>
+                </span>
               )}
               {autoRefresh && (
-                <Tag color='green' size='small'>
-                  <FaClock className='mr-1' />
+                <InlineBadge color='var(--success)' bg='var(--success-light)'>
+                  <FaClock size={10} />
                   {t('自动刷新中')}
-                </Tag>
+                </InlineBadge>
               )}
-            </Space>
+            </div>
 
-            <Text size='small' type='secondary'>
+            <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
               {t('状态')}: {deployment?.status || 'unknown'}
-            </Text>
+            </span>
           </div>
 
+          {/* Container details section */}
           {selectedContainerId !== ALL_CONTAINERS && (
-            <>
-              <Divider margin='12px' />
+            <div className='px-4 py-3'>
               <div className='flex flex-col gap-3'>
                 <div className='flex items-center justify-between flex-wrap gap-2'>
-                  <Space>
-                    <Tag color='blue' size='small'>
+                  <div className='flex items-center gap-2'>
+                    <InlineBadge color='var(--accent)' bg='var(--accent-light)'>
                       {t('容器')}
-                    </Tag>
-                    <Text className='font-mono text-xs'>
+                    </InlineBadge>
+                    <span
+                      className='text-xs'
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       {selectedContainerId}
-                    </Text>
-                    {renderContainerStatusTag(
-                      containerDetails?.status || currentContainer?.status,
-                    )}
-                  </Space>
+                    </span>
+                    {(() => {
+                      const cfg = getStatusBadge(
+                        containerDetails?.status || currentContainer?.status,
+                        t,
+                      );
+                      return (
+                        <InlineBadge color={cfg.color} bg={cfg.bg}>
+                          {cfg.label}
+                        </InlineBadge>
+                      );
+                    })()}
+                  </div>
 
-                  <Space>
+                  <div className='flex items-center gap-1'>
                     {containerDetails?.public_url && (
                       <Tooltip content={containerDetails.public_url}>
                         <Button
@@ -575,6 +631,7 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
                           onClick={() =>
                             window.open(containerDetails.public_url, '_blank')
                           }
+                          style={{ borderRadius: 'var(--radius-sm)', color: 'var(--accent)' }}
                         />
                       </Tooltip>
                     )}
@@ -585,9 +642,10 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
                         size='small'
                         theme='borderless'
                         loading={containerDetailsLoading}
+                        style={{ borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}
                       />
                     </Tooltip>
-                  </Space>
+                  </div>
                 </div>
 
                 {containerDetailsLoading ? (
@@ -595,11 +653,11 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
                     <MacSpinner tip={t('加载容器详情中...')} />
                   </div>
                 ) : containerDetails ? (
-                  <div className='grid gap-4 md:grid-cols-2 text-sm'>
+                  <div className='grid gap-3 md:grid-cols-2 text-sm'>
                     <div className='flex items-center gap-2'>
-                      <FaInfoCircle style={{ color: 'var(--accent)' }} />
-                      <Text type='secondary'>{t('硬件')}</Text>
-                      <Text>
+                      <FaInfoCircle size={12} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--text-muted)' }}>{t('硬件')}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>
                         {containerDetails?.brand_name ||
                           currentContainer?.brand_name ||
                           t('未知品牌')}
@@ -607,60 +665,70 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
                         currentContainer?.hardware
                           ? ` · ${containerDetails?.hardware || currentContainer?.hardware}`
                           : ''}
-                      </Text>
+                      </span>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <FaServer style={{ color: 'var(--text-secondary)' }} />
-                      <Text type='secondary'>{t('GPU/容器')}</Text>
-                      <Text>
+                      <FaServer size={12} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--text-muted)' }}>{t('GPU/容器')}</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                         {containerDetails?.gpus_per_container ??
                           currentContainer?.gpus_per_container ??
                           0}
-                      </Text>
+                      </span>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <FaClock style={{ color: 'var(--warning)' }} />
-                      <Text type='secondary'>{t('创建时间')}</Text>
-                      <Text>
+                      <FaClock size={12} style={{ color: 'var(--warning)', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--text-muted)' }}>{t('创建时间')}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>
                         {containerDetails?.created_at
                           ? timestamp2string(containerDetails.created_at)
                           : currentContainer?.created_at
                             ? timestamp2string(currentContainer.created_at)
                             : t('未知')}
-                      </Text>
+                      </span>
                     </div>
                     <div className='flex items-center gap-2'>
-                      <FaInfoCircle style={{ color: 'var(--success)' }} />
-                      <Text type='secondary'>{t('运行时长')}</Text>
-                      <Text>
+                      <FaInfoCircle size={12} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--text-muted)' }}>{t('运行时长')}</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                         {containerDetails?.uptime_percent ??
                           currentContainer?.uptime_percent ??
                           0}
                         %
-                      </Text>
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <Text size='small' type='secondary'>
+                  <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                     {t('暂无容器详情')}
-                  </Text>
+                  </span>
                 )}
 
                 {containerDetails?.events &&
                   containerDetails.events.length > 0 && (
-                    <div className='rounded-lg p-3' style={{ background: 'var(--surface-hover)' }}>
-                      <Text size='small' type='secondary'>
+                    <div
+                      className='rounded-[var(--radius-md)] p-3'
+                      style={{
+                        background: 'var(--bg-subtle)',
+                        border: '1px solid var(--border-subtle)',
+                      }}
+                    >
+                      <span
+                        className='block mb-1.5 text-xs font-medium'
+                        style={{ color: 'var(--text-muted)' }}
+                      >
                         {t('最近事件')}
-                      </Text>
-                      <div className='mt-2 space-y-2 max-h-32 overflow-y-auto'>
+                      </span>
+                      <div className='space-y-1.5 max-h-32 overflow-y-auto'>
                         {containerDetails.events
                           .slice(0, 5)
                           .map((event, index) => (
                             <div
                               key={`${event.time}-${index}`}
-                              className='flex gap-3 text-xs font-mono'
+                              className='flex gap-3 text-xs'
+                              style={{ fontFamily: 'var(--font-mono)' }}
                             >
-                              <span style={{ color: 'var(--text-muted)' }}>
+                              <span className='flex-shrink-0' style={{ color: 'var(--text-muted)' }}>
                                 {event.time
                                   ? timestamp2string(event.time)
                                   : '--'}
@@ -674,12 +742,18 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
                     </div>
                   )}
               </div>
-            </>
+            </div>
           )}
-        </Card>
+        </div>
 
-        {/* Log Content */}
-        <div className='flex-1 flex flex-col rounded-lg overflow-hidden' style={{ border: '1px solid var(--border-default)', background: 'var(--surface-hover)' }}>
+        {/* Log Content — terminal-like area */}
+        <div
+          className='flex-1 flex flex-col rounded-[var(--radius-lg)] overflow-hidden'
+          style={{
+            border: '1px solid var(--border-subtle)',
+            background: 'var(--bg-subtle)',
+          }}
+        >
           <div
             ref={logContainerRef}
             className='flex-1 overflow-y-auto'
@@ -706,7 +780,14 @@ const ViewLogsModal = ({ visible, onCancel, deployment, t }) => {
 
           {/* Footer status */}
           {logLines.length > 0 && (
-            <div className='flex items-center justify-between px-3 py-2 border-t text-xs' style={{ background: 'var(--surface-hover)', color: 'var(--text-muted)' }}>
+            <div
+              className='flex items-center justify-between px-3 py-2 text-xs'
+              style={{
+                borderTop: '1px solid var(--border-subtle)',
+                background: 'var(--bg-subtle)',
+                color: 'var(--text-muted)',
+              }}
+            >
               <span>{following ? t('正在跟随最新日志') : t('日志已加载')}</span>
               <span>
                 {t('最后更新')}:{' '}

@@ -23,15 +23,8 @@ import {
   Form,
   Input,
   Select,
-  InputNumber,
-  Switch,
   Collapse,
-  Card,
-  Divider,
   Button,
-  Typography,
-  Space,
-  Tag,
   Row,
   Col,
   Tooltip,
@@ -43,16 +36,94 @@ import {
   IconHelpCircle,
   IconCopy,
 } from '@douyinfe/semi-icons';
+import {
+  Box,
+  Server,
+  MapPin,
+  DollarSign,
+  Settings,
+  Container,
+  Lock,
+  Terminal,
+  Variable,
+} from 'lucide-react';
 import { API } from '../../../../helpers';
 import { showError, showSuccess, copy } from '../../../../helpers';
 import MacSpinner from '../../../common/ui/MacSpinner';
 
-const { Text, Title } = Typography;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 
 const BUILTIN_IMAGE = 'ollama/ollama:latest';
 const DEFAULT_TRAFFIC_PORT = 11434;
+
+/* ── macOS Vibrancy helper components ── */
+
+const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+      whiteSpace: 'nowrap',
+      ...extraStyle,
+    }}
+    {...rest}
+  >
+    {children}
+  </span>
+);
+
+const PanelSection = ({ icon, iconColor, iconBg, title, children, headerRight }) => (
+  <div
+    className='rounded-[var(--radius-lg)] overflow-hidden mb-4'
+    style={{ border: '1px solid var(--border-subtle)', background: 'var(--surface)' }}
+  >
+    <div
+      className='flex items-center justify-between gap-2.5 px-4 py-3'
+      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+    >
+      <div className='flex items-center gap-2.5'>
+        <span
+          className='w-6 h-6 flex items-center justify-center flex-shrink-0'
+          style={{ borderRadius: 'var(--radius-sm)', background: iconBg, color: iconColor }}
+        >
+          {icon}
+        </span>
+        <span
+          className='text-sm font-semibold'
+          style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
+        >
+          {title}
+        </span>
+      </div>
+      {headerRight && <div className='flex items-center gap-2'>{headerRight}</div>}
+    </div>
+    <div className='px-4 py-3'>{children}</div>
+  </div>
+);
+
+const SummaryRow = ({ label, value, strong, color }) => (
+  <div className='flex items-center justify-between'>
+    <span className='text-xs' style={{ color: 'var(--text-secondary)' }}>{label}</span>
+    <span
+      className={`text-xs ${strong ? 'font-semibold' : 'font-medium'}`}
+      style={{ fontFamily: 'var(--font-mono)', color: color || 'var(--text-primary)' }}
+    >
+      {value}
+    </span>
+  </div>
+);
+
+/* ── Utils ── */
 
 const generateRandomKey = () => {
   try {
@@ -773,7 +844,7 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
       key: 'locations',
       label: t('部署位置'),
       value: selectedLocationNames.length
-        ? selectedLocationNames.join('、')
+        ? selectedLocationNames.join(', ')
         : '--',
     },
     {
@@ -807,18 +878,18 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
   const priceUnavailableContent = (
     <div style={{ marginTop: 12 }}>
       {loadingPrice ? (
-        <Space spacing={8} align='center'>
+        <div className='flex items-center gap-2'>
           <MacSpinner size='small' />
-          <Text size='small' type='tertiary'>
+          <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
             {t('价格计算中...')}
-          </Text>
-        </Space>
+          </span>
+        </div>
       ) : (
-        <Text size='small' type='tertiary'>
+        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
           {isPriceReady
             ? t('价格暂时不可用，请稍后重试')
             : t('完成硬件类型、部署位置、副本数量等配置后，将自动计算价格')}
-        </Text>
+        </span>
       )}
     </div>
   );
@@ -835,7 +906,23 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
 
   return (
     <Modal
-      title={t('新建容器部署')}
+      title={
+        <div className='flex items-center gap-2.5'>
+          <span
+            className='w-6 h-6 flex items-center justify-center flex-shrink-0'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(10, 132, 255, 0.12)',
+              color: 'var(--accent)',
+            }}
+          >
+            <Container size={14} />
+          </span>
+          <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+            {t('新建容器部署')}
+          </span>
+        </div>
+      }
       visible={visible}
       onCancel={onCancel}
       onOk={() => formApi?.submitForm()}
@@ -844,6 +931,22 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
       width={800}
       confirmLoading={submitting}
       style={{ top: 20 }}
+      okButtonProps={{
+        style: {
+          background: 'var(--accent)',
+          borderColor: 'var(--accent)',
+          color: '#fff',
+          borderRadius: 'var(--radius-md)',
+        },
+      }}
+      cancelButtonProps={{
+        style: {
+          background: 'var(--surface-active)',
+          borderColor: 'var(--border-subtle)',
+          color: 'var(--text-secondary)',
+          borderRadius: 'var(--radius-md)',
+        },
+      }}
     >
       <Form
         key={formKey}
@@ -853,41 +956,39 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
         style={{ maxHeight: '70vh', overflowY: 'auto' }}
         labelPosition='top'
       >
-        <Space
-          wrap
-          spacing={8}
-          style={{ justifyContent: 'flex-end', width: '100%', marginBottom: 8 }}
-        >
-          <Button
-            size='small'
-            theme='borderless'
-            type='tertiary'
-            onClick={() => scrollToSection(basicSectionRef)}
-          >
-            {t('部署配置')}
-          </Button>
-          <Button
-            size='small'
-            theme='borderless'
-            type='tertiary'
-            onClick={() => scrollToSection(priceSectionRef)}
-          >
-            {t('价格预估')}
-          </Button>
-          <Button
-            size='small'
-            theme='borderless'
-            type='tertiary'
-            onClick={() => scrollToSection(advancedSectionRef)}
-          >
-            {t('高级配置')}
-          </Button>
-        </Space>
+        {/* Section navigation pills */}
+        <div className='flex flex-wrap items-center justify-end gap-1.5 mb-3'>
+          {[
+            { label: t('部署配置'), ref: basicSectionRef },
+            { label: t('价格预估'), ref: priceSectionRef },
+            { label: t('高级配置'), ref: advancedSectionRef },
+          ].map((nav) => (
+            <button
+              key={nav.label}
+              type='button'
+              className='text-xs px-2.5 py-1 rounded-[var(--radius-sm)]'
+              style={{
+                background: 'var(--surface-active)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-subtle)',
+                cursor: 'pointer',
+                transition: 'colors 150ms ease-out',
+              }}
+              onClick={() => scrollToSection(nav.ref)}
+            >
+              {nav.label}
+            </button>
+          ))}
+        </div>
 
+        {/* ── Deployment Configuration ── */}
         <div ref={basicSectionRef}>
-          <Card className='mb-4'>
-            <Title heading={6}>{t('部署配置')}</Title>
-
+          <PanelSection
+            icon={<Server size={14} />}
+            iconColor='var(--accent)'
+            iconBg='rgba(10, 132, 255, 0.12)'
+            title={t('部署配置')}
+          >
             <Form.Input
               field='resource_private_name'
               label={t('容器名称')}
@@ -896,7 +997,12 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
             />
 
             <div className='mt-2'>
-              <Text strong>{t('镜像选择')}</Text>
+              <span
+                className='text-sm font-medium'
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {t('镜像选择')}
+              </span>
               <div style={{ marginTop: 8 }}>
                 <RadioGroup
                   type='button'
@@ -925,10 +1031,10 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
             />
 
             {imageMode === 'builtin' && (
-              <Space align='center' spacing={8} className='mt-2'>
-                <Text size='small' type='tertiary'>
+              <div className='flex flex-wrap items-center gap-2 mt-2'>
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                   {t('系统已为该部署准备 Ollama 镜像与随机 API Key')}
-                </Text>
+                </span>
                 <Input
                   readOnly
                   value={autoOllamaKey}
@@ -953,7 +1059,7 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                 >
                   {t('复制')}
                 </Button>
-              </Space>
+              </div>
             )}
 
             <Row gutter={16}>
@@ -998,17 +1104,19 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                     return (
                       <Option key={hardware.id} value={hardware.id}>
                         <div className='flex flex-col gap-1'>
-                          <Text strong>{displayName}</Text>
-                          <div className='flex items-center gap-2 text-xs text-[var(--text-muted)]'>
+                          <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                            {displayName}
+                          </span>
+                          <div className='flex items-center gap-2 text-xs' style={{ color: 'var(--text-muted)' }}>
                             <span>
                               {t('最大GPU数量')}: {hardware.max_gpus}
                             </span>
-                            <Tag
-                              color={hasAvailability ? 'green' : 'red'}
-                              size='small'
+                            <InlineBadge
+                              color={hasAvailability ? 'var(--success)' : 'var(--error)'}
+                              bg={hasAvailability ? 'rgba(52, 199, 89, 0.12)' : 'rgba(255, 59, 48, 0.12)'}
                             >
                               {t('可用数量')}: {availableCount}
-                            </Tag>
+                            </InlineBadge>
                           </div>
                         </div>
                       </Option>
@@ -1031,18 +1139,18 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
             </Row>
 
             {typeof hardwareTotalAvailable === 'number' && (
-              <Text size='small' type='tertiary'>
+              <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                 {t('全部硬件总可用资源')}: {hardwareTotalAvailable}
-              </Text>
+              </span>
             )}
 
             <Form.Select
               field='location_ids'
               label={
-                <Space>
+                <div className='flex items-center gap-2'>
                   {t('部署位置')}
                   {loadingReplicas && <MacSpinner size='small' />}
-                </Space>
+                </div>
               }
               placeholder={
                 !selectedHardwareId
@@ -1089,19 +1197,26 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                   >
                     <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
-                        <Text strong>{location.name}</Text>
+                        <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                          {location.name}
+                        </span>
                         {locationLabel && (
-                          <Tag color='blue' size='small'>
+                          <InlineBadge
+                            color='var(--accent)'
+                            bg='rgba(10, 132, 255, 0.12)'
+                          >
                             {locationLabel}
-                          </Tag>
+                          </InlineBadge>
                         )}
                       </div>
-                      <Text
-                        size='small'
-                        type={availableCount > 0 ? 'success' : 'danger'}
+                      <span
+                        className='text-xs'
+                        style={{
+                          color: availableCount > 0 ? 'var(--success)' : 'var(--error)',
+                        }}
                       >
                         {t('可用数量')}: {availableCount}
-                      </Text>
+                      </span>
                     </div>
                   </Option>
                 );
@@ -1109,9 +1224,9 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
             </Form.Select>
 
             {typeof locationTotalAvailable === 'number' && (
-              <Text size='small' type='tertiary'>
+              <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                 {t('全部地区总可用资源')}: {locationTotalAvailable}
-              </Text>
+              </span>
             )}
 
             <Row gutter={16}>
@@ -1127,9 +1242,9 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                   style={{ width: '100%' }}
                 />
                 {maxAvailableReplicas > 0 && (
-                  <Text size='small' type='tertiary'>
+                  <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                     {t('最大可用')}: {maxAvailableReplicas}
-                  </Text>
+                  </span>
                 )}
               </Col>
               <Col xs={24} md={8}>
@@ -1138,7 +1253,7 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                   label={t('运行时长（小时）')}
                   placeholder={1}
                   min={1}
-                  max={8760} // 1 year
+                  max={8760}
                   rules={[{ required: true, message: t('请输入运行时长') }]}
                   onChange={(value) => setDurationHours(value)}
                   style={{ width: '100%' }}
@@ -1148,12 +1263,12 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                 <Form.InputNumber
                   field='traffic_port'
                   label={
-                    <Space>
+                    <div className='flex items-center gap-1'>
                       {t('流量端口')}
                       <Tooltip content={t('容器对外服务的端口号，可选')}>
                         <IconHelpCircle />
                       </Tooltip>
-                    </Space>
+                    </div>
                   }
                   placeholder={DEFAULT_TRAFFIC_PORT}
                   min={1}
@@ -1164,166 +1279,179 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
               </Col>
             </Row>
 
-            <div ref={advancedSectionRef}>
-              <Collapse className='mt-4'>
+            {/* Advanced Configuration (collapsible) */}
+            <div ref={advancedSectionRef} className='mt-4'>
+              <Collapse>
                 <Collapse.Panel header={t('高级配置')} itemKey='advanced'>
-                  <Card>
-                    <Title heading={6}>{t('镜像仓库配置')}</Title>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Input
-                          field='registry_username'
-                          label={t('镜像仓库用户名')}
-                          placeholder={t('私有镜像仓库的用户名')}
-                        />
-                      </Col>
-                      <Col span={12}>
-                        <Form.Input
-                          field='registry_secret'
-                          label={t('镜像仓库密码')}
-                          type='password'
-                          placeholder={t('私有镜像仓库的密码')}
-                        />
-                      </Col>
-                    </Row>
-                  </Card>
-
-                  <Divider />
-
-                  <Card>
-                    <Title heading={6}>{t('容器启动配置')}</Title>
-
-                    <div style={{ marginBottom: 16 }}>
-                      <Text strong>{t('启动命令 (Entrypoint)')}</Text>
-                      {entrypoint.map((cmd, index) => (
-                        <div
-                          key={index}
-                          style={{ display: 'flex', marginTop: 8 }}
-                        >
-                          <Input
-                            value={cmd}
-                            placeholder={t('例如：/bin/bash')}
-                            onChange={(value) =>
-                              handleArrayFieldChange(index, value, 'entrypoint')
-                            }
-                            style={{ flex: 1, marginRight: 8 }}
-                          />
-                          <Button
-                            icon={<IconMinus />}
-                            onClick={() =>
-                              handleRemoveArrayField(index, 'entrypoint')
-                            }
-                            disabled={entrypoint.length === 1}
-                          />
-                        </div>
-                      ))}
-                      <Button
-                        icon={<IconPlus />}
-                        onClick={() => handleAddArrayField('entrypoint')}
-                        style={{ marginTop: 8 }}
+                  {/* Registry Config */}
+                  <div
+                    className='rounded-[var(--radius-md)] overflow-hidden mb-3'
+                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}
+                  >
+                    <div
+                      className='flex items-center gap-2 px-3 py-2'
+                      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                    >
+                      <span
+                        className='w-5 h-5 flex items-center justify-center flex-shrink-0'
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'rgba(88, 86, 214, 0.12)',
+                          color: '#5856D6',
+                        }}
                       >
-                        {t('添加启动命令')}
-                      </Button>
+                        <Box size={12} />
+                      </span>
+                      <span className='text-xs font-semibold' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+                        {t('镜像仓库配置')}
+                      </span>
                     </div>
+                    <div className='px-3 py-2'>
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Input
+                            field='registry_username'
+                            label={t('镜像仓库用户名')}
+                            placeholder={t('私有镜像仓库的用户名')}
+                          />
+                        </Col>
+                        <Col span={12}>
+                          <Form.Input
+                            field='registry_secret'
+                            label={t('镜像仓库密码')}
+                            type='password'
+                            placeholder={t('私有镜像仓库的密码')}
+                          />
+                        </Col>
+                      </Row>
+                    </div>
+                  </div>
 
-                    <div style={{ marginBottom: 16 }}>
-                      <Text strong>{t('启动参数 (Args)')}</Text>
-                      {args.map((arg, index) => (
-                        <div
-                          key={index}
-                          style={{ display: 'flex', marginTop: 8 }}
-                        >
-                          <Input
-                            value={arg}
-                            placeholder={t('例如：-c')}
-                            onChange={(value) =>
-                              handleArrayFieldChange(index, value, 'args')
-                            }
-                            style={{ flex: 1, marginRight: 8 }}
-                          />
-                          <Button
-                            icon={<IconMinus />}
-                            onClick={() =>
-                              handleRemoveArrayField(index, 'args')
-                            }
-                            disabled={args.length === 1}
-                          />
-                        </div>
-                      ))}
-                      <Button
-                        icon={<IconPlus />}
-                        onClick={() => handleAddArrayField('args')}
-                        style={{ marginTop: 8 }}
+                  {/* Container Startup Config */}
+                  <div
+                    className='rounded-[var(--radius-md)] overflow-hidden mb-3'
+                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}
+                  >
+                    <div
+                      className='flex items-center gap-2 px-3 py-2'
+                      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                    >
+                      <span
+                        className='w-5 h-5 flex items-center justify-center flex-shrink-0'
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'rgba(255, 149, 0, 0.12)',
+                          color: 'var(--warning)',
+                        }}
                       >
-                        {t('添加启动参数')}
-                      </Button>
+                        <Terminal size={12} />
+                      </span>
+                      <span className='text-xs font-semibold' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+                        {t('容器启动配置')}
+                      </span>
                     </div>
-                  </Card>
-
-                  <Divider />
-
-                  <Card>
-                    <Title heading={6}>{t('环境变量')}</Title>
-
-                    <div style={{ marginBottom: 16 }}>
-                      <Text strong>{t('普通环境变量')}</Text>
-                      {envVariables.map((env, index) => (
-                        <Row key={index} gutter={8} style={{ marginTop: 8 }}>
-                          <Col span={10}>
+                    <div className='px-3 py-2'>
+                      <div style={{ marginBottom: 16 }}>
+                        <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                          {t('启动命令 (Entrypoint)')}
+                        </span>
+                        {entrypoint.map((cmd, index) => (
+                          <div
+                            key={index}
+                            style={{ display: 'flex', marginTop: 8 }}
+                          >
                             <Input
-                              placeholder={t('变量名')}
-                              value={env.key}
+                              value={cmd}
+                              placeholder={t('例如：/bin/bash')}
                               onChange={(value) =>
-                                handleEnvVariableChange(
-                                  index,
-                                  'key',
-                                  value,
-                                  'env',
-                                )
+                                handleArrayFieldChange(index, value, 'entrypoint')
                               }
+                              style={{ flex: 1, marginRight: 8 }}
                             />
-                          </Col>
-                          <Col span={10}>
-                            <Input
-                              placeholder={t('变量值')}
-                              value={env.value}
-                              onChange={(value) =>
-                                handleEnvVariableChange(
-                                  index,
-                                  'value',
-                                  value,
-                                  'env',
-                                )
-                              }
-                            />
-                          </Col>
-                          <Col span={4}>
                             <Button
                               icon={<IconMinus />}
                               onClick={() =>
-                                handleRemoveEnvVariable(index, 'env')
+                                handleRemoveArrayField(index, 'entrypoint')
                               }
-                              disabled={envVariables.length === 1}
+                              disabled={entrypoint.length === 1}
                             />
-                          </Col>
-                        </Row>
-                      ))}
-                      <Button
-                        icon={<IconPlus />}
-                        onClick={() => handleAddEnvVariable('env')}
-                        style={{ marginTop: 8 }}
-                      >
-                        {t('添加环境变量')}
-                      </Button>
-                    </div>
+                          </div>
+                        ))}
+                        <Button
+                          icon={<IconPlus />}
+                          onClick={() => handleAddArrayField('entrypoint')}
+                          style={{ marginTop: 8 }}
+                        >
+                          {t('添加启动命令')}
+                        </Button>
+                      </div>
 
-                    <div>
-                      <Text strong>{t('密钥环境变量')}</Text>
-                      {secretEnvVariables.map((env, index) => {
-                        const isAutoSecret =
-                          imageMode === 'builtin' &&
-                          env.key === 'OLLAMA_API_KEY';
-                        return (
+                      <div style={{ marginBottom: 16 }}>
+                        <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                          {t('启动参数 (Args)')}
+                        </span>
+                        {args.map((arg, index) => (
+                          <div
+                            key={index}
+                            style={{ display: 'flex', marginTop: 8 }}
+                          >
+                            <Input
+                              value={arg}
+                              placeholder={t('例如：-c')}
+                              onChange={(value) =>
+                                handleArrayFieldChange(index, value, 'args')
+                              }
+                              style={{ flex: 1, marginRight: 8 }}
+                            />
+                            <Button
+                              icon={<IconMinus />}
+                              onClick={() =>
+                                handleRemoveArrayField(index, 'args')
+                              }
+                              disabled={args.length === 1}
+                            />
+                          </div>
+                        ))}
+                        <Button
+                          icon={<IconPlus />}
+                          onClick={() => handleAddArrayField('args')}
+                          style={{ marginTop: 8 }}
+                        >
+                          {t('添加启动参数')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Environment Variables */}
+                  <div
+                    className='rounded-[var(--radius-md)] overflow-hidden'
+                    style={{ border: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}
+                  >
+                    <div
+                      className='flex items-center gap-2 px-3 py-2'
+                      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                    >
+                      <span
+                        className='w-5 h-5 flex items-center justify-center flex-shrink-0'
+                        style={{
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'rgba(52, 199, 89, 0.12)',
+                          color: 'var(--success)',
+                        }}
+                      >
+                        <Variable size={12} />
+                      </span>
+                      <span className='text-xs font-semibold' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+                        {t('环境变量')}
+                      </span>
+                    </div>
+                    <div className='px-3 py-2'>
+                      <div style={{ marginBottom: 16 }}>
+                        <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                          {t('普通环境变量')}
+                        </span>
+                        {envVariables.map((env, index) => (
                           <Row key={index} gutter={8} style={{ marginTop: 8 }}>
                             <Col span={10}>
                               <Input
@@ -1334,68 +1462,137 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                                     index,
                                     'key',
                                     value,
-                                    'secret',
+                                    'env',
                                   )
                                 }
-                                disabled={isAutoSecret}
                               />
                             </Col>
                             <Col span={10}>
                               <Input
                                 placeholder={t('变量值')}
-                                type='password'
                                 value={env.value}
                                 onChange={(value) =>
                                   handleEnvVariableChange(
                                     index,
                                     'value',
                                     value,
-                                    'secret',
+                                    'env',
                                   )
                                 }
-                                disabled={isAutoSecret}
                               />
                             </Col>
                             <Col span={4}>
                               <Button
                                 icon={<IconMinus />}
                                 onClick={() =>
-                                  handleRemoveEnvVariable(index, 'secret')
+                                  handleRemoveEnvVariable(index, 'env')
                                 }
-                                disabled={
-                                  secretEnvVariables.length === 1 ||
-                                  isAutoSecret
-                                }
+                                disabled={envVariables.length === 1}
                               />
                             </Col>
                           </Row>
-                        );
-                      })}
-                      <Button
-                        icon={<IconPlus />}
-                        onClick={() => handleAddEnvVariable('secret')}
-                        style={{ marginTop: 8 }}
+                        ))}
+                        <Button
+                          icon={<IconPlus />}
+                          onClick={() => handleAddEnvVariable('env')}
+                          style={{ marginTop: 8 }}
+                        >
+                          {t('添加环境变量')}
+                        </Button>
+                      </div>
+
+                      <div
+                        style={{
+                          borderTop: '1px solid var(--border-subtle)',
+                          paddingTop: 12,
+                        }}
                       >
-                        {t('添加密钥环境变量')}
-                      </Button>
+                        <div className='flex items-center gap-1.5 mb-2'>
+                          <Lock size={12} style={{ color: 'var(--warning)' }} />
+                          <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                            {t('密钥环境变量')}
+                          </span>
+                        </div>
+                        {secretEnvVariables.map((env, index) => {
+                          const isAutoSecret =
+                            imageMode === 'builtin' &&
+                            env.key === 'OLLAMA_API_KEY';
+                          return (
+                            <Row key={index} gutter={8} style={{ marginTop: 8 }}>
+                              <Col span={10}>
+                                <Input
+                                  placeholder={t('变量名')}
+                                  value={env.key}
+                                  onChange={(value) =>
+                                    handleEnvVariableChange(
+                                      index,
+                                      'key',
+                                      value,
+                                      'secret',
+                                    )
+                                  }
+                                  disabled={isAutoSecret}
+                                />
+                              </Col>
+                              <Col span={10}>
+                                <Input
+                                  placeholder={t('变量值')}
+                                  type='password'
+                                  value={env.value}
+                                  onChange={(value) =>
+                                    handleEnvVariableChange(
+                                      index,
+                                      'value',
+                                      value,
+                                      'secret',
+                                    )
+                                  }
+                                  disabled={isAutoSecret}
+                                />
+                              </Col>
+                              <Col span={4}>
+                                <Button
+                                  icon={<IconMinus />}
+                                  onClick={() =>
+                                    handleRemoveEnvVariable(index, 'secret')
+                                  }
+                                  disabled={
+                                    secretEnvVariables.length === 1 ||
+                                    isAutoSecret
+                                  }
+                                />
+                              </Col>
+                            </Row>
+                          );
+                        })}
+                        <Button
+                          icon={<IconPlus />}
+                          onClick={() => handleAddEnvVariable('secret')}
+                          style={{ marginTop: 8 }}
+                        >
+                          {t('添加密钥环境变量')}
+                        </Button>
+                      </div>
                     </div>
-                  </Card>
+                  </div>
                 </Collapse.Panel>
               </Collapse>
             </div>
-          </Card>
+          </PanelSection>
         </div>
 
+        {/* ── Price Estimation ── */}
         <div ref={priceSectionRef}>
-          <Card className='mb-4'>
-            <div className='flex flex-wrap items-center justify-between gap-3'>
-              <Title heading={6} style={{ margin: 0 }}>
-                {t('价格预估')}
-              </Title>
-              <Space align='center' spacing={12} className='flex flex-wrap'>
-                <Text type='secondary' size='small'>
+          <PanelSection
+            icon={<DollarSign size={14} />}
+            iconColor='var(--success)'
+            iconBg='rgba(52, 199, 89, 0.12)'
+            title={t('价格预估')}
+            headerRight={
+              <div className='flex flex-wrap items-center gap-2'>
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                   {t('计价币种')}
-                </Text>
+                </span>
                 <RadioGroup
                   type='button'
                   value={priceCurrency}
@@ -1404,87 +1601,104 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
                   <Radio value='usdc'>USDC</Radio>
                   <Radio value='iocoin'>IOCOIN</Radio>
                 </RadioGroup>
-                <Tag size='small' color='blue'>
+                <InlineBadge color='var(--accent)' bg='rgba(10, 132, 255, 0.12)'>
                   {currencyLabel}
-                </Tag>
-              </Space>
-            </div>
-
+                </InlineBadge>
+              </div>
+            }
+          >
             {priceEstimation ? (
-              <div className='mt-4 flex w-full flex-col gap-4'>
-                <div className='grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3'>
+              <div className='flex w-full flex-col gap-3'>
+                {/* Price cards row */}
+                <div className='grid w-full gap-3 md:grid-cols-2 lg:grid-cols-3'>
+                  {/* Estimated total */}
                   <div
-                    className='flex flex-col gap-1 rounded-md px-4 py-3'
+                    className='flex flex-col gap-1 rounded-[var(--radius-md)] px-4 py-3'
                     style={{
-                      border: '1px solid var(--border-default)',
+                      border: '1px solid var(--border-subtle)',
                       backgroundColor: 'var(--bg-subtle)',
                     }}
                   >
-                    <Text size='small' type='tertiary'>
+                    <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                       {t('预估总费用')}
-                    </Text>
-                    <div
+                    </span>
+                    <span
                       style={{
                         fontSize: 24,
                         fontWeight: 600,
+                        fontFamily: 'var(--font-mono)',
                         color: 'var(--text-primary)',
                       }}
                     >
                       {typeof priceEstimation.estimated_cost === 'number'
                         ? `${priceEstimation.estimated_cost.toFixed(4)} ${currencyLabel}`
                         : '--'}
-                    </div>
+                    </span>
                   </div>
+                  {/* Hourly rate */}
                   <div
-                    className='flex flex-col gap-1 rounded-md px-4 py-3'
+                    className='flex flex-col gap-1 rounded-[var(--radius-md)] px-4 py-3'
                     style={{
-                      border: '1px solid var(--border-default)',
+                      border: '1px solid var(--border-subtle)',
                       backgroundColor: 'var(--bg-subtle)',
                     }}
                   >
-                    <Text size='small' type='tertiary'>
+                    <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                       {t('小时费率')}
-                    </Text>
-                    <Text strong>
+                    </span>
+                    <span
+                      className='text-sm font-semibold'
+                      style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}
+                    >
                       {typeof priceEstimation.price_breakdown?.hourly_rate ===
                       'number'
                         ? `${priceEstimation.price_breakdown.hourly_rate.toFixed(4)} ${currencyLabel}/h`
                         : '--'}
-                    </Text>
+                    </span>
                   </div>
+                  {/* Compute cost */}
                   <div
-                    className='flex flex-col gap-1 rounded-md px-4 py-3'
+                    className='flex flex-col gap-1 rounded-[var(--radius-md)] px-4 py-3'
                     style={{
-                      border: '1px solid var(--border-default)',
+                      border: '1px solid var(--border-subtle)',
                       backgroundColor: 'var(--bg-subtle)',
                     }}
                   >
-                    <Text size='small' type='tertiary'>
+                    <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                       {t('计算成本')}
-                    </Text>
-                    <Text strong>
+                    </span>
+                    <span
+                      className='text-sm font-semibold'
+                      style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}
+                    >
                       {typeof priceEstimation.price_breakdown?.compute_cost ===
                       'number'
                         ? `${priceEstimation.price_breakdown.compute_cost.toFixed(4)} ${currencyLabel}`
                         : '--'}
-                    </Text>
+                    </span>
                   </div>
                 </div>
 
-                <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+                {/* Summary grid */}
+                <div className='grid gap-2 sm:grid-cols-2 lg:grid-cols-3'>
                   {priceSummaryItems.map((item) => (
                     <div
                       key={item.key}
-                      className='flex items-center justify-between gap-3 rounded-md px-3 py-2'
+                      className='flex items-center justify-between gap-3 rounded-[var(--radius-sm)] px-3 py-2'
                       style={{
-                        border: '1px solid var(--border-default)',
+                        border: '1px solid var(--border-subtle)',
                         backgroundColor: 'var(--bg-subtle)',
                       }}
                     >
-                      <Text size='small' type='tertiary'>
+                      <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                         {item.label}
-                      </Text>
-                      <Text strong>{item.value}</Text>
+                      </span>
+                      <span
+                        className='text-xs font-medium'
+                        style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}
+                      >
+                        {item.value}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1494,14 +1708,14 @@ const CreateDeploymentModal = ({ visible, onCancel, onSuccess, t }) => {
             )}
 
             {priceEstimation && loadingPrice && (
-              <Space align='center' spacing={8} style={{ marginTop: 12 }}>
+              <div className='flex items-center gap-2 mt-3'>
                 <MacSpinner size='small' />
-                <Text size='small' type='tertiary'>
+                <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                   {t('价格重新计算中...')}
-                </Text>
-              </Space>
+                </span>
+              </div>
             )}
-          </Card>
+          </PanelSection>
         </div>
       </Form>
     </Modal>

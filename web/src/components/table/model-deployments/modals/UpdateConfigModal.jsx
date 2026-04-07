@@ -22,17 +22,9 @@ import {
   Modal,
   Form,
   Input,
-  InputNumber,
-  Typography,
-  Card,
-  Space,
-  Divider,
+  Collapse,
   Button,
   Banner,
-  Tag,
-  Collapse,
-  TextArea,
-  Switch,
 } from '@douyinfe/semi-ui';
 import {
   FaCog,
@@ -46,7 +38,24 @@ import {
 } from 'react-icons/fa';
 import { API, showError, showSuccess } from '../../../../helpers';
 
-const { Text, Title } = Typography;
+/* ── iOS-style inline badge ── */
+const InlineBadge = ({ color, bg, children }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+    }}
+  >
+    {children}
+  </span>
+);
 
 const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
   const formRef = useRef(null);
@@ -57,7 +66,6 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
   // Initialize form data when modal opens
   useEffect(() => {
     if (visible && deployment) {
-      // Set initial form values based on deployment data
       const initialValues = {
         image_url: deployment.container_config?.image_url || '',
         traffic_port: deployment.container_config?.traffic_port || null,
@@ -71,7 +79,6 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         formRef.current.setValues(initialValues);
       }
 
-      // Initialize environment variables
       const envVarsList = deployment.container_config?.env_variables
         ? Object.entries(deployment.container_config.env_variables).map(
             ([key, value]) => ({
@@ -93,7 +100,6 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         : {};
       setLoading(true);
 
-      // Prepare the update payload
       const payload = {};
 
       if (formValues.image_url) payload.image_url = formValues.image_url;
@@ -105,14 +111,12 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         payload.registry_secret = formValues.registry_secret;
       if (formValues.command) payload.command = formValues.command;
 
-      // Process entrypoint
       if (formValues.entrypoint) {
         payload.entrypoint = formValues.entrypoint
           .split(' ')
           .filter((cmd) => cmd.trim());
       }
 
-      // Process environment variables
       if (envVars.length > 0) {
         payload.env_variables = envVars.reduce((acc, env) => {
           if (env.key && env.value !== undefined) {
@@ -122,7 +126,6 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         }, {});
       }
 
-      // Process secret environment variables
       if (secretEnvVars.length > 0) {
         payload.secret_env_variables = secretEnvVars.reduce((acc, env) => {
           if (env.key && env.value !== undefined) {
@@ -192,12 +195,40 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
     setSecretEnvVars(newSecretEnvVars);
   };
 
+  /* ── Status badge helper ── */
+  const getDeploymentStatusBadge = (status) => {
+    const statusMap = {
+      running: { color: 'var(--success)', bg: 'var(--success-light)' },
+      destroyed: { color: 'var(--error)', bg: 'var(--error-light)' },
+      failed: { color: 'var(--error)', bg: 'var(--error-light)' },
+    };
+    const cfg = statusMap[status?.toLowerCase()] || { color: 'var(--accent)', bg: 'var(--accent-light)' };
+    return <InlineBadge color={cfg.color} bg={cfg.bg}>{status}</InlineBadge>;
+  };
+
   return (
     <Modal
       title={
-        <div className='flex items-center gap-2'>
-          <FaCog style={{ color: 'var(--accent)' }} />
-          <span>{t('更新容器配置')}</span>
+        <div className='flex items-center gap-2.5'>
+          <span
+            className='w-7 h-7 flex items-center justify-center'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
+            <FaCog size={14} />
+          </span>
+          <span
+            className='text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('更新容器配置')}
+          </span>
         </div>
       }
       visible={visible}
@@ -206,26 +237,55 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
       okText={t('更新配置')}
       cancelText={t('取消')}
       confirmLoading={loading}
+      okButtonProps={{
+        style: {
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--accent)',
+          color: '#fff',
+          border: 'none',
+        },
+      }}
+      cancelButtonProps={{
+        style: {
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--surface-active)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-default)',
+        },
+      }}
       width={700}
       className='update-config-modal'
     >
       <div className='space-y-4 max-h-[600px] overflow-y-auto'>
         {/* Container Info */}
-        <Card style={{ border: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-lg)' }}>
+        <div
+          className='rounded-[var(--radius-lg)] p-4'
+          style={{
+            background: 'var(--bg-subtle)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
           <div className='flex items-center justify-between'>
             <div>
-              <Text strong className='text-base'>
+              <span
+                className='text-sm font-semibold block'
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {deployment?.container_name}
-              </Text>
-              <div className='mt-1'>
-                <Text type='secondary' size='small'>
-                  ID: {deployment?.id}
-                </Text>
-              </div>
+              </span>
+              <span
+                className='text-xs mt-0.5 block'
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                ID: {deployment?.id}
+              </span>
             </div>
-            <Tag color='blue'>{deployment?.status}</Tag>
+            {getDeploymentStatusBadge(deployment?.status)}
           </div>
-        </Card>
+        </div>
 
         {/* Warning Banner */}
         <Banner
@@ -250,8 +310,10 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
             <Collapse.Panel
               header={
                 <div className='flex items-center gap-2'>
-                  <FaDocker style={{ color: 'var(--accent)' }} />
-                  <span>{t('镜像配置')}</span>
+                  <FaDocker size={13} style={{ color: 'var(--accent)' }} />
+                  <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                    {t('镜像配置')}
+                  </span>
                 </div>
               }
               itemKey='docker'
@@ -288,8 +350,10 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
             <Collapse.Panel
               header={
                 <div className='flex items-center gap-2'>
-                  <FaNetworkWired style={{ color: 'var(--success)' }} />
-                  <span>{t('网络配置')}</span>
+                  <FaNetworkWired size={13} style={{ color: 'var(--success)' }} />
+                  <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                    {t('网络配置')}
+                  </span>
                 </div>
               }
               itemKey='network'
@@ -316,8 +380,10 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
             <Collapse.Panel
               header={
                 <div className='flex items-center gap-2'>
-                  <FaTerminal style={{ color: 'var(--text-secondary)' }} />
-                  <span>{t('启动配置')}</span>
+                  <FaTerminal size={13} style={{ color: 'var(--text-secondary)' }} />
+                  <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                    {t('启动配置')}
+                  </span>
                 </div>
               }
               itemKey='startup'
@@ -342,9 +408,13 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
             <Collapse.Panel
               header={
                 <div className='flex items-center gap-2'>
-                  <FaKey style={{ color: 'var(--warning)' }} />
-                  <span>{t('环境变量')}</span>
-                  <Tag size='small'>{envVars.length}</Tag>
+                  <FaKey size={13} style={{ color: 'var(--warning)' }} />
+                  <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                    {t('环境变量')}
+                  </span>
+                  <InlineBadge color='var(--text-muted)' bg='var(--surface-active)'>
+                    {envVars.length}
+                  </InlineBadge>
                 </div>
               }
               itemKey='env'
@@ -353,13 +423,16 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                 {/* Regular Environment Variables */}
                 <div>
                   <div className='flex items-center justify-between mb-3'>
-                    <Text strong>{t('普通环境变量')}</Text>
+                    <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                      {t('普通环境变量')}
+                    </span>
                     <Button
                       size='small'
                       icon={<FaPlus />}
                       onClick={addEnvVar}
                       theme='borderless'
                       type='primary'
+                      style={{ borderRadius: 'var(--radius-sm)' }}
                     >
                       {t('添加')}
                     </Button>
@@ -373,7 +446,12 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                         onChange={(value) => updateEnvVar(index, 'key', value)}
                         style={{ flex: 1 }}
                       />
-                      <Text>=</Text>
+                      <span
+                        className='text-sm font-medium pb-2'
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        =
+                      </span>
                       <Input
                         placeholder={t('变量值')}
                         value={envVar.value}
@@ -388,34 +466,37 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                         onClick={() => removeEnvVar(index)}
                         theme='borderless'
                         type='danger'
+                        style={{ borderRadius: 'var(--radius-sm)' }}
                       />
                     </div>
                   ))}
 
                   {envVars.length === 0 && (
                     <div
-                      className='text-center py-4 border border-dashed'
+                      className='text-center py-4 border border-dashed rounded-[var(--radius-md)]'
                       style={{
-                        color: 'var(--text-muted)',
                         borderColor: 'var(--border-default)',
-                        borderRadius: 'var(--radius-md)',
                       }}
                     >
-                      <Text type='secondary'>{t('暂无环境变量')}</Text>
+                      <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                        {t('暂无环境变量')}
+                      </span>
                     </div>
                   )}
                 </div>
 
-                <Divider />
+                <div style={{ borderTop: '1px solid var(--border-subtle)' }} />
 
                 {/* Secret Environment Variables */}
                 <div>
                   <div className='flex items-center justify-between mb-3'>
                     <div className='flex items-center gap-2'>
-                      <Text strong>{t('机密环境变量')}</Text>
-                      <Tag size='small' type='danger'>
+                      <span className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>
+                        {t('机密环境变量')}
+                      </span>
+                      <InlineBadge color='var(--error)' bg='var(--error-light)'>
                         {t('加密存储')}
-                      </Tag>
+                      </InlineBadge>
                     </div>
                     <Button
                       size='small'
@@ -423,6 +504,7 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                       onClick={addSecretEnvVar}
                       theme='borderless'
                       type='danger'
+                      style={{ borderRadius: 'var(--radius-sm)' }}
                     >
                       {t('添加')}
                     </Button>
@@ -438,7 +520,12 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                         }
                         style={{ flex: 1 }}
                       />
-                      <Text>=</Text>
+                      <span
+                        className='text-sm font-medium pb-2'
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        =
+                      </span>
                       <Input
                         mode='password'
                         placeholder={t('变量值')}
@@ -454,21 +541,22 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
                         onClick={() => removeSecretEnvVar(index)}
                         theme='borderless'
                         type='danger'
+                        style={{ borderRadius: 'var(--radius-sm)' }}
                       />
                     </div>
                   ))}
 
                   {secretEnvVars.length === 0 && (
                     <div
-                      className='text-center py-4 border border-dashed'
+                      className='text-center py-4 border border-dashed rounded-[var(--radius-md)]'
                       style={{
-                        color: 'var(--text-muted)',
                         borderColor: 'var(--border-default)',
-                        borderRadius: 'var(--radius-md)',
                         background: 'var(--error-light)',
                       }}
                     >
-                      <Text type='secondary'>{t('暂无机密环境变量')}</Text>
+                      <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                        {t('暂无机密环境变量')}
+                      </span>
                     </div>
                   )}
 
@@ -487,20 +575,27 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         </Form>
 
         {/* Final Warning */}
-        <div className='rounded-lg p-3' style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)' }}>
+        <div
+          className='rounded-[var(--radius-md)] p-3'
+          style={{
+            background: 'var(--warning-light)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
           <div className='flex items-start gap-2'>
-            <FaExclamationTriangle className='mt-0.5' style={{ color: 'var(--warning)' }} />
+            <FaExclamationTriangle className='mt-0.5 flex-shrink-0' size={12} style={{ color: 'var(--warning)' }} />
             <div>
-              <Text strong style={{ color: 'var(--warning)' }}>
+              <span
+                className='text-sm font-medium block'
+                style={{ color: 'var(--warning)' }}
+              >
                 {t('配置更新确认')}
-              </Text>
-              <div className='mt-1'>
-                <Text size='small' style={{ color: 'var(--text-secondary)' }}>
-                  {t(
-                    '更新配置后，容器可能需要重启以应用新的设置。请确保您了解这些更改的影响。',
-                  )}
-                </Text>
-              </div>
+              </span>
+              <span className='text-xs block mt-0.5' style={{ color: 'var(--text-secondary)' }}>
+                {t(
+                  '更新配置后，容器可能需要重启以应用新的设置。请确保您了解这些更改的影响。',
+                )}
+              </span>
             </div>
           </div>
         </div>

@@ -20,14 +20,10 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useState, useEffect } from 'react';
 import {
   Modal,
-  Typography,
-  Card,
-  Tag,
   Progress,
   Descriptions,
   Empty,
   Button,
-  Badge,
   Tooltip,
 } from '@douyinfe/semi-ui';
 import {
@@ -50,7 +46,71 @@ import {
 } from '../../../../helpers';
 import MacSpinner from '../../../common/ui/MacSpinner';
 
-const { Text, Title } = Typography;
+/* ── iOS-style inline badge ── */
+const InlineBadge = ({ color, bg, mono, children }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+    }}
+  >
+    {children}
+  </span>
+);
+
+/* ── Status dot (replaces emoji icons) ── */
+const StatusDot = ({ color }) => (
+  <span
+    className='inline-block w-2 h-2 rounded-full flex-shrink-0'
+    style={{ background: color }}
+  />
+);
+
+/* ── macOS panel section wrapper ── */
+const PanelSection = ({ icon, iconColor, iconBg, title, children }) => (
+  <div
+    className='rounded-[var(--radius-lg)] overflow-hidden'
+    style={{
+      border: '1px solid var(--border-subtle)',
+      background: 'var(--surface)',
+    }}
+  >
+    <div
+      className='flex items-center gap-2.5 px-4 py-3'
+      style={{ borderBottom: '1px solid var(--border-subtle)' }}
+    >
+      <span
+        className='w-6 h-6 flex items-center justify-center flex-shrink-0'
+        style={{
+          borderRadius: 'var(--radius-sm)',
+          background: iconBg,
+          color: iconColor,
+        }}
+      >
+        {icon}
+      </span>
+      <span
+        className='text-sm font-semibold'
+        style={{
+          fontFamily: 'var(--font-serif)',
+          color: 'var(--text-primary)',
+        }}
+      >
+        {title}
+      </span>
+    </div>
+    <div className='px-4 py-3'>{children}</div>
+  </div>
+);
 
 const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
   const [details, setDetails] = useState(null);
@@ -122,18 +182,14 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
 
   const getStatusConfig = (status) => {
     const statusConfig = {
-      running: { color: 'green', text: '运行中', icon: '🟢' },
-      completed: { color: 'green', text: '已完成', icon: '✅' },
-      'deployment requested': { color: 'blue', text: '部署请求中', icon: '🔄' },
-      'termination requested': {
-        color: 'orange',
-        text: '终止请求中',
-        icon: '⏸️',
-      },
-      destroyed: { color: 'red', text: '已销毁', icon: '🔴' },
-      failed: { color: 'red', text: '失败', icon: '❌' },
+      running: { color: 'var(--success)', bg: 'var(--success-light)', text: '运行中' },
+      completed: { color: 'var(--success)', bg: 'var(--success-light)', text: '已完成' },
+      'deployment requested': { color: 'var(--accent)', bg: 'var(--accent-light)', text: '部署请求中' },
+      'termination requested': { color: 'var(--warning)', bg: 'var(--warning-light)', text: '终止请求中' },
+      destroyed: { color: 'var(--error)', bg: 'var(--error-light)', text: '已销毁' },
+      failed: { color: 'var(--error)', bg: 'var(--error-light)', text: '失败' },
     };
-    return statusConfig[status] || { color: 'grey', text: status, icon: '❓' };
+    return statusConfig[status] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', text: status };
   };
 
   const statusConfig = getStatusConfig(deployment?.status);
@@ -141,24 +197,58 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
   return (
     <Modal
       title={
-        <div className='flex items-center gap-2'>
-          <FaInfoCircle style={{ color: 'var(--accent)' }} />
-          <span>{t('容器详情')}</span>
+        <div className='flex items-center gap-2.5'>
+          <span
+            className='w-7 h-7 flex items-center justify-center'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
+            <FaInfoCircle size={14} />
+          </span>
+          <span
+            className='text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('容器详情')}
+          </span>
         </div>
       }
       visible={visible}
       onCancel={onCancel}
       footer={
-        <div className='flex justify-between'>
+        <div
+          className='flex justify-between items-center'
+          style={{ borderTop: '1px solid var(--border-subtle)', padding: '12px 0 0' }}
+        >
           <Button
             icon={<IconRefresh />}
             onClick={handleRefresh}
             loading={loading || containersLoading}
             theme='borderless'
+            style={{
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--text-secondary)',
+            }}
           >
             {t('刷新')}
           </Button>
-          <Button onClick={onCancel}>{t('关闭')}</Button>
+          <Button
+            onClick={onCancel}
+            style={{
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--surface-active)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-default)',
+            }}
+          >
+            {t('关闭')}
+          </Button>
         </div>
       }
       width={800}
@@ -169,16 +259,13 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
           <MacSpinner size='large' tip={t('加载详情中...')} />
         </div>
       ) : details ? (
-        <div className='space-y-4 max-h-[600px] overflow-y-auto'>
+        <div className='space-y-3 max-h-[600px] overflow-y-auto pr-1'>
           {/* Basic Info */}
-          <Card
-            title={
-              <div className='flex items-center gap-2'>
-                <FaServer style={{ color: 'var(--accent)' }} />
-                <span>{t('基本信息')}</span>
-              </div>
-            }
-            style={{ border: '1px solid var(--border-default)' }}
+          <PanelSection
+            icon={<FaServer size={13} />}
+            iconColor='var(--accent)'
+            iconBg='var(--accent-light)'
+            title={t('基本信息')}
           >
             <Descriptions
               data={[
@@ -186,55 +273,67 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                   key: t('容器名称'),
                   value: (
                     <div className='flex items-center gap-2'>
-                      <Text strong className='text-base'>
+                      <span
+                        className='text-sm font-semibold'
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {details.deployment_name || details.id}
-                      </Text>
-                      <Button
-                        size='small'
-                        theme='borderless'
-                        icon={<FaCopy />}
+                      </span>
+                      <button
+                        className='w-6 h-6 flex items-center justify-center rounded-[var(--radius-sm)] transition-colors duration-150'
+                        style={{ color: 'var(--text-muted)' }}
                         onClick={handleCopyId}
-                        className='opacity-70 hover:opacity-100'
-                      />
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <FaCopy size={11} />
+                      </button>
                     </div>
                   ),
                 },
                 {
                   key: t('容器ID'),
                   value: (
-                    <Text type='secondary' className='font-mono text-sm'>
+                    <span
+                      className='text-xs'
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
                       {details.id}
-                    </Text>
+                    </span>
                   ),
                 },
                 {
                   key: t('状态'),
                   value: (
                     <div className='flex items-center gap-2'>
-                      <span>{statusConfig.icon}</span>
-                      <Tag color={statusConfig.color}>
+                      <StatusDot color={statusConfig.color} />
+                      <InlineBadge color={statusConfig.color} bg={statusConfig.bg}>
                         {t(statusConfig.text)}
-                      </Tag>
+                      </InlineBadge>
                     </div>
                   ),
                 },
                 {
                   key: t('创建时间'),
-                  value: timestamp2string(details.created_at),
+                  value: (
+                    <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                      {timestamp2string(details.created_at)}
+                    </span>
+                  ),
                 },
               ]}
             />
-          </Card>
+          </PanelSection>
 
           {/* Hardware & Performance */}
-          <Card
-            title={
-              <div className='flex items-center gap-2'>
-                <FaChartLine style={{ color: 'var(--success)' }} />
-                <span>{t('硬件与性能')}</span>
-              </div>
-            }
-            style={{ border: '1px solid var(--border-default)' }}
+          <PanelSection
+            icon={<FaChartLine size={13} />}
+            iconColor='var(--success)'
+            iconBg='var(--success-light)'
+            title={t('硬件与性能')}
           >
             <div className='space-y-4'>
               <Descriptions
@@ -243,8 +342,15 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     key: t('硬件类型'),
                     value: (
                       <div className='flex items-center gap-2'>
-                        <Tag color='blue'>{details.brand_name}</Tag>
-                        <Text strong>{details.hardware_name}</Text>
+                        <InlineBadge color='var(--accent)' bg='var(--accent-light)'>
+                          {details.brand_name}
+                        </InlineBadge>
+                        <span
+                          className='text-sm font-medium'
+                          style={{ color: 'var(--text-primary)' }}
+                        >
+                          {details.hardware_name}
+                        </span>
                       </div>
                     ),
                   },
@@ -252,29 +358,25 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     key: t('GPU数量'),
                     value: (
                       <div className='flex items-center gap-2'>
-                        <Badge
-                          count={details.total_gpus}
-                          theme='solid'
-                          type='primary'
-                        >
-                          <FaServer style={{ color: 'var(--text-secondary)' }} />
-                        </Badge>
-                        <Text>
+                        <InlineBadge color='var(--accent)' bg='var(--accent-light)' mono>
+                          {details.total_gpus}
+                        </InlineBadge>
+                        <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
                           {t('总计')} {details.total_gpus} {t('个GPU')}
-                        </Text>
+                        </span>
                       </div>
                     ),
                   },
                   {
                     key: t('容器配置'),
                     value: (
-                      <div className='space-y-1'>
-                        <div>
-                          {t('每容器GPU数')}: {details.gpus_per_container}
-                        </div>
-                        <div>
-                          {t('容器总数')}: {details.total_containers}
-                        </div>
+                      <div className='flex flex-col gap-0.5'>
+                        <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                          {t('每容器GPU数')}: <span style={{ fontFamily: 'var(--font-mono)' }}>{details.gpus_per_container}</span>
+                        </span>
+                        <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                          {t('容器总数')}: <span style={{ fontFamily: 'var(--font-mono)' }}>{details.total_containers}</span>
+                        </span>
                       </div>
                     ),
                   },
@@ -284,8 +386,21 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
               {/* Progress Bar */}
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
-                  <Text strong>{t('完成进度')}</Text>
-                  <Text>{details.completed_percent}%</Text>
+                  <span
+                    className='text-sm font-medium'
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {t('完成进度')}
+                  </span>
+                  <span
+                    className='text-sm'
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    {details.completed_percent}%
+                  </span>
                 </div>
                 <Progress
                   percent={details.completed_percent}
@@ -295,28 +410,25 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                   strokeWidth={8}
                   showInfo={false}
                 />
-                <div className='flex justify-between text-xs'>
+                <div className='flex justify-between text-xs' style={{ color: 'var(--text-muted)' }}>
                   <span>
-                    {t('已服务')}: {details.compute_minutes_served} {t('分钟')}
+                    {t('已服务')}: <span style={{ fontFamily: 'var(--font-mono)' }}>{details.compute_minutes_served}</span> {t('分钟')}
                   </span>
                   <span>
-                    {t('剩余')}: {details.compute_minutes_remaining} {t('分钟')}
+                    {t('剩余')}: <span style={{ fontFamily: 'var(--font-mono)' }}>{details.compute_minutes_remaining}</span> {t('分钟')}
                   </span>
                 </div>
               </div>
             </div>
-          </Card>
+          </PanelSection>
 
           {/* Container Configuration */}
           {details.container_config && (
-            <Card
-              title={
-                <div className='flex items-center gap-2'>
-                  <FaDocker style={{ color: 'var(--accent)' }} />
-                  <span>{t('容器配置')}</span>
-                </div>
-              }
-              style={{ border: '1px solid var(--border-default)' }}
+            <PanelSection
+              icon={<FaDocker size={13} />}
+              iconColor='var(--accent)'
+              iconBg='var(--accent-light)'
+              title={t('容器配置')}
             >
               <div className='space-y-3'>
                 <Descriptions
@@ -324,23 +436,45 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     {
                       key: t('镜像地址'),
                       value: (
-                        <Text className='font-mono text-sm break-all'>
+                        <span
+                          className='text-xs break-all'
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
                           {details.container_config.image_url || 'N/A'}
-                        </Text>
+                        </span>
                       ),
                     },
                     {
                       key: t('流量端口'),
-                      value: details.container_config.traffic_port || 'N/A',
+                      value: (
+                        <span
+                          className='text-sm'
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
+                          {details.container_config.traffic_port || 'N/A'}
+                        </span>
+                      ),
                     },
                     {
                       key: t('启动命令'),
                       value: (
-                        <Text className='font-mono text-sm'>
+                        <span
+                          className='text-xs'
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
                           {details.container_config.entrypoint
                             ? details.container_config.entrypoint.join(' ')
                             : 'N/A'}
-                        </Text>
+                        </span>
                       ),
                     },
                   ]}
@@ -350,17 +484,27 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                 {details.container_config.env_variables &&
                   Object.keys(details.container_config.env_variables).length >
                     0 && (
-                    <div className='mt-4'>
-                      <Text strong className='block mb-2'>
+                    <div className='mt-3'>
+                      <span
+                        className='block mb-2 text-xs font-medium'
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         {t('环境变量')}:
-                      </Text>
-                      <div className='p-3 rounded-lg max-h-32 overflow-y-auto' style={{ background: 'var(--surface-hover)' }}>
+                      </span>
+                      <div
+                        className='p-3 rounded-[var(--radius-md)] max-h-32 overflow-y-auto'
+                        style={{
+                          background: 'var(--bg-subtle)',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
                         {Object.entries(
                           details.container_config.env_variables,
                         ).map(([key, value]) => (
                           <div
                             key={key}
-                            className='flex gap-2 text-sm font-mono mb-1'
+                            className='flex gap-2 text-xs mb-1'
+                            style={{ fontFamily: 'var(--font-mono)' }}
                           >
                             <span className='font-medium' style={{ color: 'var(--accent)' }}>
                               {key}=
@@ -374,18 +518,15 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     </div>
                   )}
               </div>
-            </Card>
+            </PanelSection>
           )}
 
           {/* Containers List */}
-          <Card
-            title={
-              <div className='flex items-center gap-2'>
-                <FaServer style={{ color: 'var(--accent)' }} />
-                <span>{t('容器实例')}</span>
-              </div>
-            }
-            style={{ border: '1px solid var(--border-default)' }}
+          <PanelSection
+            icon={<FaServer size={13} />}
+            iconColor='#5856D6'
+            iconBg='rgba(88, 86, 214, 0.12)'
+            title={t('容器实例')}
           >
             {containersLoading ? (
               <div className='flex items-center justify-center py-6'>
@@ -397,39 +538,48 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             ) : (
-              <div className='space-y-3'>
+              <div className='space-y-2'>
                 {containers.map((ctr) => (
-                  <Card
+                  <div
                     key={ctr.container_id}
-                    style={{ background: 'var(--surface-hover)', border: '1px solid var(--border-default)' }}
-                    bodyStyle={{ padding: '12px 16px' }}
+                    className='rounded-[var(--radius-md)] p-3'
+                    style={{
+                      background: 'var(--bg-subtle)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
                   >
                     <div className='flex flex-wrap items-center justify-between gap-3'>
                       <div className='flex flex-col gap-1'>
-                        <Text strong className='font-mono text-sm'>
+                        <span
+                          className='text-xs font-medium'
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
                           {ctr.container_id}
-                        </Text>
-                        <Text size='small' type='secondary'>
+                        </span>
+                        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                           {t('设备')} {ctr.device_id || '--'} · {t('状态')}{' '}
                           {ctr.status || '--'}
-                        </Text>
-                        <Text size='small' type='secondary'>
+                        </span>
+                        <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
                           {t('创建时间')}:{' '}
                           {ctr.created_at
                             ? timestamp2string(ctr.created_at)
                             : '--'}
-                        </Text>
+                        </span>
                       </div>
                       <div className='flex flex-col items-end gap-2'>
-                        <Tag color='blue' size='small'>
+                        <InlineBadge color='var(--accent)' bg='var(--accent-light)' mono>
                           {t('GPU/容器')}: {ctr.gpus_per_container ?? '--'}
-                        </Tag>
+                        </InlineBadge>
                         {ctr.public_url && (
                           <Tooltip content={ctr.public_url}>
                             <Button
                               icon={<FaLink />}
                               size='small'
-                              theme='light'
+                              theme='borderless'
                               onClick={() =>
                                 window.open(
                                   ctr.public_url,
@@ -437,6 +587,11 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                                   'noopener,noreferrer',
                                 )
                               }
+                              style={{
+                                borderRadius: 'var(--radius-sm)',
+                                color: 'var(--accent)',
+                                fontSize: '12px',
+                              }}
                             >
                               {t('访问容器')}
                             </Button>
@@ -446,21 +601,27 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                     </div>
 
                     {ctr.events && ctr.events.length > 0 && (
-                      <div className='mt-3 rounded-md p-3' style={{ background: 'var(--surface)', border: '1px solid var(--border-default)' }}>
-                        <Text
-                          size='small'
-                          type='secondary'
-                          className='block mb-2'
+                      <div
+                        className='mt-2 rounded-[var(--radius-sm)] p-2.5'
+                        style={{
+                          background: 'var(--surface)',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
+                        <span
+                          className='block mb-1.5 text-xs font-medium'
+                          style={{ color: 'var(--text-muted)' }}
                         >
                           {t('最近事件')}
-                        </Text>
-                        <div className='space-y-2 max-h-32 overflow-y-auto'>
+                        </span>
+                        <div className='space-y-1.5 max-h-32 overflow-y-auto'>
                           {ctr.events.map((event, index) => (
                             <div
                               key={`${ctr.container_id}-${event.time}-${index}`}
-                              className='flex gap-3 text-xs font-mono'
+                              className='flex gap-3 text-xs'
+                              style={{ fontFamily: 'var(--font-mono)' }}
                             >
-                              <span className='min-w-[140px]' style={{ color: 'var(--text-muted)' }}>
+                              <span className='min-w-[140px] flex-shrink-0' style={{ color: 'var(--text-muted)' }}>
                                 {event.time
                                   ? timestamp2string(event.time)
                                   : '--'}
@@ -473,120 +634,148 @@ const ViewDetailsModal = ({ visible, onCancel, deployment, t }) => {
                         </div>
                       </div>
                     )}
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
-          </Card>
+          </PanelSection>
 
           {/* Location Information */}
           {details.locations && details.locations.length > 0 && (
-            <Card
-              title={
-                <div className='flex items-center gap-2'>
-                  <FaMapMarkerAlt style={{ color: 'var(--warning)' }} />
-                  <span>{t('部署位置')}</span>
-                </div>
-              }
-              style={{ border: '1px solid var(--border-default)' }}
+            <PanelSection
+              icon={<FaMapMarkerAlt size={13} />}
+              iconColor='var(--warning)'
+              iconBg='var(--warning-light)'
+              title={t('部署位置')}
             >
               <div className='flex flex-wrap gap-2'>
                 {details.locations.map((location) => (
-                  <Tag key={location.id} color='orange' size='large'>
-                    <div className='flex items-center gap-1'>
-                      <span>🌍</span>
-                      <span>
-                        {location.name} ({location.iso2})
-                      </span>
-                    </div>
-                  </Tag>
+                  <InlineBadge
+                    key={location.id}
+                    color='var(--warning)'
+                    bg='var(--warning-light)'
+                  >
+                    {location.name} ({location.iso2})
+                  </InlineBadge>
                 ))}
               </div>
-            </Card>
+            </PanelSection>
           )}
 
           {/* Cost Information */}
-          <Card
-            title={
-              <div className='flex items-center gap-2'>
-                <FaMoneyBillWave style={{ color: 'var(--success)' }} />
-                <span>{t('费用信息')}</span>
-              </div>
-            }
-            style={{ border: '1px solid var(--border-default)' }}
+          <PanelSection
+            icon={<FaMoneyBillWave size={13} />}
+            iconColor='var(--success)'
+            iconBg='var(--success-light)'
+            title={t('费用信息')}
           >
             <div className='space-y-3'>
-              <div className='flex items-center justify-between p-3 rounded-lg' style={{ background: 'var(--surface-hover)' }}>
-                <Text>{t('已支付金额')}</Text>
-                <Text strong className='text-lg' style={{ color: 'var(--success)' }}>
+              <div
+                className='flex items-center justify-between p-3 rounded-[var(--radius-md)]'
+                style={{
+                  background: 'var(--bg-subtle)',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
+                  {t('已支付金额')}
+                </span>
+                <span
+                  className='text-base font-semibold'
+                  style={{
+                    color: 'var(--success)',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
                   $
                   {details.amount_paid
                     ? details.amount_paid.toFixed(2)
                     : '0.00'}{' '}
                   USDC
-                </Text>
+                </span>
               </div>
 
               <div className='grid grid-cols-2 gap-4 text-sm'>
                 <div className='flex justify-between'>
-                  <Text type='secondary'>{t('计费开始')}:</Text>
-                  <Text>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('计费开始')}:</span>
+                  <span style={{ color: 'var(--text-primary)' }}>
                     {details.started_at
                       ? timestamp2string(details.started_at)
                       : 'N/A'}
-                  </Text>
+                  </span>
                 </div>
                 <div className='flex justify-between'>
-                  <Text type='secondary'>{t('预计结束')}:</Text>
-                  <Text>
+                  <span style={{ color: 'var(--text-muted)' }}>{t('预计结束')}:</span>
+                  <span style={{ color: 'var(--text-primary)' }}>
                     {details.finished_at
                       ? timestamp2string(details.finished_at)
                       : 'N/A'}
-                  </Text>
+                  </span>
                 </div>
               </div>
             </div>
-          </Card>
+          </PanelSection>
 
           {/* Time Information */}
-          <Card
-            title={
-              <div className='flex items-center gap-2'>
-                <FaClock style={{ color: 'var(--text-secondary)' }} />
-                <span>{t('时间信息')}</span>
-              </div>
-            }
-            style={{ border: '1px solid var(--border-default)' }}
+          <PanelSection
+            icon={<FaClock size={13} />}
+            iconColor='var(--text-secondary)'
+            iconBg='var(--surface-active)'
+            title={t('时间信息')}
           >
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
-                  <Text type='secondary'>{t('已运行时间')}:</Text>
-                  <Text strong>
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('已运行时间')}:
+                  </span>
+                  <span
+                    className='text-sm font-medium'
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
                     {Math.floor(details.compute_minutes_served / 60)}h{' '}
                     {details.compute_minutes_served % 60}m
-                  </Text>
+                  </span>
                 </div>
                 <div className='flex items-center justify-between'>
-                  <Text type='secondary'>{t('剩余时间')}:</Text>
-                  <Text strong style={{ color: 'var(--warning)' }}>
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('剩余时间')}:
+                  </span>
+                  <span
+                    className='text-sm font-medium'
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--warning)',
+                    }}
+                  >
                     {Math.floor(details.compute_minutes_remaining / 60)}h{' '}
                     {details.compute_minutes_remaining % 60}m
-                  </Text>
+                  </span>
                 </div>
               </div>
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
-                  <Text type='secondary'>{t('创建时间')}:</Text>
-                  <Text>{timestamp2string(details.created_at)}</Text>
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('创建时间')}:
+                  </span>
+                  <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                    {timestamp2string(details.created_at)}
+                  </span>
                 </div>
                 <div className='flex items-center justify-between'>
-                  <Text type='secondary'>{t('最后更新')}:</Text>
-                  <Text>{timestamp2string(details.updated_at)}</Text>
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('最后更新')}:
+                  </span>
+                  <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                    {timestamp2string(details.updated_at)}
+                  </span>
                 </div>
               </div>
             </div>
-          </Card>
+          </PanelSection>
         </div>
       ) : (
         <Empty

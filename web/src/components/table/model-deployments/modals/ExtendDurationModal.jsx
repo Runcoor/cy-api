@@ -21,13 +21,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Modal,
   Form,
-  InputNumber,
-  Typography,
-  Card,
-  Space,
-  Divider,
   Button,
-  Tag,
   Banner,
 } from '@douyinfe/semi-ui';
 import {
@@ -39,7 +33,26 @@ import {
 import { API, showError, showSuccess } from '../../../../helpers';
 import MacSpinner from '../../../common/ui/MacSpinner';
 
-const { Text } = Typography;
+/* ── iOS-style inline badge ── */
+const InlineBadge = ({ color, bg, mono, children }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '1px 8px',
+      borderRadius: 'var(--radius-sm)',
+      fontSize: '12px',
+      fontWeight: 500,
+      fontFamily: mono ? 'var(--font-mono)' : undefined,
+      color: color || 'var(--text-secondary)',
+      background: bg || 'var(--surface-active)',
+      lineHeight: '20px',
+    }}
+  >
+    {children}
+  </span>
+);
 
 const ExtendDurationModal = ({
   visible,
@@ -99,9 +112,7 @@ const ExtendDurationModal = ({
   };
 
   const calculatePrice = async (hours, details) => {
-    if (!visible || !details) {
-      return;
-    }
+    if (!visible || !details) return;
 
     const sanitizedHours = Number.isFinite(hours) ? Math.round(hours) : 0;
     if (sanitizedHours <= 0) {
@@ -170,9 +181,7 @@ const ExtendDurationModal = ({
         payload,
       );
 
-      if (costRequestIdRef.current !== requestId) {
-        return;
-      }
+      if (costRequestIdRef.current !== requestId) return;
 
       if (response.data.success) {
         setPriceEstimation(response.data.data);
@@ -182,9 +191,7 @@ const ExtendDurationModal = ({
         setPriceError(t('价格计算失败') + (message ? `: ${message}` : ''));
       }
     } catch (error) {
-      if (costRequestIdRef.current !== requestId) {
-        return;
-      }
+      if (costRequestIdRef.current !== requestId) return;
 
       const message = error?.response?.data?.message || error.message || '';
       setPriceEstimation(null);
@@ -211,12 +218,8 @@ const ExtendDurationModal = ({
   }, [visible, deployment?.id]);
 
   useEffect(() => {
-    if (!visible) {
-      return;
-    }
-    if (!deploymentDetails) {
-      return;
-    }
+    if (!visible) return;
+    if (!deploymentDetails) return;
     calculatePrice(durationHours, deploymentDetails);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [durationHours, deploymentDetails, visible]);
@@ -289,14 +292,49 @@ const ExtendDurationModal = ({
     deploymentDetails?.hardware_name || deployment?.hardware_name || '--';
   const gpuCount =
     deploymentDetails?.total_gpus || deployment?.hardware_quantity || 0;
-  const containers = deploymentDetails?.total_containers || 0;
+  const containerCount = deploymentDetails?.total_containers || 0;
+
+  /* ── Row helper for cost breakdown ── */
+  const CostRow = ({ label, value, strong, color }) => (
+    <div className='flex items-center justify-between'>
+      <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
+        {label}
+      </span>
+      <span
+        className={`text-sm ${strong ? 'font-semibold' : 'font-medium'}`}
+        style={{
+          fontFamily: 'var(--font-mono)',
+          color: color || 'var(--text-primary)',
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
 
   return (
     <Modal
       title={
-        <div className='flex items-center gap-2'>
-          <FaClock style={{ color: 'var(--accent)' }} />
-          <span>{t('延长容器时长')}</span>
+        <div className='flex items-center gap-2.5'>
+          <span
+            className='w-7 h-7 flex items-center justify-center'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
+            <FaClock size={14} />
+          </span>
+          <span
+            className='text-base font-semibold'
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {t('延长容器时长')}
+          </span>
         </div>
       }
       visible={visible}
@@ -311,36 +349,67 @@ const ExtendDurationModal = ({
           detailsLoading ||
           !durationHours ||
           durationHours < 1,
+        style: {
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--accent)',
+          color: '#fff',
+          border: 'none',
+        },
+      }}
+      cancelButtonProps={{
+        style: {
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--surface-active)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-default)',
+        },
       }}
       width={600}
       className='extend-duration-modal'
     >
       <div className='space-y-4'>
-        <Card style={{ border: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-lg)' }}>
+        {/* Deployment info panel */}
+        <div
+          className='rounded-[var(--radius-lg)] p-4'
+          style={{
+            background: 'var(--bg-subtle)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
           <div className='flex items-center justify-between'>
             <div>
-              <Text strong className='text-base'>
+              <span
+                className='text-sm font-semibold block'
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {deployment?.container_name || deployment?.deployment_name}
-              </Text>
-              <div className='mt-1'>
-                <Text type='secondary' size='small'>
-                  ID: {deployment?.id}
-                </Text>
-              </div>
+              </span>
+              <span
+                className='text-xs mt-0.5 block'
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                ID: {deployment?.id}
+              </span>
             </div>
             <div className='text-right'>
-              <div className='flex items-center gap-2 mb-1'>
-                <Tag color='blue' size='small'>
+              <div className='mb-1'>
+                <InlineBadge color='var(--accent)' bg='var(--accent-light)'>
                   {resolvedHardwareName}
                   {gpuCount ? ` x${gpuCount}` : ''}
-                </Tag>
+                </InlineBadge>
               </div>
-              <Text size='small' type='secondary'>
-                {t('当前剩余')}: <Text strong>{currentRemainingTime}</Text>
-              </Text>
+              <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
+                {t('当前剩余')}:{' '}
+                <span className='font-medium' style={{ color: 'var(--text-primary)' }}>
+                  {currentRemainingTime}
+                </span>
+              </span>
             </div>
           </div>
-        </Card>
+        </div>
 
         <Banner
           type='warning'
@@ -394,11 +463,12 @@ const ExtendDurationModal = ({
           />
         </Form>
 
+        {/* Quick select */}
         <div className='space-y-2'>
-          <Text size='small' type='secondary'>
+          <span className='text-xs' style={{ color: 'var(--text-muted)' }}>
             {t('快速选择')}:
-          </Text>
-          <Space wrap>
+          </span>
+          <div className='flex flex-wrap gap-1.5'>
             {[1, 2, 6, 12, 24, 48, 72, 168].map((hours) => (
               <Button
                 key={hours}
@@ -411,126 +481,167 @@ const ExtendDurationModal = ({
                     formRef.current.setValue('duration_hours', hours);
                   }
                 }}
+                style={{
+                  borderRadius: 'var(--radius-sm)',
+                  ...(durationHours === hours
+                    ? { background: 'var(--accent)', color: '#fff', border: 'none' }
+                    : { border: '1px solid var(--border-default)' }),
+                }}
               >
                 {hours < 24
                   ? `${hours}${t('小时')}`
                   : `${hours / 24}${t('天')}`}
               </Button>
             ))}
-          </Space>
+          </div>
         </div>
 
-        <Divider />
+        {/* Separator */}
+        <div style={{ borderTop: '1px solid var(--border-subtle)' }} />
 
-        <Card
-          title={
-            <div className='flex items-center gap-2'>
-              <FaCalculator style={{ color: 'var(--success)' }} />
-              <span>{t('费用预估')}</span>
-            </div>
-          }
-          className='border' style={{ borderColor: 'var(--success)' }}
+        {/* Cost estimation panel */}
+        <div
+          className='rounded-[var(--radius-lg)] overflow-hidden'
+          style={{
+            border: '1px solid var(--border-subtle)',
+            background: 'var(--surface)',
+          }}
         >
-          {priceEstimation ? (
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <Text>{t('延长时长')}:</Text>
-                <Text strong>
-                  {Math.round(durationHours)} {t('小时')}
-                </Text>
-              </div>
+          <div
+            className='flex items-center gap-2.5 px-4 py-3'
+            style={{ borderBottom: '1px solid var(--border-subtle)' }}
+          >
+            <span
+              className='w-6 h-6 flex items-center justify-center flex-shrink-0'
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--success-light)',
+                color: 'var(--success)',
+              }}
+            >
+              <FaCalculator size={12} />
+            </span>
+            <span
+              className='text-sm font-semibold'
+              style={{
+                fontFamily: 'var(--font-serif)',
+                color: 'var(--text-primary)',
+              }}
+            >
+              {t('费用预估')}
+            </span>
+          </div>
+          <div className='px-4 py-3'>
+            {priceEstimation ? (
+              <div className='space-y-2.5'>
+                <CostRow label={t('延长时长') + ':'} value={`${Math.round(durationHours)} ${t('小时')}`} />
+                <CostRow label={t('硬件配置') + ':'} value={`${resolvedHardwareName}${gpuCount ? ` x${gpuCount}` : ''}`} />
+                {containerCount ? (
+                  <CostRow label={t('容器数量') + ':'} value={String(containerCount)} />
+                ) : null}
+                <CostRow
+                  label={t('单GPU小时费率') + ':'}
+                  value={typeof hourlyRate === 'number' ? `${hourlyRate.toFixed(4)} ${currencyLabel}` : '--'}
+                />
+                {typeof computeCost === 'number' && (
+                  <CostRow
+                    label={t('计算成本') + ':'}
+                    value={`${computeCost.toFixed(4)} ${currencyLabel}`}
+                  />
+                )}
 
-              <div className='flex items-center justify-between'>
-                <Text>{t('硬件配置')}:</Text>
-                <Text strong>
-                  {resolvedHardwareName}
-                  {gpuCount ? ` x${gpuCount}` : ''}
-                </Text>
-              </div>
+                <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '8px 0' }} />
 
-              {containers ? (
                 <div className='flex items-center justify-between'>
-                  <Text>{t('容器数量')}:</Text>
-                  <Text strong>{containers}</Text>
+                  <span
+                    className='text-base font-semibold'
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {t('预估总费用')}:
+                  </span>
+                  <span
+                    className='text-base font-semibold'
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--success)',
+                    }}
+                  >
+                    {typeof estimatedTotalCost === 'number'
+                      ? `${estimatedTotalCost.toFixed(4)} ${currencyLabel}`
+                      : '--'}
+                  </span>
                 </div>
-              ) : null}
 
-              <div className='flex items-center justify-between'>
-                <Text>{t('单GPU小时费率')}:</Text>
-                <Text strong>
-                  {typeof hourlyRate === 'number'
-                    ? `${hourlyRate.toFixed(4)} ${currencyLabel}`
-                    : '--'}
-                </Text>
-              </div>
-
-              {typeof computeCost === 'number' && (
-                <div className='flex items-center justify-between'>
-                  <Text>{t('计算成本')}:</Text>
-                  <Text strong>
-                    {computeCost.toFixed(4)} {currencyLabel}
-                  </Text>
-                </div>
-              )}
-
-              <Divider margin='12px' />
-
-              <div className='flex items-center justify-between'>
-                <Text strong className='text-lg'>
-                  {t('预估总费用')}:
-                </Text>
-                <Text strong className='text-lg' style={{ color: 'var(--success)' }}>
-                  {typeof estimatedTotalCost === 'number'
-                    ? `${estimatedTotalCost.toFixed(4)} ${currencyLabel}`
-                    : '--'}
-                </Text>
-              </div>
-
-              <div className='p-3 rounded-lg' style={{ background: 'var(--accent-light)' }}>
-                <div className='flex items-start gap-2'>
-                  <FaInfoCircle className='mt-0.5' style={{ color: 'var(--accent)' }} />
-                  <div>
-                    <Text size='small' type='secondary'>
-                      {t('延长后总时长')}: <Text strong>{newTotalTime}</Text>
-                    </Text>
-                    <br />
-                    <Text size='small' type='secondary'>
-                      {t('预估费用仅供参考，实际费用可能略有差异')}
-                    </Text>
+                <div
+                  className='p-3 rounded-[var(--radius-md)]'
+                  style={{
+                    background: 'var(--accent-light)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  <div className='flex items-start gap-2'>
+                    <FaInfoCircle className='mt-0.5 flex-shrink-0' size={12} style={{ color: 'var(--accent)' }} />
+                    <div className='space-y-0.5'>
+                      <span className='text-xs block' style={{ color: 'var(--text-secondary)' }}>
+                        {t('延长后总时长')}:{' '}
+                        <span className='font-medium' style={{ color: 'var(--text-primary)' }}>
+                          {newTotalTime}
+                        </span>
+                      </span>
+                      <span className='text-xs block' style={{ color: 'var(--text-muted)' }}>
+                        {t('预估费用仅供参考，实际费用可能略有差异')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className='text-center text-mv-text-muted py-4'>
-              {costLoading ? (
-                <Space align='center' className='justify-center'>
-                  <MacSpinner size='small' />
-                  <Text type='secondary'>{t('计算费用中...')}</Text>
-                </Space>
-              ) : priceError ? (
-                <Text type='danger'>{priceError}</Text>
-              ) : deploymentDetails ? (
-                <Text type='secondary'>{t('请输入延长时长')}</Text>
-              ) : (
-                <Text type='secondary'>{t('加载详情中...')}</Text>
-              )}
-            </div>
-          )}
-        </Card>
-
-        <div className='rounded-lg p-3' style={{ background: 'var(--error-light)', border: '1px solid var(--error)' }}>
-          <div className='flex items-start gap-2'>
-            <FaExclamationTriangle className='mt-0.5' style={{ color: 'var(--error)' }} />
-            <div>
-              <Text strong style={{ color: 'var(--error)' }}>
-                {t('确认延长容器时长')}
-              </Text>
-              <div className='mt-1'>
-                <Text size='small' style={{ color: 'var(--error)' }}>
-                  {t('点击"确认延长"后将立即扣除费用并延长容器运行时间')}
-                </Text>
+            ) : (
+              <div className='text-center py-4'>
+                {costLoading ? (
+                  <div className='flex items-center justify-center gap-2'>
+                    <MacSpinner size='small' />
+                    <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                      {t('计算费用中...')}
+                    </span>
+                  </div>
+                ) : priceError ? (
+                  <span className='text-sm' style={{ color: 'var(--error)' }}>
+                    {priceError}
+                  </span>
+                ) : deploymentDetails ? (
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('请输入延长时长')}
+                  </span>
+                ) : (
+                  <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                    {t('加载详情中...')}
+                  </span>
+                )}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Warning banner */}
+        <div
+          className='rounded-[var(--radius-md)] p-3'
+          style={{
+            background: 'var(--error-light)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
+          <div className='flex items-start gap-2'>
+            <FaExclamationTriangle className='mt-0.5 flex-shrink-0' size={12} style={{ color: 'var(--error)' }} />
+            <div>
+              <span
+                className='text-sm font-medium block'
+                style={{ color: 'var(--error)' }}
+              >
+                {t('确认延长容器时长')}
+              </span>
+              <span className='text-xs block mt-0.5' style={{ color: 'var(--error)' }}>
+                {t('点击"确认延长"后将立即扣除费用并延长容器运行时间')}
+              </span>
             </div>
           </div>
         </div>
