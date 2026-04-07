@@ -18,12 +18,10 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Typography } from '@douyinfe/semi-ui';
+import { Modal, Button } from '@douyinfe/semi-ui';
 import { IconExternalOpen, IconCopy } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import MacSpinner from '../../../common/ui/MacSpinner';
-
-const { Text } = Typography;
 
 const ContentModal = ({
   isModalOpen,
@@ -63,30 +61,26 @@ const ContentModal = ({
     if (videoError) {
       return (
         <div style={{ textAlign: 'center', padding: '40px' }}>
-          <Text
-            type='tertiary'
-            style={{ display: 'block', marginBottom: '16px' }}
+          <span
+            style={{ display: 'block', marginBottom: '16px', color: 'var(--text-muted)' }}
           >
             {t('视频无法在当前浏览器中播放，这可能是由于：')}
-          </Text>
-          <Text
-            type='tertiary'
-            style={{ display: 'block', marginBottom: '8px', fontSize: '12px' }}
+          </span>
+          <span
+            style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: 'var(--text-muted)' }}
           >
             {t('• 视频服务商的跨域限制')}
-          </Text>
-          <Text
-            type='tertiary'
-            style={{ display: 'block', marginBottom: '8px', fontSize: '12px' }}
+          </span>
+          <span
+            style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: 'var(--text-muted)' }}
           >
             {t('• 需要特定的请求头或认证')}
-          </Text>
-          <Text
-            type='tertiary'
-            style={{ display: 'block', marginBottom: '16px', fontSize: '12px' }}
+          </span>
+          <span
+            style={{ display: 'block', marginBottom: '16px', fontSize: '12px', color: 'var(--text-muted)' }}
           >
             {t('• 防盗链保护机制')}
-          </Text>
+          </span>
 
           <div style={{ marginTop: '20px' }}>
             <Button
@@ -109,12 +103,11 @@ const ContentModal = ({
               borderRadius: 'var(--radius-sm)',
             }}
           >
-            <Text
-              type='tertiary'
-              style={{ fontSize: '10px', wordBreak: 'break-all' }}
+            <span
+              style={{ fontSize: '10px', wordBreak: 'break-all', color: 'var(--text-muted)' }}
             >
               {modalContent}
-            </Text>
+            </span>
           </div>
         </div>
       );

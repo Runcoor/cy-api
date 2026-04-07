@@ -18,9 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Typography } from '@douyinfe/semi-ui';
-
-const { Text } = Typography;
 
 const ParamOverrideEntry = ({ count, onOpen, t }) => {
   return (
@@ -32,21 +29,29 @@ const ParamOverrideEntry = ({ count, onOpen, t }) => {
         flexWrap: 'wrap',
       }}
     >
-      <Text
-        type='tertiary'
-        size='small'
-        style={{ fontVariantNumeric: 'tabular-nums' }}
+      <span
+        style={{
+          color: 'var(--text-muted)',
+          fontSize: '12px',
+          fontVariantNumeric: 'tabular-nums',
+        }}
       >
         {t('{{count}} 项操作', { count })}
-      </Text>
-      <Text
-        link
-        size='small'
-        style={{ fontWeight: 600 }}
+      </span>
+      <span
+        role='button'
+        tabIndex={0}
+        style={{
+          color: 'var(--accent)',
+          fontSize: '12px',
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}
         onClick={onOpen}
+        onKeyDown={(e) => e.key === 'Enter' && onOpen()}
       >
         {t('查看详情')}
-      </Text>
+      </span>
     </div>
   );
 };

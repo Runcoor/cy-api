@@ -17,10 +17,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { API, showError, showSuccess } from '../../helpers';
-import { Button, Divider, Form, Typography } from '@douyinfe/semi-ui';
+import { Button, Divider, Form } from '@douyinfe/semi-ui';
 import React, { useState } from 'react';
-
-const { Text } = Typography;
 
 const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
   const [loading, setLoading] = useState(false);
@@ -166,9 +164,8 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
         </div>
 
         <div style={hintBoxStyle}>
-          <Text
-            size='small'
-            style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}
+          <span
+            style={{ color: 'var(--text-muted)', lineHeight: 1.6, fontSize: '13px' }}
           >
             <strong style={{ color: 'var(--text-secondary)' }}>提示：</strong>
             <br />
@@ -176,7 +173,7 @@ const TwoFAVerification = ({ onSuccess, onBack, isModal = false }) => {
             <br />
             • 如果无法获取验证码，请使用备用码
             <br />• 每个备用码只能使用一次
-          </Text>
+          </span>
         </div>
       </div>
     );

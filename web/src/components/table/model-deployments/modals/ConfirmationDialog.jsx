@@ -18,9 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Typography, Input } from '@douyinfe/semi-ui';
-
-const { Text } = Typography;
+import { Modal, Input } from '@douyinfe/semi-ui';
 
 const ConfirmationDialog = ({
   visible,
@@ -71,15 +69,25 @@ const ConfirmationDialog = ({
       width={480}
     >
       <div className='space-y-4'>
-        <Text type='danger' strong>
+        <span style={{ color: 'var(--error)', fontWeight: 600 }}>
           {t('此操作具有风险，请确认要继续执行')}。
-        </Text>
-        <Text>
+        </span>
+        <div style={{ color: 'var(--text-primary)' }}>
           {t('请输入部署名称以完成二次确认')}：
-          <Text code className='ml-1'>
+          <code
+            className='ml-1'
+            style={{
+              padding: '1px 6px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--surface-active)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             {requiredText || t('未知部署')}
-          </Text>
-        </Text>
+          </code>
+        </div>
         <Input
           value={confirmText}
           onChange={setConfirmText}
@@ -87,9 +95,9 @@ const ConfirmationDialog = ({
           autoFocus
         />
         {!isConfirmed && confirmText && (
-          <Text type='danger' size='small'>
+          <span style={{ color: 'var(--error)', fontSize: '12px' }}>
             {t('部署名称不匹配，请检查后重新输入')}
-          </Text>
+          </span>
         )}
       </div>
     </Modal>

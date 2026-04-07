@@ -18,11 +18,9 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Modal, Descriptions, Typography } from '@douyinfe/semi-ui';
+import { Modal, Descriptions } from '@douyinfe/semi-ui';
 import { API, showError, timestamp2string } from '../../../../helpers';
 import MacSpinner from '../../../common/ui/MacSpinner';
-
-const { Text } = Typography;
 
 function formatRate(hit, total) {
   if (!total || total <= 0) return '-';
@@ -205,7 +203,7 @@ const ChannelAffinityUsageCacheModal = ({
     >
       <div style={{ padding: 16 }}>
         <div style={{ marginBottom: 12 }}>
-          <Text type='tertiary' size='small'>
+          <span style={{ color: 'var(--text-muted)', fontSize: '12px', lineHeight: 1.6 }}>
             {t(
               '命中判定：usage 中存在 cached tokens（例如 cached_tokens/prompt_cache_hit_tokens）即视为命中。',
             )}
@@ -221,16 +219,16 @@ const ChannelAffinityUsageCacheModal = ({
                 {t('该记录不包含可用的 token 统计口径。')}
               </>
             ) : null}
-          </Text>
+          </span>
         </div>
         <MacSpinner spinning={loading} tip={t('加载中...')}>
           {stats && rows.length > 0 ? (
             <Descriptions data={rows} />
           ) : (
             <div style={{ padding: '24px 0' }}>
-              <Text type='tertiary' size='small'>
+              <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
                 {loading ? t('加载中...') : t('暂无可展示数据')}
-              </Text>
+              </span>
             </div>
           )}
         </MacSpinner>
