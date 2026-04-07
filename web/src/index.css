@@ -967,6 +967,43 @@ html.dark .semi-transfer-right {
   color: #fff !important;
 }
 
+/* Card-style tabs — macOS segmented control look */
+.semi-tabs-bar-card {
+  background: var(--bg-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 3px !important;
+  border: 1px solid var(--border-subtle) !important;
+  gap: 2px !important;
+}
+
+.semi-tabs-bar-card .semi-tabs-tab {
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  padding: 5px 12px !important;
+  margin: 0 !important;
+  transition: color var(--ease-micro), background-color var(--ease-micro) !important;
+}
+
+.semi-tabs-bar-card .semi-tabs-tab:hover {
+  color: var(--text-primary) !important;
+  background: var(--surface-hover) !important;
+}
+
+.semi-tabs-bar-card .semi-tabs-tab-active {
+  background: var(--surface) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.dark .semi-tabs-bar-card .semi-tabs-tab-active {
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* --- Anchor Overrides --- */
 .semi-anchor-link-title-active {
   color: var(--accent) !important;
