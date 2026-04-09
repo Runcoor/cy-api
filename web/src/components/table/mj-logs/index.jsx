@@ -17,47 +17,147 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
-import { Layout } from '@douyinfe/semi-ui';
-import CardPro from '../../common/ui/CardPro';
+import React, { useEffect } from 'react';
+import CardPageLayout from '../../common/ui/CardPageLayout';
 import MjLogsTable from './MjLogsTable';
-import MjLogsActions from './MjLogsActions';
 import MjLogsFilters from './MjLogsFilters';
-import ColumnSelectorModal from './modals/ColumnSelectorModal';
 import ContentModal from './modals/ContentModal';
 import { useMjLogsData } from '../../../hooks/mj-logs/useMjLogsData';
-import { useIsMobile } from '../../../hooks/common/useIsMobile';
-import { createCardProPagination } from '../../../helpers/utils';
 
 const MjLogsPage = () => {
   const mjLogsData = useMjLogsData();
-  const isMobile = useIsMobile();
+  const {
+    loading,
+    logCount,
+    activePage,
+    pageSize,
+    handlePageChange,
+    refresh,
+    isAdminUser,
+    searchQuery,
+    setSearchQuery,
+    dateRange,
+    setDateRange,
+    t,
+  } = mjLogsData;
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, dateRange]);
+
+  const filterBar = (
+    <MjLogsFilters
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      dateRange={dateRange}
+      setDateRange={setDateRange}
+      isAdminUser={isAdminUser}
+      onSubmit={() => refresh()}
+      onRefresh={() => refresh()}
+      loading={loading}
+      t={t}
+    />
+  );
+
+  const totalPages = Math.max(1, Math.ceil(logCount / (pageSize || 1)));
+  const renderPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (activePage <= 4) return [1, 2, 3, 4, 5, '…', totalPages];
+    if (activePage >= totalPages - 3)
+      return [
+        1,
+        '…',
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    return [1, '…', activePage - 1, activePage, activePage + 1, '…', totalPages];
+  };
+
+  const footer =
+    logCount > 0 ? (
+      <div className='cp-footer'>
+        <div className='cp-footer-count'>
+          {t('共')} <strong>{logCount}</strong> {t('条')}
+        </div>
+        <div className='flex items-center gap-1'>
+          <button
+            type='button'
+            className='cp-icon-btn'
+            style={{ width: 36, height: 36 }}
+            onClick={() => handlePageChange(Math.max(1, activePage - 1))}
+            disabled={activePage <= 1}
+          >
+            ‹
+          </button>
+          {renderPageNumbers().map((p, i) =>
+            p === '…' ? (
+              <span
+                key={`e-${i}`}
+                style={{ padding: '0 6px', color: 'var(--text-muted)' }}
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={p}
+                type='button'
+                onClick={() => handlePageChange(p)}
+                style={{
+                  minWidth: 36,
+                  height: 36,
+                  padding: '0 10px',
+                  borderRadius: 'var(--radius-md)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 13,
+                  fontWeight: p === activePage ? 700 : 500,
+                  color: p === activePage ? '#fff' : 'var(--text-secondary)',
+                  background:
+                    p === activePage ? 'var(--accent-gradient)' : 'transparent',
+                  boxShadow:
+                    p === activePage
+                      ? '0 4px 12px -4px rgba(0,114,255,0.35)'
+                      : 'none',
+                  transition:
+                    'background var(--ease-micro), color var(--ease-micro)',
+                }}
+              >
+                {p}
+              </button>
+            ),
+          )}
+          <button
+            type='button'
+            className='cp-icon-btn'
+            style={{ width: 36, height: 36 }}
+            onClick={() => handlePageChange(Math.min(totalPages, activePage + 1))}
+            disabled={activePage >= totalPages}
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    ) : null;
 
   return (
     <>
-      {/* Modals */}
-      <ColumnSelectorModal {...mjLogsData} />
       <ContentModal {...mjLogsData} />
 
-      <Layout>
-        <CardPro
-          type='type2'
-          statsArea={<MjLogsActions {...mjLogsData} />}
-          searchArea={<MjLogsFilters {...mjLogsData} />}
-          paginationArea={createCardProPagination({
-            currentPage: mjLogsData.activePage,
-            pageSize: mjLogsData.pageSize,
-            total: mjLogsData.logCount,
-            onPageChange: mjLogsData.handlePageChange,
-            onPageSizeChange: mjLogsData.handlePageSizeChange,
-            isMobile: isMobile,
-            t: mjLogsData.t,
-          })}
-          t={mjLogsData.t}
-        >
-          <MjLogsTable {...mjLogsData} />
-        </CardPro>
-      </Layout>
+      <CardPageLayout
+        title={t('图片视频记录')}
+        subtitle={`${t('共')} ${logCount} ${t('条生成任务')}`}
+        filterBar={filterBar}
+        footer={footer}
+      >
+        <MjLogsTable {...mjLogsData} />
+      </CardPageLayout>
     </>
   );
 };

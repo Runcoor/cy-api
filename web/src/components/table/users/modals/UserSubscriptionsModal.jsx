@@ -26,10 +26,6 @@ import {
   SideSheet,
 } from '@douyinfe/semi-ui';
 import { IconPlusCircle, IconCreditCard } from '@douyinfe/semi-icons';
-import {
-  IllustrationNoResult,
-  IllustrationNoResultDark,
-} from '@douyinfe/semi-illustrations';
 import { API, showError, showSuccess } from '../../../../helpers';
 import { convertUSDToCurrency } from '../../../../helpers/render';
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
@@ -379,7 +375,7 @@ const UserSubscriptionsModal = ({ visible, onCancel, user, t, onSuccess }) => {
             className='w-7 h-7 flex items-center justify-center'
             style={{
               borderRadius: 'var(--radius-sm)',
-              background: 'rgba(0, 122, 255, 0.12)',
+              background: 'var(--accent-light)',
               color: 'var(--accent)',
             }}
           >
@@ -419,7 +415,7 @@ const UserSubscriptionsModal = ({ visible, onCancel, user, t, onSuccess }) => {
               onClick={createSubscription}
               style={{
                 borderRadius: 'var(--radius-md)',
-                background: 'var(--accent)',
+                background: 'var(--accent-gradient)',
                 color: '#fff',
                 border: 'none',
               }}
@@ -448,10 +444,10 @@ const UserSubscriptionsModal = ({ visible, onCancel, user, t, onSuccess }) => {
           empty={
             <Empty
               image={
-                <IllustrationNoResult style={{ width: 150, height: 150 }} />
+                <img src="/NoDataillustration.svg" style={{ width: 150, height: 150 }} />
               }
               darkModeImage={
-                <IllustrationNoResultDark style={{ width: 150, height: 150 }} />
+                <img src="/NoDataillustration.svg" style={{ width: 150, height: 150 }} />
               }
               description={t('暂无订阅记录')}
               style={{ padding: 30 }}

@@ -36,10 +36,6 @@ import {
   Progress,
   Card,
 } from '@douyinfe/semi-ui';
-import {
-  IllustrationNoResult,
-  IllustrationNoResultDark,
-} from '@douyinfe/semi-illustrations';
 import { IconKey } from '@douyinfe/semi-icons';
 import {
   API,
@@ -449,7 +445,7 @@ const MultiKeyManageModal = ({ visible, onCancel, channel, onRefresh }) => {
         <div className='flex items-center gap-2 flex-wrap'>
           <span
             className='w-6 h-6 flex items-center justify-center'
-            style={{ borderRadius: 'var(--radius-sm)', background: 'rgba(0, 122, 255, 0.12)', color: 'var(--accent)' }}
+            style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}
           >
             <IconKey size={14} />
           </span>
@@ -716,12 +712,12 @@ const MultiKeyManageModal = ({ visible, onCancel, channel, onRefresh }) => {
                 empty={
                   <Empty
                     image={
-                      <IllustrationNoResult
+                      <img src="/NoDataillustration.svg"
                         style={{ width: 140, height: 140 }}
                       />
                     }
                     darkModeImage={
-                      <IllustrationNoResultDark
+                      <img src="/NoDataillustration.svg"
                         style={{ width: 140, height: 140 }}
                       />
                     }

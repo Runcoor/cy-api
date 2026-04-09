@@ -119,7 +119,7 @@ const EditPrefillGroupModal = ({
         <div className='flex items-center gap-2.5'>
           <span
             className='w-7 h-7 flex items-center justify-center'
-            style={{ borderRadius: 'var(--radius-sm)', background: isEdit ? 'rgba(0, 122, 255, 0.12)' : 'rgba(52, 199, 89, 0.15)', color: isEdit ? 'var(--accent)' : 'var(--success)' }}
+            style={{ borderRadius: 'var(--radius-sm)', background: isEdit ? 'var(--accent-light)' : 'rgba(52, 199, 89, 0.15)', color: isEdit ? 'var(--accent)' : 'var(--success)' }}
           >
             <IconLayers size={16} />
           </span>
@@ -134,10 +134,10 @@ const EditPrefillGroupModal = ({
       bodyStyle={{ padding: '0' }}
       footer={
         <div className='flex justify-end gap-2 px-4 py-3' style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-subtle)' }}>
-          <Button theme='light' onClick={onClose} icon={<IconClose />} style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}>
+          <Button theme='light' onClick={onClose} icon={<IconClose />} style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)' }}>
             {t('取消')}
           </Button>
-          <Button theme='solid' onClick={() => formRef.current?.submitForm()} icon={<IconSave />} loading={loading} style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: '#fff', border: 'none' }}>
+          <Button theme='solid' onClick={() => formRef.current?.submitForm()} icon={<IconSave />} loading={loading} style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', color: '#fff' }}>
             {t('提交')}
           </Button>
         </div>

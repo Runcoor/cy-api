@@ -105,7 +105,7 @@ const renderGroupColumn = (text, record, t) => {
         )}
         position='top'
       >
-        <StatusBadge style={{ color: 'var(--accent)', background: 'rgba(10, 132, 255, 0.12)' }}>
+        <StatusBadge style={{ color: 'var(--accent)', background: 'var(--accent-light)' }}>
           {t('智能熔断')}
           {record && record.cross_group_retry ? `(${t('跨分组')})` : ''}
         </StatusBadge>
@@ -310,7 +310,7 @@ const renderQuotaUsage = (text, record, t) => {
     );
     return (
       <Popover content={popoverContent} position='top'>
-        <StatusBadge style={{ color: 'var(--accent)', background: 'rgba(10, 132, 255, 0.12)' }}>
+        <StatusBadge style={{ color: 'var(--accent)', background: 'var(--accent-light)' }}>
           {t('无限额度')}
         </StatusBadge>
       </Popover>

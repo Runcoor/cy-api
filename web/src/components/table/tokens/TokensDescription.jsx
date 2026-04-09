@@ -19,24 +19,23 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { Key } from 'lucide-react';
-import CompactModeToggle from '../../common/ui/CompactModeToggle';
 
-const TokensDescription = ({ compactMode, setCompactMode, t }) => {
+const TokensDescription = ({ tokenCount, t }) => {
   return (
-    <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-2 w-full'>
-      <div className='flex items-center gap-2.5'>
-        <div
-          className='flex items-center justify-center'
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 'var(--radius-sm)',
-            background: 'var(--accent-light)',
-            color: 'var(--accent)',
-          }}
-        >
-          <Key size={15} />
-        </div>
+    <div className='flex items-center gap-2.5'>
+      <div
+        className='flex items-center justify-center'
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--accent-light)',
+          color: 'var(--accent)',
+        }}
+      >
+        <Key size={16} />
+      </div>
+      <div className='flex flex-col gap-0.5'>
         <h3
           className='text-sm font-semibold leading-tight'
           style={{
@@ -47,13 +46,18 @@ const TokensDescription = ({ compactMode, setCompactMode, t }) => {
         >
           {t('令牌管理')}
         </h3>
+        {typeof tokenCount === 'number' && (
+          <span
+            style={{
+              fontSize: 11,
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            {t('共')} {tokenCount} {t('个令牌')}
+          </span>
+        )}
       </div>
-
-      <CompactModeToggle
-        compactMode={compactMode}
-        setCompactMode={setCompactMode}
-        t={t}
-      />
     </div>
   );
 };

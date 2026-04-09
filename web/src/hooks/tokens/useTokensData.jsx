@@ -63,21 +63,8 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
   const [loadingTokenKeys, setLoadingTokenKeys] = useState({});
   const keyRequestsRef = useRef({});
 
-  // Form state
-  const [formApi, setFormApi] = useState(null);
-  const formInitValues = {
-    searchKeyword: '',
-    searchToken: '',
-  };
-
-  // Get form values helper function
-  const getFormValues = () => {
-    const formValues = formApi ? formApi.getValues() : {};
-    return {
-      searchKeyword: formValues.searchKeyword || '',
-      searchToken: formValues.searchToken || '',
-    };
-  };
+  // Search state — controlled by the card-layout filter bar
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Close edit modal
   const closeEdit = () => {
@@ -291,21 +278,25 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
     setLoading(false);
   };
 
-  // Search tokens function
-  const searchTokens = async (page = 1, size = pageSize) => {
+  // Search tokens function — unified keyword (OR across name/key/group)
+  const searchTokens = async (
+    page = 1,
+    size = pageSize,
+    keywordOverride = undefined,
+  ) => {
     const normalizedPage = Number.isInteger(page) && page > 0 ? page : 1;
     const normalizedSize =
       Number.isInteger(size) && size > 0 ? size : pageSize;
 
-    const { searchKeyword, searchToken } = getFormValues();
-    if (searchKeyword === '' && searchToken === '') {
+    const q = (keywordOverride !== undefined ? keywordOverride : searchQuery) || '';
+    if (!q) {
       setSearchMode(false);
       await loadTokens(1);
       return;
     }
     setSearching(true);
     const res = await API.get(
-      `/api/token/search?keyword=${encodeURIComponent(searchKeyword)}&token=${encodeURIComponent(searchToken)}&p=${normalizedPage}&size=${normalizedSize}`,
+      `/api/token/search?q=${encodeURIComponent(q)}&p=${normalizedPage}&size=${normalizedSize}`,
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -463,11 +454,9 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
     resolvedTokenKeys,
     loadingTokenKeys,
 
-    // Form state
-    formApi,
-    setFormApi,
-    formInitValues,
-    getFormValues,
+    // Search state — card-layout filter bar
+    searchQuery,
+    setSearchQuery,
 
     // Functions
     loadTokens,

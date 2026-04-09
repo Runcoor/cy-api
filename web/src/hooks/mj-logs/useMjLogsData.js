@@ -71,9 +71,15 @@ export const useMjLogsData = () => {
   const [isModalOpenurl, setIsModalOpenurl] = useState(false);
   const [modalImageUrl, setModalImageUrl] = useState('');
 
-  // Form state
-  const [formApi, setFormApi] = useState(null);
+  // Filter state — controlled by the card-layout filter bar
   let now = new Date();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState([
+    timestamp2string(now.getTime() / 1000 - 2592000),
+    timestamp2string(now.getTime() / 1000 + 3600),
+  ]);
+  // Legacy form API for any remaining code paths that still use it
+  const [formApi, setFormApi] = useState(null);
   const formInitValues = {
     channel_id: '',
     mj_id: '',
@@ -179,27 +185,29 @@ export const useMjLogsData = () => {
     }
   }, [visibleColumns]);
 
-  // Get form values helper function
+  // Get form values helper function — prefer controlled state, fall back
+  // to any legacy formApi values.
   const getFormValues = () => {
     const formValues = formApi ? formApi.getValues() : {};
 
-    let start_timestamp = timestamp2string(now.getTime() / 1000 - 2592000);
-    let end_timestamp = timestamp2string(now.getTime() / 1000 + 3600);
-
-    if (
-      formValues.dateRange &&
-      Array.isArray(formValues.dateRange) &&
-      formValues.dateRange.length === 2
-    ) {
-      start_timestamp = formValues.dateRange[0];
-      end_timestamp = formValues.dateRange[1];
-    }
+    const range =
+      Array.isArray(dateRange) && dateRange.length === 2
+        ? dateRange
+        : formValues.dateRange &&
+            Array.isArray(formValues.dateRange) &&
+            formValues.dateRange.length === 2
+          ? formValues.dateRange
+          : [
+              timestamp2string(now.getTime() / 1000 - 2592000),
+              timestamp2string(now.getTime() / 1000 + 3600),
+            ];
 
     return {
       channel_id: formValues.channel_id || '',
       mj_id: formValues.mj_id || '',
-      start_timestamp,
-      end_timestamp,
+      keyword: searchQuery || '',
+      start_timestamp: range[0],
+      end_timestamp: range[1],
     };
   };
 
@@ -224,13 +232,13 @@ export const useMjLogsData = () => {
   // Load logs function
   const loadLogs = async (page = 1, size = pageSize) => {
     setLoading(true);
-    const { channel_id, mj_id, start_timestamp, end_timestamp } =
-      getFormValues();
+    const { keyword, start_timestamp, end_timestamp } = getFormValues();
     let localStartTimestamp = Date.parse(start_timestamp);
     let localEndTimestamp = Date.parse(end_timestamp);
+    const kw = encodeURIComponent(keyword || '');
     const url = isAdminUser
-      ? `/api/mj/?p=${page}&page_size=${size}&channel_id=${channel_id}&mj_id=${mj_id}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`
-      : `/api/mj/self/?p=${page}&page_size=${size}&mj_id=${mj_id}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      ? `/api/mj/?p=${page}&page_size=${size}&keyword=${kw}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`
+      : `/api/mj/self/?p=${page}&page_size=${size}&keyword=${kw}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     const res = await API.get(url);
     const { success, message, data } = res.data;
     if (success) {
@@ -302,7 +310,13 @@ export const useMjLogsData = () => {
     setIsModalOpenurl,
     modalImageUrl,
 
-    // Form state
+    // Controlled filter state (card layout)
+    searchQuery,
+    setSearchQuery,
+    dateRange,
+    setDateRange,
+
+    // Form state (legacy)
     formApi,
     setFormApi,
     formInitValues,

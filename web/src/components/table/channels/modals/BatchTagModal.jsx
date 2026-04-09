@@ -36,7 +36,7 @@ const BatchTagModal = ({
         <div className='flex items-center gap-2'>
           <span
             className='w-6 h-6 flex items-center justify-center'
-            style={{ borderRadius: 'var(--radius-sm)', background: 'rgba(0, 122, 255, 0.12)', color: 'var(--accent)' }}
+            style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}
           >
             <IconBookmark size={14} />
           </span>
@@ -52,10 +52,10 @@ const BatchTagModal = ({
       centered={true}
       size='small'
       okButtonProps={{
-        style: { background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)' },
+        style: { background: 'var(--accent-gradient)', color: '#fff', borderRadius: 'var(--radius-md)' },
       }}
       cancelButtonProps={{
-        style: { borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' },
+        style: { borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)' },
       }}
     >
       <p className='text-sm mb-3 mt-0' style={{ color: 'var(--text-secondary)' }}>

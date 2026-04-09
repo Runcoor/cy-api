@@ -1896,7 +1896,7 @@ const ParamOverrideEditorModal = ({ visible, value, onSave, onCancel }) => {
         <div className='flex items-center gap-2'>
           <span
             className='w-6 h-6 flex items-center justify-center'
-            style={{ borderRadius: 'var(--radius-sm)', background: 'rgba(0, 122, 255, 0.12)', color: 'var(--accent)' }}
+            style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}
           >
             <IconSetting size={14} />
           </span>

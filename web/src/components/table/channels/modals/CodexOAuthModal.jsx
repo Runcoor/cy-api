@@ -110,7 +110,7 @@ const CodexOAuthModal = ({ visible, onCancel, onSuccess }) => {
         <div className='flex items-center gap-2'>
           <span
             className='w-6 h-6 flex items-center justify-center'
-            style={{ borderRadius: 'var(--radius-sm)', background: 'rgba(0, 122, 255, 0.12)', color: 'var(--accent)' }}
+            style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}
           >
             <IconKey size={14} />
           </span>
@@ -130,7 +130,7 @@ const CodexOAuthModal = ({ visible, onCancel, onSuccess }) => {
             theme='borderless'
             onClick={onCancel}
             disabled={loading}
-            style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}
+            style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)' }}
           >
             {t('取消')}
           </Button>
@@ -138,7 +138,7 @@ const CodexOAuthModal = ({ visible, onCancel, onSuccess }) => {
             theme='solid'
             onClick={completeOAuth}
             loading={loading}
-            style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: '#fff', border: 'none' }}
+            style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', color: '#fff' }}
           >
             {t('生成并填入')}
           </Button>
@@ -157,7 +157,7 @@ const CodexOAuthModal = ({ visible, onCancel, onSuccess }) => {
           <Button
             onClick={startOAuth}
             loading={loading}
-            style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: '#fff', border: 'none' }}
+            style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', color: '#fff' }}
           >
             {t('打开授权页面')}
           </Button>

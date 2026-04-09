@@ -17,89 +17,94 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useRef } from 'react';
-import { Form, Button } from '@douyinfe/semi-ui';
-import { IconSearch } from '@douyinfe/semi-icons';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { IconSearch, IconRefresh, IconClose } from '@douyinfe/semi-icons';
 
-const TokensFilters = ({
-  formInitValues,
-  setFormApi,
-  searchTokens,
-  loading,
-  searching,
-  t,
-}) => {
-  // Handle form reset and immediate search
-  const formApiRef = useRef(null);
+/**
+ * TokensFilters — filter bar matching the Tailwind HTML mockup.
+ *
+ * Layout:
+ *   [ Search pill with icon, flex-grow ]  [ Refresh icon button ]
+ *
+ * The search is a plain native <input> styled via .cp-search — no Semi Form
+ * wrapper — so we have full control over the visual treatment and avoid
+ * fighting Semi's default form-control styling.
+ */
+const TokensFilters = ({ value, onChange, onSubmit, onRefresh, loading, t }) => {
+  const [localValue, setLocalValue] = useState(value || '');
+  const debounceRef = useRef(null);
 
-  const handleReset = () => {
-    if (!formApiRef.current) return;
-    formApiRef.current.reset();
-    setTimeout(() => {
-      searchTokens();
-    }, 100);
+  useEffect(() => {
+    setLocalValue(value || '');
+  }, [value]);
+
+  // Debounced change → onChange
+  const scheduleChange = useCallback(
+    (next) => {
+      setLocalValue(next);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        if (onChange) onChange(next);
+      }, 250);
+    },
+    [onChange],
+  );
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    if (onChange) onChange(localValue);
+    if (onSubmit) onSubmit(localValue);
+  };
+
+  const handleClear = () => {
+    setLocalValue('');
+    if (onChange) onChange('');
+    if (onSubmit) onSubmit('');
   };
 
   return (
-    <Form
-      initValues={formInitValues}
-      getFormApi={(api) => {
-        setFormApi(api);
-        formApiRef.current = api;
-      }}
-      onSubmit={() => searchTokens(1)}
-      allowEmpty={true}
-      autoComplete='off'
-      layout='horizontal'
-      trigger='change'
-      stopValidateWithError={false}
-      className='w-full md:w-auto order-1 md:order-2'
-    >
-      <div className='flex flex-col md:flex-row items-center gap-2 w-full md:w-auto'>
-        <div className='relative w-full md:w-56'>
-          <Form.Input
-            field='searchKeyword'
-            prefix={<IconSearch />}
-            placeholder={t('搜索关键字')}
-            showClear
-            pure
-            size='small'
+    <form className='cp-filter-bar' onSubmit={handleSubmit}>
+      <div className='cp-filter-row'>
+        <div className='cp-search'>
+          <span className='cp-search-icon'>
+            <IconSearch size='default' />
+          </span>
+          <input
+            type='text'
+            value={localValue}
+            onChange={(e) => scheduleChange(e.target.value)}
+            placeholder={t('搜索名称 / 密钥 / 分组')}
+            autoComplete='off'
           />
+          {localValue && (
+            <button
+              type='button'
+              className='cp-search-clear'
+              onClick={handleClear}
+              aria-label={t('清除')}
+            >
+              <IconClose size='small' />
+            </button>
+          )}
         </div>
-
-        <div className='relative w-full md:w-56'>
-          <Form.Input
-            field='searchToken'
-            prefix={<IconSearch />}
-            placeholder={t('密钥')}
-            showClear
-            pure
-            size='small'
-          />
-        </div>
-
-        <div className='flex gap-2 w-full md:w-auto'>
-          <Button
-            type='tertiary'
-            htmlType='submit'
-            loading={loading || searching}
-            className='flex-1 md:flex-initial md:w-auto'
-            size='small'
-          >
-            {t('查询')}
-          </Button>
-
-          <Button
-            type='tertiary'
-            onClick={handleReset}
-            className='flex-1 md:flex-initial md:w-auto'
-            size='small'
-          >
-            {t('重置')}
-          </Button>
-        </div>
+        <button
+          type='button'
+          className='cp-icon-btn'
+          onClick={() => onRefresh && onRefresh()}
+          aria-label={t('刷新')}
+          disabled={loading}
+          style={{
+            opacity: loading ? 0.55 : 1,
+          }}
+        >
+          <IconRefresh size='default' />
+        </button>
       </div>
-    </Form>
+    </form>
   );
 };
 

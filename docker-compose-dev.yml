@@ -1,0 +1,78 @@
+###############################################################################
+#  CY-API Docker Compose — 开发环境
+#  - 后端走 Dockerfile.dev（跳过前端构建，省内存避免 OOM）
+#  - 前端本地 `cd web && bun run dev` 热更新 (http://localhost:5173)
+#  - 数据库/Redis 复用正式 compose 的 volume 和 network，数据不动
+###############################################################################
+
+services:
+  cy-api:
+    image: cy-api:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cy-api
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "${HOST_PORT:-8090}:${PORT:-3000}"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    environment:
+      - SQL_DSN=postgresql://${DB_USER:-root}:${DB_PASSWORD:-123456}@${DB_HOST:-cy-postgres}:${DB_PORT:-5432}/${DB_NAME:-cy-api}
+      - REDIS_CONN_STRING=${REDIS_CONN_STRING:-redis://cy-redis}
+      - PORT=${PORT:-3000}
+      - GIN_MODE=${GIN_MODE:-debug}
+      - TZ=${TZ:-Asia/Shanghai}
+      - SESSION_SECRET=${SESSION_SECRET:-}
+      - ERROR_LOG_ENABLED=${ERROR_LOG_ENABLED:-true}
+      - BATCH_UPDATE_ENABLED=${BATCH_UPDATE_ENABLED:-true}
+      # 允许本地 5173 前端跨域访问
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-http://localhost:5173}
+    depends_on:
+      - cy-redis
+      - cy-postgres
+    networks:
+      - cy-network
+    # 运行时内存限制，防止失控
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:${PORT:-3000}/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cy-redis:
+    image: redis:latest
+    container_name: cy-redis
+    restart: always
+    networks:
+      - cy-network
+
+  cy-postgres:
+    image: postgres:15
+    container_name: cy-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-root}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
+      POSTGRES_DB: ${DB_NAME:-cy-api}
+    volumes:
+      # 复用正式 compose 的同一个 volume，数据完全一致
+      - cy_pg_data:/var/lib/postgresql/data
+    networks:
+      - cy-network
+
+volumes:
+  # external: 引用已存在的 volume（由 docker-compose.yml 创建的 new-api_cy_pg_data）
+  cy_pg_data:
+    external: true
+    name: new-api_cy_pg_data
+
+networks:
+  cy-network:
+    driver: bridge

@@ -89,16 +89,18 @@ export const useLogsData = () => {
     token: 0,
   });
 
-  // Form state
-  const [formApi, setFormApi] = useState(null);
+  // Filter state — controlled by the card-layout filter bar
   let now = new Date();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState([
+    timestamp2string(getTodayStartTimestamp()),
+    timestamp2string(now.getTime() / 1000 + 3600),
+  ]);
+  const [selectedLogType, setSelectedLogType] = useState('0');
+  // Legacy form API for any remaining code paths that still use it
+  const [formApi, setFormApi] = useState(null);
   const formInitValues = {
-    username: '',
-    token_name: '',
-    model_name: '',
-    channel: '',
-    group: '',
-    request_id: '',
+    keyword: '',
     dateRange: [
       timestamp2string(getTodayStartTimestamp()),
       timestamp2string(now.getTime() / 1000 + 3600),
@@ -230,50 +232,49 @@ export const useLogsData = () => {
     localStorage.setItem(BILLING_DISPLAY_MODE_STORAGE_KEY, billingDisplayMode);
   }, [BILLING_DISPLAY_MODE_STORAGE_KEY, billingDisplayMode]);
 
-  // 获取表单值的辅助函数，确保所有值都是字符串
+  // Read current filter values — prefers the controlled state used by the
+  // card-layout filter bar, falls back to the legacy Semi Form API for any
+  // code that still goes through it.
   const getFormValues = () => {
     const formValues = formApi ? formApi.getValues() : {};
 
-    let start_timestamp = timestamp2string(getTodayStartTimestamp());
-    let end_timestamp = timestamp2string(now.getTime() / 1000 + 3600);
+    const range =
+      Array.isArray(dateRange) && dateRange.length === 2
+        ? dateRange
+        : formValues.dateRange &&
+            Array.isArray(formValues.dateRange) &&
+            formValues.dateRange.length === 2
+          ? formValues.dateRange
+          : [
+              timestamp2string(getTodayStartTimestamp()),
+              timestamp2string(now.getTime() / 1000 + 3600),
+            ];
 
-    if (
-      formValues.dateRange &&
-      Array.isArray(formValues.dateRange) &&
-      formValues.dateRange.length === 2
-    ) {
-      start_timestamp = formValues.dateRange[0];
-      end_timestamp = formValues.dateRange[1];
-    }
-
+    const keyword = searchQuery || formValues.keyword || '';
+    const rawType =
+      selectedLogType !== undefined && selectedLogType !== null
+        ? selectedLogType
+        : formValues.logType;
     return {
-      username: formValues.username || '',
-      token_name: formValues.token_name || '',
-      model_name: formValues.model_name || '',
-      start_timestamp,
-      end_timestamp,
-      channel: formValues.channel || '',
-      group: formValues.group || '',
-      request_id: formValues.request_id || '',
-      logType: formValues.logType ? parseInt(formValues.logType) : 0,
+      keyword,
+      start_timestamp: range[0],
+      end_timestamp: range[1],
+      logType: rawType ? parseInt(rawType) : 0,
     };
   };
 
   // Statistics functions
   const getLogSelfStat = async () => {
     const {
-      token_name,
-      model_name,
+      keyword,
       start_timestamp,
       end_timestamp,
-      group,
       logType: formLogType,
     } = getFormValues();
     const currentLogType = formLogType !== undefined ? formLogType : logType;
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let url = `/api/log/self/stat?type=${currentLogType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&group=${group}`;
-    url = encodeURI(url);
+    let url = `/api/log/self/stat?type=${currentLogType}&keyword=${encodeURIComponent(keyword)}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     let res = await API.get(url);
     const { success, message, data } = res.data;
     if (success) {
@@ -285,20 +286,15 @@ export const useLogsData = () => {
 
   const getLogStat = async () => {
     const {
-      username,
-      token_name,
-      model_name,
+      keyword,
       start_timestamp,
       end_timestamp,
-      channel,
-      group,
       logType: formLogType,
     } = getFormValues();
     const currentLogType = formLogType !== undefined ? formLogType : logType;
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
-    let url = `/api/log/stat?type=${currentLogType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&group=${group}`;
-    url = encodeURI(url);
+    let url = `/api/log/stat?type=${currentLogType}&keyword=${encodeURIComponent(keyword)}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     let res = await API.get(url);
     const { success, message, data } = res.data;
     if (success) {
@@ -722,14 +718,9 @@ export const useLogsData = () => {
 
     let url = '';
     const {
-      username,
-      token_name,
-      model_name,
+      keyword,
       start_timestamp,
       end_timestamp,
-      channel,
-      group,
-      request_id,
       logType: formLogType,
     } = getFormValues();
 
@@ -742,12 +733,12 @@ export const useLogsData = () => {
 
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
+    const kw = encodeURIComponent(keyword || '');
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&group=${group}&request_id=${request_id}`;
+      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&keyword=${kw}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&group=${group}&request_id=${request_id}`;
+      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&keyword=${kw}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
-    url = encodeURI(url);
     const res = await API.get(url);
     const { success, message, data } = res.data;
     if (success) {
@@ -837,7 +828,15 @@ export const useLogsData = () => {
     stat,
     isAdminUser,
 
-    // Form state
+    // Controlled filter state (card layout)
+    searchQuery,
+    setSearchQuery,
+    dateRange,
+    setDateRange,
+    selectedLogType,
+    setSelectedLogType,
+
+    // Form state (legacy — still exported for any consumer that uses it)
     formApi,
     setFormApi,
     formInitValues,

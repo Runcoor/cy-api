@@ -47,12 +47,12 @@ import { stringToColor } from '../../../helpers/render';
 // iOS system color palette for channel badges
 const channelColors = [
   { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
-  { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+  { color: 'var(--accent)', bg: 'var(--accent-light)' },
   { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)' },
   { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
   { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
   { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)' },
-  { color: '#007AFF', bg: 'rgba(0, 122, 255, 0.12)' },
+  { color: '#007AFF', bg: 'var(--accent-light)' },
   { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' },
   { color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' },
   { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)' },
@@ -64,7 +64,7 @@ const channelColors = [
 ];
 
 // iOS-style inline badge helper
-const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+export const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
   <span
     style={{
       display: 'inline-flex',
@@ -88,7 +88,7 @@ const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) 
 );
 
 // Render functions
-const renderTimestamp = (timestampInSeconds) => {
+export const renderTimestamp = (timestampInSeconds) => {
   const date = new Date(timestampInSeconds * 1000); // 从秒转换为毫秒
 
   const year = date.getFullYear(); // 获取年份
@@ -101,7 +101,7 @@ const renderTimestamp = (timestampInSeconds) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`; // 格式化输出
 };
 
-function renderDuration(submit_time, finishTime) {
+export function renderDuration(submit_time, finishTime) {
   if (!submit_time || !finishTime) return 'N/A';
   const durationSec = finishTime - submit_time;
   const isLong = durationSec > 60;
@@ -116,17 +116,17 @@ function renderDuration(submit_time, finishTime) {
   );
 }
 
-const taskTypeStyleMap = {
+export const taskTypeStyleMap = {
   'MUSIC': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Music, label: '生成音乐' },
   'LYRICS': { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)', icon: FileText, label: '生成歌词' },
-  [TASK_ACTION_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '图生视频' },
-  [TASK_ACTION_TEXT_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '文生视频' },
-  [TASK_ACTION_FIRST_TAIL_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '首尾生视频' },
-  [TASK_ACTION_REFERENCE_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '参照生视频' },
-  [TASK_ACTION_REMIX_GENERATE]: { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Sparkles, label: '视频Remix' },
+  [TASK_ACTION_GENERATE]: { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Sparkles, label: '图生视频' },
+  [TASK_ACTION_TEXT_GENERATE]: { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Sparkles, label: '文生视频' },
+  [TASK_ACTION_FIRST_TAIL_GENERATE]: { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Sparkles, label: '首尾生视频' },
+  [TASK_ACTION_REFERENCE_GENERATE]: { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Sparkles, label: '参照生视频' },
+  [TASK_ACTION_REMIX_GENERATE]: { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Sparkles, label: '视频Remix' },
 };
 
-const renderType = (type, t) => {
+export const renderType = (type, t) => {
   const cfg = taskTypeStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
   const Icon = cfg.icon;
   return (
@@ -137,7 +137,7 @@ const renderType = (type, t) => {
   );
 };
 
-const renderPlatform = (platform, t) => {
+export const renderPlatform = (platform, t) => {
   let option = CHANNEL_OPTIONS.find(
     (opt) => String(opt.value) === String(platform),
   );
@@ -150,18 +150,18 @@ const renderPlatform = (platform, t) => {
   return <InlineBadge>{t('未知')}</InlineBadge>;
 };
 
-const taskStatusStyleMap = {
+export const taskStatusStyleMap = {
   'SUCCESS': { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: CheckCircle, label: '成功' },
   'NOT_START': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Pause, label: '未启动' },
   'SUBMITTED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Clock, label: '队列中' },
-  'IN_PROGRESS': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Play, label: '执行中' },
+  'IN_PROGRESS': { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Play, label: '执行中' },
   'FAILURE': { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)', icon: XCircle, label: '失败' },
   'QUEUED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.08)', icon: List, label: '排队中' },
   'UNKNOWN': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' },
   '': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Loader, label: '正在提交' },
 };
 
-const renderStatus = (type, t) => {
+export const renderStatus = (type, t) => {
   const cfg = taskStatusStyleMap[type] || taskStatusStyleMap['UNKNOWN'];
   const Icon = cfg.icon;
   return (

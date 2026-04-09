@@ -17,177 +17,292 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useState, useEffect, useContext } from "react";
-import { Select } from "@douyinfe/semi-ui";
-import { Languages } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import { API, showSuccess, showError } from "../../../../helpers";
-import { UserContext } from "../../../../context/User";
-import { normalizeLanguage } from "../../../../i18n/language";
+import React, { useState, useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Check, Globe } from 'lucide-react';
+import { API, showSuccess, showError } from '../../../../helpers';
+import { UserContext } from '../../../../context/User';
+import { normalizeLanguage } from '../../../../i18n/language';
 
-// Language options with native names
+// Language options with native names and a short 2-letter badge shown
+// inside each option pill. The badge is purely visual, not a flag.
 const languageOptions = [
-	{ value: "zh-CN", label: "简体中文" },
-	{ value: "zh-TW", label: "繁體中文" },
-	{ value: "en", label: "English" },
-	{ value: 'fr', label: 'Français'},
-	{ value: 'ru', label: 'Русский'},
-	{ value: 'ja', label: '日本語'},
-	{ value: "vi", label: "Tiếng Việt" },
+  { value: 'zh-CN', label: '简体中文', shortCode: '中', english: 'Simplified Chinese' },
+  { value: 'zh-TW', label: '繁體中文', shortCode: '繁', english: 'Traditional Chinese' },
+  { value: 'en',    label: 'English',  shortCode: 'EN', english: 'English' },
+  { value: 'fr',    label: 'Français', shortCode: 'FR', english: 'French' },
+  { value: 'ru',    label: 'Русский',  shortCode: 'RU', english: 'Russian' },
+  { value: 'ja',    label: '日本語',   shortCode: '日', english: 'Japanese' },
+  { value: 'vi',    label: 'Tiếng Việt', shortCode: 'VI', english: 'Vietnamese' },
 ];
 
 const PreferencesSettings = ({ t }) => {
-	const { i18n } = useTranslation();
-	const [userState, userDispatch] = useContext(UserContext);
-	const [currentLanguage, setCurrentLanguage] = useState(
-		normalizeLanguage(i18n.language) || "zh-CN",
-	);
-	const [loading, setLoading] = useState(false);
+  const { i18n } = useTranslation();
+  const [userState, userDispatch] = useContext(UserContext);
+  const [currentLanguage, setCurrentLanguage] = useState(
+    normalizeLanguage(i18n.language) || 'zh-CN',
+  );
+  const [loading, setLoading] = useState(false);
 
-	// Load saved language preference from user settings
-	useEffect(() => {
-		if (userState?.user?.setting) {
-			try {
-				const settings = JSON.parse(userState.user.setting);
-				if (settings.language) {
-					const lang = normalizeLanguage(settings.language);
-					setCurrentLanguage(lang);
-					// Sync i18n with saved preference
-					if (i18n.language !== lang) {
-						i18n.changeLanguage(lang);
-					}
-				}
-			} catch (e) {
-				// Ignore parse errors
-			}
-		}
-	}, [userState?.user?.setting, i18n]);
+  useEffect(() => {
+    if (userState?.user?.setting) {
+      try {
+        const settings = JSON.parse(userState.user.setting);
+        if (settings.language) {
+          const lang = normalizeLanguage(settings.language);
+          setCurrentLanguage(lang);
+          if (i18n.language !== lang) {
+            i18n.changeLanguage(lang);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [userState?.user?.setting, i18n]);
 
-	const handleLanguagePreferenceChange = async (lang) => {
-		if (lang === currentLanguage) return;
+  const handleLanguagePreferenceChange = async (lang) => {
+    if (lang === currentLanguage) return;
 
-		setLoading(true);
-		const previousLang = currentLanguage;
+    setLoading(true);
+    const previousLang = currentLanguage;
 
-		try {
-			// Update language immediately for responsive UX
-			setCurrentLanguage(lang);
-			i18n.changeLanguage(lang);
-			localStorage.setItem('i18nextLng', lang);
+    try {
+      setCurrentLanguage(lang);
+      i18n.changeLanguage(lang);
+      localStorage.setItem('i18nextLng', lang);
 
-			// Save to backend
-			const res = await API.put("/api/user/self", {
-				language: lang,
-			});
+      const res = await API.put('/api/user/self', { language: lang });
 
-			if (res.data.success) {
-				showSuccess(t("语言偏好已保存"));
-				// Keep backend preference, context state, and local cache aligned.
-				let settings = {};
-				if (userState?.user?.setting) {
-					try {
-						settings = JSON.parse(userState.user.setting) || {};
-					} catch (e) {
-						settings = {};
-					}
-				}
-				settings.language = lang;
-				const nextUser = {
-					...userState.user,
-					setting: JSON.stringify(settings),
-				};
-				userDispatch({
-					type: "login",
-					payload: nextUser,
-				});
-				localStorage.setItem("user", JSON.stringify(nextUser));
-			} else {
-				showError(res.data.message || t("保存失败"));
-				// Revert on error
-				setCurrentLanguage(previousLang);
-				i18n.changeLanguage(previousLang);
-				localStorage.setItem("i18nextLng", previousLang);
-			}
-		} catch (error) {
-			showError(t("保存失败，请重试"));
-			// Revert on error
-			setCurrentLanguage(previousLang);
-			i18n.changeLanguage(previousLang);
-			localStorage.setItem("i18nextLng", previousLang);
-		} finally {
-			setLoading(false);
-		}
-	};
+      if (res.data.success) {
+        showSuccess(t('语言偏好已保存'));
+        let settings = {};
+        if (userState?.user?.setting) {
+          try {
+            settings = JSON.parse(userState.user.setting) || {};
+          } catch (e) {
+            settings = {};
+          }
+        }
+        settings.language = lang;
+        const nextUser = { ...userState.user, setting: JSON.stringify(settings) };
+        userDispatch({ type: 'login', payload: nextUser });
+        localStorage.setItem('user', JSON.stringify(nextUser));
+      } else {
+        showError(res.data.message || t('保存失败'));
+        setCurrentLanguage(previousLang);
+        i18n.changeLanguage(previousLang);
+        localStorage.setItem('i18nextLng', previousLang);
+      }
+    } catch (error) {
+      showError(t('保存失败，请重试'));
+      setCurrentLanguage(previousLang);
+      i18n.changeLanguage(previousLang);
+      localStorage.setItem('i18nextLng', previousLang);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	return (
-		<div
-			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden"
-			style={{ background: 'var(--surface)' }}
-		>
-			{/* Card header — macOS panel style */}
-			<div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3">
-				<div
-					className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center"
-					style={{ background: 'var(--accent-light)' }}
-				>
-					<Languages size={16} style={{ color: 'var(--accent)' }} />
-				</div>
-				<div>
-					<h3
-						className="text-base font-semibold leading-tight"
-						style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
-					>
-						{t("偏好设置")}
-					</h3>
-					<p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)', margin: 0 }}>
-						{t("界面语言和其他个人偏好")}
-					</p>
-				</div>
-			</div>
-			<div className="p-5">
-			{/* Language Setting */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] p-4" style={{ background: 'var(--bg-subtle)' }}>
-				<div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
-					<div className="flex items-start w-full sm:w-auto">
-						<div className="w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-							<Languages
-								size={20}
-								style={{ color: 'var(--text-secondary)' }}
-							/>
-						</div>
-						<div>
-							<h6 className="mb-1 text-sm" style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-								{t("语言偏好")}
-							</h6>
-							<span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-								{t("选择您的首选界面语言，设置将自动保存并同步到所有设备")}
-							</span>
-						</div>
-					</div>
-					<Select
-						value={currentLanguage}
-						onChange={handleLanguagePreferenceChange}
-						style={{ width: 180 }}
-						loading={loading}
-						optionList={languageOptions.map((opt) => ({
-							value: opt.value,
-							label: opt.label,
-						}))}
-					/>
-				</div>
-			</div>
+  return (
+    <section>
+      {/* Section header — two-column layout matching the rest of the page */}
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8'>
+        <div className='lg:col-span-1'>
+          <h2
+            className='mb-3'
+            style={{
+              fontFamily:
+                '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "PingFang SC", sans-serif',
+              fontSize: 24,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+              margin: 0,
+            }}
+          >
+            {t('偏好与界面')}
+          </h2>
+          <p
+            style={{
+              fontSize: 13,
+              lineHeight: 1.55,
+              color: 'var(--text-muted)',
+              margin: '8px 0 0 0',
+            }}
+          >
+            {t(
+              '自定义界面语言、主题等偏好设置。语言偏好会同步到您登录的所有设备。',
+            )}
+          </p>
+        </div>
 
-			{/* Additional info */}
-			<div className="mt-4 text-xs" style={{ color: 'var(--text-muted)' }}>
-				<span style={{ color: 'var(--text-muted)' }}>
-					{t(
-						"提示：语言偏好会同步到您登录的所有设备，并影响API返回的错误消息语言。",
-					)}
-				</span>
-			</div>
-			</div>
-		</div>
-	);
+        <div className='lg:col-span-2 flex flex-col gap-3'>
+          {/* Language preference card */}
+          <div
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-md)',
+              padding: '18px 20px',
+            }}
+          >
+            <div className='flex items-center gap-3 mb-4'>
+              <div
+                className='flex items-center justify-center flex-shrink-0'
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  background: 'var(--accent-light)',
+                  color: 'var(--accent)',
+                }}
+              >
+                <Globe size={18} />
+              </div>
+              <div className='flex-grow min-w-0'>
+                <h4
+                  className='mb-0'
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    margin: 0,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {t('显示语言')}
+                </h4>
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: 'var(--text-muted)',
+                    margin: '2px 0 0 0',
+                  }}
+                >
+                  {t('当前使用')}:{' '}
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                    {
+                      languageOptions.find((o) => o.value === currentLanguage)
+                        ?.label || currentLanguage
+                    }
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div
+              className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2'
+            >
+              {languageOptions.map((opt) => {
+                const active = currentLanguage === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleLanguagePreferenceChange(opt.value)}
+                    disabled={loading}
+                    style={{
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-md)',
+                      border: `1px solid ${active ? 'transparent' : 'var(--border-default)'}`,
+                      background: active
+                        ? 'var(--accent-light)'
+                        : 'var(--bg-subtle)',
+                      color: active ? 'var(--accent)' : 'var(--text-primary)',
+                      cursor: loading ? 'wait' : 'pointer',
+                      opacity: loading && !active ? 0.5 : 1,
+                      transition:
+                        'background-color var(--ease-micro), border-color var(--ease-micro), transform var(--ease-micro)',
+                      textAlign: 'left',
+                      minHeight: 48,
+                      boxShadow: active
+                        ? '0 0 0 1px var(--accent), 0 4px 12px -4px rgba(0,114,255,0.2)'
+                        : 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active && !loading) {
+                        e.currentTarget.style.borderColor =
+                          'color-mix(in srgb, var(--border-default) 150%, transparent)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.borderColor =
+                          'var(--border-default)';
+                      }
+                    }}
+                  >
+                    {/* Two-letter code pill */}
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        width: 28,
+                        height: 28,
+                        borderRadius: 'var(--radius-sm)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: active
+                          ? 'var(--accent-gradient)'
+                          : 'var(--surface)',
+                        color: active ? '#fff' : 'var(--text-secondary)',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: opt.shortCode.length > 1 ? '0.04em' : 0,
+                        border: active
+                          ? 'none'
+                          : '1px solid var(--border-default)',
+                      }}
+                    >
+                      {opt.shortCode}
+                    </span>
+                    <span
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {opt.label}
+                    </span>
+                    {active && (
+                      <Check
+                        size={14}
+                        style={{
+                          flexShrink: 0,
+                          color: 'var(--accent)',
+                          strokeWidth: 3,
+                        }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <p
+              style={{
+                fontSize: 11,
+                color: 'var(--text-muted)',
+                margin: '12px 0 0 0',
+                lineHeight: 1.5,
+              }}
+            >
+              {t('提示：语言偏好会同步到您登录的所有设备，并影响API返回的错误消息语言。')}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default PreferencesSettings;

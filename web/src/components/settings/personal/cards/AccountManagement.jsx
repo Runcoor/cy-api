@@ -19,26 +19,14 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import {
-  Button,
-  Card,
   Input,
-  Space,
   Typography,
-  Tabs,
-  TabPane,
-  Popover,
   Modal,
 } from '@douyinfe/semi-ui';
 import {
-  IconMail,
-  IconShield,
-  IconGithubLogo,
   IconKey,
-  IconLock,
-  IconDelete,
 } from '@douyinfe/semi-icons';
 import { SiTelegram, SiWechat, SiLinux, SiDiscord } from 'react-icons/si';
-import { UserPlus, ShieldCheck } from 'lucide-react';
 import TelegramLoginButton from 'react-telegram-login';
 import {
   API,
@@ -71,37 +59,11 @@ const AccountManagement = ({
   onPasskeyRegister,
   onPasskeyDelete,
 }) => {
-  const renderAccountInfo = (accountId, label) => {
-    if (!accountId || accountId === '') {
-      return <span style={{ color: 'var(--text-muted)' }}>{t('未绑定')}</span>;
-    }
-
-    const popContent = (
-      <div className='text-xs p-2'>
-        <Typography.Paragraph copyable={{ content: accountId }}>
-          {accountId}
-        </Typography.Paragraph>
-        {label ? (
-          <div className='mt-1 text-[11px]' style={{ color: 'var(--text-muted)' }}>{label}</div>
-        ) : null}
-      </div>
-    );
-
-    return (
-      <Popover content={popContent} position='top' trigger='hover'>
-        <span className='block max-w-full truncate cursor-pointer' style={{ color: 'var(--text-secondary)' }}>
-          {accountId}
-        </span>
-      </Popover>
-    );
-  };
   const isBound = (accountId) => Boolean(accountId);
-  const [showTelegramBindModal, setShowTelegramBindModal] =
-    React.useState(false);
+  const [showTelegramBindModal, setShowTelegramBindModal] = React.useState(false);
   const [customOAuthBindings, setCustomOAuthBindings] = React.useState([]);
   const [customOAuthLoading, setCustomOAuthLoading] = React.useState({});
 
-  // Fetch custom OAuth bindings
   const loadCustomOAuthBindings = async () => {
     try {
       const res = await API.get('/api/user/oauth/bindings');
@@ -115,7 +77,6 @@ const AccountManagement = ({
     }
   };
 
-  // Unbind custom OAuth provider
   const handleUnbindCustomOAuth = async (providerId, providerName) => {
     Modal.confirm({
       title: t('确认解绑'),
@@ -141,18 +102,15 @@ const AccountManagement = ({
     });
   };
 
-  // Handle bind custom OAuth
   const handleBindCustomOAuth = (provider) => {
     onCustomOAuthClicked(provider);
   };
 
-  // Check if custom OAuth provider is bound
   const isCustomOAuthBound = (providerId) => {
     const normalizedId = Number(providerId);
     return customOAuthBindings.some((b) => Number(b.provider_id) === normalizedId);
   };
 
-  // Get binding info for a provider
   const getCustomOAuthBinding = (providerId) => {
     const normalizedId = Number(providerId);
     return customOAuthBindings.find((b) => Number(b.provider_id) === normalizedId);
@@ -167,614 +125,430 @@ const AccountManagement = ({
     ? new Date(passkeyStatus.last_used_at).toLocaleString()
     : t('尚未使用');
 
-  return (
-    <div
-      className='rounded-[var(--radius-lg)] border border-[var(--border-default)] overflow-hidden'
-      style={{ background: 'var(--surface)' }}
+  const cardStyle = {
+    background: 'var(--surface)',
+    borderRadius: 'var(--radius-md)',
+    border: '1px solid var(--border-subtle)',
+    padding: '20px',
+    transition: 'background 0.15s',
+    cursor: 'default',
+  };
+
+  const iconBoxStyle = (bg) => ({
+    width: 44,
+    height: 44,
+    borderRadius: 'var(--radius-md)',
+    background: bg,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  });
+
+  const statusBadge = (connected, label) => (
+    <span
+      className='inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider'
+      style={{
+        borderRadius: 9999,
+        background: connected ? 'rgba(22,163,74,0.1)' : 'var(--bg-subtle)',
+        color: connected ? '#16a34a' : 'var(--text-muted)',
+      }}
     >
-      {/* Card header — macOS panel style */}
-      <div className='px-5 py-4 border-b border-[var(--border-subtle)] flex items-center gap-3'>
-        <div
-          className='w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center'
-          style={{ background: 'var(--accent-light)' }}
-        >
-          <UserPlus size={16} style={{ color: 'var(--accent)' }} />
+      {label || (connected ? t('settings.connected') : t('未绑定'))}
+    </span>
+  );
+
+  const providerCards = [];
+
+  providerCards.push({
+    key: 'email',
+    icon: (
+      <span style={{ fontSize: 20, color: '#3b82f6' }} className='material-symbols-outlined-placeholder'>
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='M22 7l-10 6L2 7'/></svg>
+      </span>
+    ),
+    iconBg: 'rgba(59,130,246,0.1)',
+    name: t('邮箱'),
+    detail: userState.user?.email || '',
+    connected: isBound(userState.user?.email),
+    statusLabel: isBound(userState.user?.email) ? t('settings.primary') : undefined,
+    onClick: () => setShowEmailBindModal(true),
+    actionLabel: isBound(userState.user?.email) ? t('修改绑定') : t('绑定'),
+    disabled: false,
+  });
+
+  if (status.wechat_login !== undefined) {
+    providerCards.push({
+      key: 'wechat',
+      icon: <SiWechat size={20} color='#22c55e' />,
+      iconBg: 'rgba(34,197,94,0.1)',
+      name: t('微信'),
+      detail: userState.user?.wechat_id || '',
+      connected: isBound(userState.user?.wechat_id),
+      statusLabel: !status.wechat_login ? t('未启用') : undefined,
+      onClick: () => setShowWeChatBindModal(true),
+      actionLabel: isBound(userState.user?.wechat_id) ? t('修改绑定') : status.wechat_login ? t('绑定') : t('未启用'),
+      disabled: !status.wechat_login,
+    });
+  }
+
+  if (status.github_oauth !== undefined) {
+    providerCards.push({
+      key: 'github',
+      icon: (
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' style={{ color: 'var(--text-primary)' }}>
+          <path d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'/>
+        </svg>
+      ),
+      iconBg: 'rgba(15,23,42,0.08)',
+      name: 'GitHub',
+      detail: userState.user?.github_id || '',
+      connected: isBound(userState.user?.github_id),
+      onClick: () => onGitHubOAuthClicked(status.github_client_id),
+      actionLabel: status.github_oauth ? t('绑定') : t('未启用'),
+      disabled: isBound(userState.user?.github_id) || !status.github_oauth,
+    });
+  }
+
+  if (status.discord_oauth !== undefined) {
+    providerCards.push({
+      key: 'discord',
+      icon: <SiDiscord size={20} color='#5865F2' />,
+      iconBg: 'rgba(88,101,242,0.1)',
+      name: 'Discord',
+      detail: userState.user?.discord_id || '',
+      connected: isBound(userState.user?.discord_id),
+      onClick: () => onDiscordOAuthClicked(status.discord_client_id),
+      actionLabel: status.discord_oauth ? t('settings.linkAccount') : t('未启用'),
+      disabled: isBound(userState.user?.discord_id) || !status.discord_oauth,
+    });
+  }
+
+  if (status.telegram_oauth !== undefined) {
+    providerCards.push({
+      key: 'telegram',
+      icon: <SiTelegram size={20} color='#26a5e4' />,
+      iconBg: 'rgba(38,165,228,0.1)',
+      name: 'Telegram',
+      detail: userState.user?.telegram_id || '',
+      connected: isBound(userState.user?.telegram_id),
+      onClick: () => setShowTelegramBindModal(true),
+      actionLabel: status.telegram_oauth
+        ? isBound(userState.user?.telegram_id) ? t('已绑定') : t('绑定')
+        : t('未启用'),
+      disabled: !status.telegram_oauth || isBound(userState.user?.telegram_id),
+    });
+  }
+
+  if (status.linuxdo_oauth !== undefined) {
+    providerCards.push({
+      key: 'linuxdo',
+      icon: <SiLinux size={20} color='#f97316' />,
+      iconBg: 'rgba(249,115,22,0.1)',
+      name: 'LinuxDO',
+      detail: userState.user?.linux_do_id || '',
+      connected: isBound(userState.user?.linux_do_id),
+      onClick: () => onLinuxDOOAuthClicked(status.linuxdo_client_id),
+      actionLabel: status.linuxdo_oauth ? t('绑定') : t('未启用'),
+      disabled: isBound(userState.user?.linux_do_id) || !status.linuxdo_oauth,
+    });
+  }
+
+  if (status.oidc_enabled !== undefined) {
+    providerCards.push({
+      key: 'oidc',
+      icon: (
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#a855f7' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4'/></svg>
+      ),
+      iconBg: 'rgba(168,85,247,0.1)',
+      name: 'OIDC',
+      detail: userState.user?.oidc_id || '',
+      connected: isBound(userState.user?.oidc_id),
+      statusLabel: isBound(userState.user?.oidc_id) ? t('settings.active') : undefined,
+      onClick: () => onOIDCClicked(status.oidc_authorization_endpoint, status.oidc_client_id),
+      actionLabel: status.oidc_enabled ? t('绑定') : t('未启用'),
+      disabled: isBound(userState.user?.oidc_id) || !status.oidc_enabled,
+    });
+  }
+
+  if (status.custom_oauth_providers) {
+    status.custom_oauth_providers.forEach((provider) => {
+      const bound = isCustomOAuthBound(provider.id);
+      const binding = getCustomOAuthBinding(provider.id);
+      providerCards.push({
+        key: `custom_${provider.slug}`,
+        icon: getOAuthProviderIcon(provider.icon || binding?.provider_icon || '', 20),
+        iconBg: 'var(--bg-subtle)',
+        name: provider.name,
+        detail: bound ? binding?.provider_user_id || '' : '',
+        connected: bound,
+        onClick: bound ? () => handleUnbindCustomOAuth(provider.id, provider.name) : () => handleBindCustomOAuth(provider),
+        actionLabel: bound ? t('解绑') : t('绑定'),
+        actionDanger: bound,
+        disabled: false,
+        loading: customOAuthLoading[provider.id],
+      });
+    });
+  }
+
+  const linkedCount = providerCards.filter((c) => c.connected).length;
+
+  const securityItems = [
+    {
+      key: 'token',
+      iconBg: 'rgba(0,114,255,0.08)',
+      iconColor: 'var(--accent)',
+      icon: (
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><circle cx='12' cy='12' r='3'/><path d='M12 1v6m0 6v6m11-7h-6m-6 0H1m15.36-5.36l-4.24 4.24m-4.24-4.24L3.64 3.64m12.72 12.72l-4.24-4.24m-4.24 4.24l-4.24 4.24'/></svg>
+      ),
+      title: t('系统访问令牌'),
+      desc: t('用于API调用的身份验证令牌，请妥善保管'),
+      action: t('生成令牌'),
+      actionLabel: systemToken ? t('重新生成') : t('生成令牌'),
+      onAction: generateAccessToken,
+      extra: systemToken ? (
+        <div className='mt-3 w-full'>
+          <Input
+            readonly
+            value={systemToken}
+            onClick={handleSystemTokenClick}
+            size='default'
+            prefix={<IconKey />}
+            style={{ width: '100%' }}
+          />
         </div>
-        <div>
-          <h3
-            className='text-base font-semibold leading-tight'
-            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}
+      ) : null,
+    },
+    {
+      key: 'password',
+      iconBg: 'rgba(0,114,255,0.08)',
+      iconColor: 'var(--accent)',
+      icon: (
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><rect x='3' y='11' width='18' height='11' rx='2' ry='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>
+      ),
+      title: t('密码管理'),
+      desc: t('定期更改密码可以提高账户安全性'),
+      actionLabel: t('修改密码'),
+      onAction: () => setShowChangePasswordModal(true),
+    },
+    {
+      key: 'passkey',
+      iconBg: 'rgba(0,114,255,0.08)',
+      iconColor: 'var(--accent)',
+      icon: (
+        <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M7 11V7a5 5 0 0 1 9.9-1'/><path d='M18.5 11H20a2 2 0 0 1 2 2v2.5'/><path d='M2 16v-1a2 2 0 0 1 2-2h.5'/><circle cx='12' cy='16' r='3'/><path d='M12 19v3'/></svg>
+      ),
+      title: t('Passkey 登录'),
+      desc: passkeyEnabled
+        ? t('已启用 Passkey，无需密码即可登录')
+        : t('使用 Passkey 实现免密且更安全的登录体验'),
+      actionLabel: passkeyEnabled ? t('解绑 Passkey') : t('注册 Passkey'),
+      actionDanger: passkeyEnabled,
+      onAction: passkeyEnabled
+        ? () => {
+            Modal.confirm({
+              title: t('确认解绑 Passkey'),
+              content: t('解绑后将无法使用 Passkey 登录，确定要继续吗？'),
+              okText: t('确认解绑'),
+              cancelText: t('取消'),
+              okType: 'danger',
+              onOk: onPasskeyDelete,
+            });
+          }
+        : onPasskeyRegister,
+      disabled: !passkeySupported && !passkeyEnabled,
+      loading: passkeyEnabled ? passkeyDeleteLoading : passkeyRegisterLoading,
+      statusExtra: !passkeySupported ? t('当前设备不支持 Passkey') : `${t('最后使用时间')}：${lastUsedLabel}`,
+    },
+  ];
+
+  return (
+    <>
+      {/* Section: Account Connections */}
+      <section>
+        <div className='flex items-center justify-between mb-6'>
+          <h2
+            className='text-xl sm:text-2xl font-bold'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
           >
-            {t('账户管理')}
-          </h3>
-          <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)', margin: 0 }}>
-            {t('账户绑定、安全设置和身份验证')}
+            {t('settings.accountConnections')}
+          </h2>
+          <span className='text-sm font-medium' style={{ color: 'var(--text-muted)' }}>
+            {t('settings.accountsLinked', { count: linkedCount })}
+          </span>
+        </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'>
+          {providerCards.map((p) => (
+            <div
+              key={p.key}
+              className='group'
+              style={cardStyle}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface)'; }}
+            >
+              <div className='flex items-start justify-between mb-3'>
+                <div style={iconBoxStyle(p.iconBg)}>{p.icon}</div>
+                {statusBadge(p.connected, p.statusLabel)}
+              </div>
+              <h3 className='font-bold text-sm mb-0.5' style={{ color: 'var(--text-primary)' }}>{p.name}</h3>
+              <p className='text-xs truncate mb-3' style={{ color: 'var(--text-muted)', minHeight: 16 }}>
+                {p.detail ? (
+                  <Typography.Paragraph copyable={{ content: p.detail }} className='!text-xs !mb-0' style={{ color: 'var(--text-muted)' }}>
+                    {p.detail}
+                  </Typography.Paragraph>
+                ) : (
+                  p.connected ? '' : t('settings.notConnected')
+                )}
+              </p>
+              {!p.connected && !p.disabled && (
+                <button
+                  className='text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity'
+                  style={{ color: p.actionDanger ? 'var(--error)' : 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                  onClick={p.onClick}
+                >
+                  {p.actionLabel}
+                </button>
+              )}
+              {p.connected && !p.disabled && p.actionDanger && (
+                <button
+                  className='text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity'
+                  style={{ color: 'var(--error)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                  onClick={p.onClick}
+                >
+                  {p.actionLabel}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Telegram Bind Modal */}
+      <Modal
+        title={t('绑定 Telegram')}
+        visible={showTelegramBindModal}
+        onCancel={() => setShowTelegramBindModal(false)}
+        footer={null}
+      >
+        <div className='my-3 text-sm' style={{ color: 'var(--text-secondary)' }}>
+          {t('点击下方按钮通过 Telegram 完成绑定')}
+        </div>
+        <div className='flex justify-center'>
+          <div className='scale-90'>
+            <TelegramLoginButton
+              dataAuthUrl='/api/oauth/telegram/bind'
+              botName={status.telegram_bot_name}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Section: Security Infrastructure */}
+      <section className='grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8'>
+        <div className='lg:col-span-1'>
+          <h2
+            className='text-xl sm:text-2xl font-bold mb-3'
+            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
+          >
+            {t('settings.securityInfra')}
+          </h2>
+          <p className='text-sm leading-relaxed' style={{ color: 'var(--text-muted)' }}>
+            {t('settings.securityInfraDesc')}
           </p>
         </div>
-      </div>
-
-      <div className='p-5'>
-      <Tabs type='card' defaultActiveKey='binding'>
-        {/* 账户绑定 Tab */}
-        <TabPane
-          tab={
-            <div className='flex items-center'>
-              <UserPlus size={16} className='mr-2' />
-              {t('账户绑定')}
-            </div>
-          }
-          itemKey='binding'
-        >
-          <div className='py-4'>
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-              {/* 邮箱绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <IconMail
-                        size='default'
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('邮箱')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.email,
-                          t('邮箱地址'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      onClick={() => setShowEmailBindModal(true)}
-                    >
-                      {isBound(userState.user?.email)
-                        ? t('修改绑定')
-                        : t('绑定')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* 微信绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <SiWechat
-                        size={20}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('微信')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {!status.wechat_login
-                          ? t('未启用')
-                          : isBound(userState.user?.wechat_id)
-                            ? t('已绑定')
-                            : t('未绑定')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      disabled={!status.wechat_login}
-                      onClick={() => setShowWeChatBindModal(true)}
-                    >
-                      {isBound(userState.user?.wechat_id)
-                        ? t('修改绑定')
-                        : status.wechat_login
-                          ? t('绑定')
-                          : t('未启用')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* GitHub绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <IconGithubLogo
-                        size='default'
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('GitHub')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.github_id,
-                          t('GitHub ID'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      onClick={() =>
-                        onGitHubOAuthClicked(status.github_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.github_id) ||
-                        !status.github_oauth
-                      }
-                    >
-                      {status.github_oauth ? t('绑定') : t('未启用')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Discord绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <SiDiscord
-                        size={20}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('Discord')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.discord_id,
-                          t('Discord ID'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      onClick={() =>
-                        onDiscordOAuthClicked(status.discord_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.discord_id) ||
-                        !status.discord_oauth
-                      }
-                    >
-                      {status.discord_oauth ? t('绑定') : t('未启用')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* OIDC绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <IconShield
-                        size='default'
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('OIDC')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.oidc_id,
-                          t('OIDC ID'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      onClick={() =>
-                        onOIDCClicked(
-                          status.oidc_authorization_endpoint,
-                          status.oidc_client_id,
-                        )
-                      }
-                      disabled={
-                        isBound(userState.user?.oidc_id) || !status.oidc_enabled
-                      }
-                    >
-                      {status.oidc_enabled ? t('绑定') : t('未启用')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Telegram绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <SiTelegram
-                        size={20}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('Telegram')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.telegram_id,
-                          t('Telegram ID'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    {status.telegram_oauth ? (
-                      isBound(userState.user?.telegram_id) ? (
-                        <Button
-                          disabled
-                          size='small'
-                          type='primary'
-                          theme='outline'
-                        >
-                          {t('已绑定')}
-                        </Button>
-                      ) : (
-                        <Button
-                          type='primary'
-                          theme='outline'
-                          size='small'
-                          onClick={() => setShowTelegramBindModal(true)}
-                        >
-                          {t('绑定')}
-                        </Button>
-                      )
-                    ) : (
-                      <Button
-                        disabled
-                        size='small'
-                        type='primary'
-                        theme='outline'
-                      >
-                        {t('未启用')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
-              <Modal
-                title={t('绑定 Telegram')}
-                visible={showTelegramBindModal}
-                onCancel={() => setShowTelegramBindModal(false)}
-                footer={null}
+        <div className='lg:col-span-2 flex flex-col gap-3'>
+          {securityItems.map((item) => (
+            <div
+              key={item.key}
+              className='flex items-center gap-4 sm:gap-5 group'
+              style={{
+                ...cardStyle,
+                padding: '16px 20px',
+                cursor: 'default',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateX(4px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateX(0)'; }}
+            >
+              <div
+                className='flex items-center justify-center flex-shrink-0'
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  background: item.iconBg,
+                  color: item.iconColor,
+                }}
               >
-                <div className='my-3 text-sm' style={{ color: 'var(--text-secondary)' }}>
-                  {t('点击下方按钮通过 Telegram 完成绑定')}
-                </div>
-                <div className='flex justify-center'>
-                  <div className='scale-90'>
-                    <TelegramLoginButton
-                      dataAuthUrl='/api/oauth/telegram/bind'
-                      botName={status.telegram_bot_name}
-                    />
-                  </div>
-                </div>
-              </Modal>
-
-              {/* LinuxDO绑定 */}
-              <Card style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                <div className='flex items-center justify-between gap-3'>
-                  <div className='flex items-center flex-1 min-w-0'>
-                    <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                      <SiLinux
-                        size={20}
-                        style={{ color: 'var(--text-secondary)' }}
-                      />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                        {t('LinuxDO')}
-                      </div>
-                      <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                        {renderAccountInfo(
-                          userState.user?.linux_do_id,
-                          t('LinuxDO ID'),
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className='flex-shrink-0'>
-                    <Button
-                      type='primary'
-                      theme='outline'
-                      size='small'
-                      onClick={() =>
-                        onLinuxDOOAuthClicked(status.linuxdo_client_id)
-                      }
-                      disabled={
-                        isBound(userState.user?.linux_do_id) ||
-                        !status.linuxdo_oauth
-                      }
-                    >
-                      {status.linuxdo_oauth ? t('绑定') : t('未启用')}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* 自定义 OAuth 提供商绑定 */}
-              {status.custom_oauth_providers &&
-                status.custom_oauth_providers.map((provider) => {
-                  const bound = isCustomOAuthBound(provider.id);
-                  const binding = getCustomOAuthBinding(provider.id);
-                  return (
-                    <Card key={provider.slug} style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
-                      <div className='flex items-center justify-between gap-3'>
-                        <div className='flex items-center flex-1 min-w-0'>
-                          <div className='w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                            {getOAuthProviderIcon(
-                              provider.icon || binding?.provider_icon || '',
-                              20,
-                            )}
-                          </div>
-                          <div className='flex-1 min-w-0'>
-                            <div className='font-medium' style={{ color: 'var(--text-primary)' }}>
-                              {provider.name}
-                            </div>
-                            <div className='text-sm truncate' style={{ color: 'var(--text-muted)' }}>
-                              {bound
-                                ? renderAccountInfo(
-                                    binding?.provider_user_id,
-                                    t('{{name}} ID', { name: provider.name }),
-                                  )
-                                : t('未绑定')}
-                            </div>
-                          </div>
-                        </div>
-                        <div className='flex-shrink-0'>
-                          {bound ? (
-                            <Button
-                              type='danger'
-                              theme='outline'
-                              size='small'
-                              loading={customOAuthLoading[provider.id]}
-                              onClick={() =>
-                                handleUnbindCustomOAuth(provider.id, provider.name)
-                              }
-                            >
-                              {t('解绑')}
-                            </Button>
-                          ) : (
-                            <Button
-                              type='primary'
-                              theme='outline'
-                              size='small'
-                              onClick={() => handleBindCustomOAuth(provider)}
-                            >
-                              {t('绑定')}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
+                {item.icon}
+              </div>
+              <div className='flex-grow min-w-0'>
+                <h4 className='font-bold text-sm' style={{ color: 'var(--text-primary)' }}>{item.title}</h4>
+                <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>{item.desc}</p>
+                {item.statusExtra && (
+                  <p className='text-[11px] mt-1' style={{ color: 'var(--text-muted)' }}>{item.statusExtra}</p>
+                )}
+                {item.extra}
+              </div>
+              <button
+                className='flex-shrink-0 px-3 py-1.5 text-xs font-bold transition-colors'
+                style={{
+                  borderRadius: 'var(--radius-sm)',
+                  background: item.actionDanger ? 'transparent' : 'var(--bg-subtle)',
+                  color: item.actionDanger ? 'var(--error)' : 'var(--text-primary)',
+                  border: item.actionDanger ? '1px solid var(--error)' : '1px solid var(--border-subtle)',
+                  cursor: item.disabled ? 'not-allowed' : 'pointer',
+                  opacity: item.disabled ? 0.5 : 1,
+                }}
+                disabled={item.disabled || item.loading}
+                onClick={item.onAction}
+              >
+                {item.loading ? '...' : item.actionLabel}
+              </button>
             </div>
+          ))}
+
+          {/* 2FA */}
+          <TwoFASetting t={t} />
+
+          {/* Delete Account */}
+          <div
+            className='flex items-center gap-4 sm:gap-5'
+            style={{
+              ...cardStyle,
+              padding: '16px 20px',
+              background: 'rgba(186,26,26,0.03)',
+              borderColor: 'rgba(186,26,26,0.12)',
+            }}
+          >
+            <div
+              className='flex items-center justify-center flex-shrink-0'
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                background: 'rgba(186,26,26,0.08)',
+                color: '#dc2626',
+              }}
+            >
+              <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M18.36 6.64A9 9 0 1 1 5.64 5.64'/><path d='M12 2v10'/></svg>
+            </div>
+            <div className='flex-grow'>
+              <h4 className='font-bold text-sm' style={{ color: '#dc2626' }}>{t('删除账户')}</h4>
+              <p className='text-xs mt-0.5' style={{ color: 'rgba(186,26,26,0.6)' }}>
+                {t('此操作不可逆，所有数据将被永久删除')}
+              </p>
+            </div>
+            <button
+              className='flex-shrink-0 text-xs font-bold hover:underline'
+              style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}
+              onClick={() => setShowAccountDeleteModal(true)}
+            >
+              {t('settings.deactivate')}
+            </button>
           </div>
-        </TabPane>
-
-        {/* 安全设置 Tab */}
-        <TabPane
-          tab={
-            <div className='flex items-center'>
-              <ShieldCheck size={16} className='mr-2' />
-              {t('安全设置')}
-            </div>
-          }
-          itemKey='security'
-        >
-          <div className='py-4'>
-            <div className='space-y-6'>
-              <Space vertical className='w-full'>
-                {/* 系统访问令牌 */}
-                <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                        <IconKey size='large' style={{ color: 'var(--text-secondary)' }} />
-                      </div>
-                      <div className='flex-1'>
-                        <h6 className='mb-1 text-sm' style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                          {t('系统访问令牌')}
-                        </h6>
-                        <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
-                          {t('用于API调用的身份验证令牌，请妥善保管')}
-                        </span>
-                        {systemToken && (
-                          <div className='mt-3'>
-                            <Input
-                              readonly
-                              value={systemToken}
-                              onClick={handleSystemTokenClick}
-                              size='large'
-                              prefix={<IconKey />}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      type='primary'
-                      theme='solid'
-                      onClick={generateAccessToken}
-                      className='w-full sm:w-auto'
-                      icon={<IconKey />}
-                    >
-                      {systemToken ? t('重新生成') : t('生成令牌')}
-                    </Button>
-                  </div>
-                </Card>
-
-                {/* 密码管理 */}
-                <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                        <IconLock size='large' style={{ color: 'var(--text-secondary)' }} />
-                      </div>
-                      <div>
-                        <h6 className='mb-1 text-sm' style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                          {t('密码管理')}
-                        </h6>
-                        <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
-                          {t('定期更改密码可以提高账户安全性')}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type='primary'
-                      theme='solid'
-                      onClick={() => setShowChangePasswordModal(true)}
-                      className='w-full sm:w-auto'
-                      icon={<IconLock />}
-                    >
-                      {t('修改密码')}
-                    </Button>
-                  </div>
-                </Card>
-
-                {/* Passkey 设置 */}
-                <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                        <IconKey size='large' style={{ color: 'var(--text-secondary)' }} />
-                      </div>
-                      <div>
-                        <h6 className='mb-1 text-sm' style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                          {t('Passkey 登录')}
-                        </h6>
-                        <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
-                          {passkeyEnabled
-                            ? t('已启用 Passkey，无需密码即可登录')
-                            : t('使用 Passkey 实现免密且更安全的登录体验')}
-                        </span>
-                        <div className='mt-2 text-xs space-y-1' style={{ color: 'var(--text-muted)' }}>
-                          <div>
-                            {t('最后使用时间')}：{lastUsedLabel}
-                          </div>
-                          {/*{passkeyEnabled && (*/}
-                          {/*  <div>*/}
-                          {/*    {t('备份支持')}：*/}
-                          {/*    {passkeyStatus?.backup_eligible*/}
-                          {/*      ? t('支持备份')*/}
-                          {/*      : t('不支持')}*/}
-                          {/*    ，{t('备份状态')}：*/}
-                          {/*    {passkeyStatus?.backup_state ? t('已备份') : t('未备份')}*/}
-                          {/*  </div>*/}
-                          {/*)}*/}
-                          {!passkeySupported && (
-                            <div style={{ color: 'var(--warning)' }}>
-                              {t('当前设备不支持 Passkey')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      type={passkeyEnabled ? 'danger' : 'primary'}
-                      theme={passkeyEnabled ? 'solid' : 'solid'}
-                      onClick={
-                        passkeyEnabled
-                          ? () => {
-                              Modal.confirm({
-                                title: t('确认解绑 Passkey'),
-                                content: t(
-                                  '解绑后将无法使用 Passkey 登录，确定要继续吗？',
-                                ),
-                                okText: t('确认解绑'),
-                                cancelText: t('取消'),
-                                okType: 'danger',
-                                onOk: onPasskeyDelete,
-                              });
-                            }
-                          : onPasskeyRegister
-                      }
-                      className='w-full sm:w-auto'
-                      icon={<IconKey />}
-                      disabled={!passkeySupported && !passkeyEnabled}
-                      loading={
-                        passkeyEnabled
-                          ? passkeyDeleteLoading
-                          : passkeyRegisterLoading
-                      }
-                    >
-                      {passkeyEnabled ? t('解绑 Passkey') : t('注册 Passkey')}
-                    </Button>
-                  </div>
-                </Card>
-
-                {/* 两步验证设置 */}
-                <TwoFASetting t={t} />
-
-                {/* 危险区域 */}
-                <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
-                  <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
-                    <div className='flex items-start w-full sm:w-auto'>
-                      <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
-                        <IconDelete size='large' style={{ color: 'var(--text-secondary)' }} />
-                      </div>
-                      <div>
-                        <h6 className='mb-1 text-sm' style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                          {t('删除账户')}
-                        </h6>
-                        <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
-                          {t('此操作不可逆，所有数据将被永久删除')}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type='danger'
-                      theme='solid'
-                      onClick={() => setShowAccountDeleteModal(true)}
-                      className='w-full sm:w-auto'
-                      icon={<IconDelete />}
-                    >
-                      {t('删除账户')}
-                    </Button>
-                  </div>
-                </Card>
-              </Space>
-            </div>
-          </div>
-        </TabPane>
-      </Tabs>
-      </div>
-    </div>
+        </div>
+      </section>
+    </>
   );
 };
 

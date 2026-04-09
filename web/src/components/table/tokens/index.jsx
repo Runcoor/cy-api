@@ -32,16 +32,15 @@ import {
   getModelCategories,
   selectFilter,
 } from '../../../helpers';
-import CardPro from '../../common/ui/CardPro';
+import { IconPlus, IconDelete, IconCopy } from '@douyinfe/semi-icons';
+import CardPageLayout from '../../common/ui/CardPageLayout';
 import TokensTable from './TokensTable';
-import TokensActions from './TokensActions';
 import TokensFilters from './TokensFilters';
-import TokensDescription from './TokensDescription';
+import CopyTokensModal from './modals/CopyTokensModal';
+import DeleteTokensModal from './modals/DeleteTokensModal';
 import EditTokenModal from './modals/EditTokenModal';
 import CCSwitchModal from './modals/CCSwitchModal';
 import { useTokensData } from '../../../hooks/tokens/useTokensData';
-import { useIsMobile } from '../../../hooks/common/useIsMobile';
-import { createCardProPagination } from '../../../helpers/utils';
 
 function TokensPage() {
   // Define the function first, then pass it into the hook to avoid TDZ errors
@@ -51,7 +50,6 @@ function TokensPage() {
     (key) => openFluentNotificationRef.current?.(key),
     (key) => openCCSwitchModalRef.current?.(key),
   );
-  const isMobile = useIsMobile();
   const latestRef = useRef({
     tokens: [],
     selectedKeys: [],
@@ -360,20 +358,162 @@ function TokensPage() {
     batchCopyTokens,
     batchDeleteTokens,
 
-    // Filters state
-    formInitValues,
-    setFormApi,
+    // Search state
+    searchQuery,
+    setSearchQuery,
     searchTokens,
     loading,
-    searching,
 
-    // Description state
-    compactMode,
-    setCompactMode,
+    // Pagination
+    tokenCount,
+    activePage,
+    pageSize,
+    handlePageChange,
 
     // Translation
     t,
   } = tokensData;
+
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleBatchCopy = () => {
+    if (selectedKeys.length === 0) {
+      showError(t('请至少选择一个令牌！'));
+      return;
+    }
+    setShowCopyModal(true);
+  };
+  const handleBatchDelete = () => {
+    if (selectedKeys.length === 0) {
+      showError(t('请至少选择一个令牌！'));
+      return;
+    }
+    setShowDeleteModal(true);
+  };
+
+  const primaryAction = (
+    <button
+      type='button'
+      className='cp-primary-btn'
+      onClick={() => {
+        setEditingToken({ id: undefined });
+        setShowEdit(true);
+      }}
+    >
+      <IconPlus size='default' />
+      {t('添加令牌')}
+    </button>
+  );
+
+  const secondaryActions = (
+    <>
+      {selectedKeys.length > 0 && (
+        <>
+          <button
+            type='button'
+            className='cp-ghost-btn'
+            onClick={handleBatchCopy}
+          >
+            <IconCopy size='small' />
+            {t('复制所选')}
+          </button>
+          <button
+            type='button'
+            className='cp-ghost-btn danger'
+            onClick={handleBatchDelete}
+          >
+            <IconDelete size='small' />
+            {t('删除所选')}
+          </button>
+        </>
+      )}
+    </>
+  );
+
+  const filterBar = (
+    <TokensFilters
+      value={searchQuery}
+      onChange={(v) => setSearchQuery(v)}
+      onSubmit={(v) => searchTokens(1, pageSize, v)}
+      onRefresh={() => refresh()}
+      loading={loading}
+      t={t}
+    />
+  );
+
+  // Lightweight pagination matching the HTML mockup footer
+  const totalPages = Math.max(1, Math.ceil(tokenCount / (pageSize || 1)));
+  const renderPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (activePage <= 4) return [1, 2, 3, 4, 5, '…', totalPages];
+    if (activePage >= totalPages - 3)
+      return [1, '…', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    return [1, '…', activePage - 1, activePage, activePage + 1, '…', totalPages];
+  };
+
+  const footer = tokenCount > 0 ? (
+    <div className='cp-footer'>
+      <div className='cp-footer-count'>
+        {t('共')} <strong>{tokenCount}</strong> {t('条')}
+      </div>
+      <div className='flex items-center gap-1'>
+        <button
+          type='button'
+          className='cp-icon-btn'
+          style={{ width: 36, height: 36 }}
+          onClick={() => handlePageChange(Math.max(1, activePage - 1))}
+          disabled={activePage <= 1}
+        >
+          ‹
+        </button>
+        {renderPageNumbers().map((p, i) =>
+          p === '…' ? (
+            <span
+              key={`e-${i}`}
+              style={{ padding: '0 6px', color: 'var(--text-muted)' }}
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={p}
+              type='button'
+              onClick={() => handlePageChange(p)}
+              style={{
+                minWidth: 36,
+                height: 36,
+                padding: '0 10px',
+                borderRadius: 'var(--radius-md)',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+                fontSize: 13,
+                fontWeight: p === activePage ? 700 : 500,
+                color: p === activePage ? '#fff' : 'var(--text-secondary)',
+                background: p === activePage ? 'var(--accent-gradient)' : 'transparent',
+                boxShadow: p === activePage ? '0 4px 12px -4px rgba(0,114,255,0.35)' : 'none',
+                transition: 'background var(--ease-micro), color var(--ease-micro)',
+              }}
+            >
+              {p}
+            </button>
+          ),
+        )}
+        <button
+          type='button'
+          className='cp-icon-btn'
+          style={{ width: 36, height: 36 }}
+          onClick={() => handlePageChange(Math.min(totalPages, activePage + 1))}
+          disabled={activePage >= totalPages}
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -383,59 +523,43 @@ function TokensPage() {
         visiable={showEdit}
         handleClose={closeEdit}
       />
-
       <CCSwitchModal
         visible={ccSwitchVisible}
         onClose={() => setCCSwitchVisible(false)}
         tokenKey={ccSwitchKey}
         modelOptions={modelOptions}
       />
+      <CopyTokensModal
+        visible={showCopyModal}
+        onCancel={() => setShowCopyModal(false)}
+        batchCopyTokens={batchCopyTokens}
+        t={t}
+      />
+      <DeleteTokensModal
+        visible={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          batchDeleteTokens();
+          setShowDeleteModal(false);
+        }}
+        selectedKeys={selectedKeys}
+        t={t}
+      />
 
-      <CardPro
-        type='type1'
-        descriptionArea={
-          <TokensDescription
-            compactMode={compactMode}
-            setCompactMode={setCompactMode}
-            t={t}
-          />
+      <CardPageLayout
+        title={t('令牌管理')}
+        subtitle={
+          tokenCount > 0
+            ? `${t('共')} ${tokenCount} ${t('个令牌')}`
+            : t('创建和管理你的 API 访问令牌')
         }
-        actionsArea={
-          <div className='flex flex-col md:flex-row justify-between items-center gap-2 w-full'>
-            <TokensActions
-              selectedKeys={selectedKeys}
-              setEditingToken={setEditingToken}
-              setShowEdit={setShowEdit}
-              batchCopyTokens={batchCopyTokens}
-              batchDeleteTokens={batchDeleteTokens}
-              t={t}
-            />
-
-            <div className='w-full md:w-full lg:w-auto order-1 md:order-2'>
-              <TokensFilters
-                formInitValues={formInitValues}
-                setFormApi={setFormApi}
-                searchTokens={searchTokens}
-                loading={loading}
-                searching={searching}
-                t={t}
-              />
-            </div>
-          </div>
-        }
-        paginationArea={createCardProPagination({
-          currentPage: tokensData.activePage,
-          pageSize: tokensData.pageSize,
-          total: tokensData.tokenCount,
-          onPageChange: tokensData.handlePageChange,
-          onPageSizeChange: tokensData.handlePageSizeChange,
-          isMobile: isMobile,
-          t: tokensData.t,
-        })}
-        t={tokensData.t}
+        primaryAction={primaryAction}
+        secondaryActions={secondaryActions}
+        filterBar={filterBar}
+        footer={footer}
       >
         <TokensTable {...tokensData} />
-      </CardPro>
+      </CardPageLayout>
     </>
   );
 }

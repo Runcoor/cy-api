@@ -61,7 +61,12 @@ const PageLayout = () => {
     '/pricing',
   ];
 
-  const shouldHideFooter = cardProPages.includes(location.pathname);
+  // Hide footer on ALL console routes — not just the old cardProPages list.
+  // The footer (关于我们/文档/相关项目/友情链接) only belongs on the public
+  // homepage; it's noise inside the dashboard.
+  const shouldHideFooter =
+    cardProPages.includes(location.pathname) ||
+    location.pathname.startsWith('/console');
 
   const shouldInnerPadding =
     location.pathname.includes('/console') &&
@@ -149,7 +154,6 @@ const PageLayout = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        overflow: isMobile ? 'visible' : 'hidden',
         background: 'var(--bg-base)',
       }}
     >
@@ -171,11 +175,11 @@ const PageLayout = () => {
         />
       </Header>
       <Layout
+        className='app-inner-layout'
         style={{
-          overflow: isMobile ? 'visible' : 'auto',
           display: 'flex',
           flexDirection: 'column',
-          marginTop: 'var(--header-height)',
+          paddingTop: 'var(--header-height)',
           background: 'var(--bg-base)',
         }}
       >
@@ -233,11 +237,11 @@ const PageLayout = () => {
             className='app-content'
             style={{
               flex: '1 0 auto',
-              overflowY: isMobile ? 'visible' : 'auto',
+              overflow: 'visible',
               WebkitOverflowScrolling: 'touch',
               padding: shouldInnerPadding ? (isMobile ? '12px' : '20px') : '0',
               position: 'relative',
-              background: 'var(--bg-base)',
+              background: 'transparent',
             }}
           >
             <App />

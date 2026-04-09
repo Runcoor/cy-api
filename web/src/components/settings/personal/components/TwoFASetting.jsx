@@ -365,8 +365,18 @@ const TwoFASetting = ({ t }) => {
   };
 
   return (
-    <>
-      <Card className='w-full' style={{ borderRadius: 'var(--radius-lg)' }}>
+    <div className='w-full'>
+      <Card
+        className='w-full twofa-compact-card'
+        style={{
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--border-subtle)',
+          background: 'var(--surface)',
+          margin: 0,
+          boxShadow: 'none',
+        }}
+        bodyStyle={{ padding: '16px 20px' }}
+      >
         <div className='flex flex-col sm:flex-row items-start sm:justify-between gap-4'>
           <div className='flex items-start w-full sm:w-auto'>
             <div className='w-12 h-12 flex items-center justify-center mr-4 flex-shrink-0' style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)' }}>
@@ -728,7 +738,7 @@ const TwoFASetting = ({ t }) => {
           )}
         </div>
       </Modal>
-    </>
+    </div>
   );
 };
 

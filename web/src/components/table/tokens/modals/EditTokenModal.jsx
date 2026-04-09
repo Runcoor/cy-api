@@ -51,6 +51,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { StatusContext } from '../../../../context/Status';
 import MacSpinner from '../../../common/ui/MacSpinner';
+import TokenCreatedModal from './TokenCreatedModal';
 
 const { Text, Title } = Typography;
 
@@ -62,6 +63,8 @@ const EditTokenModal = (props) => {
   const formApiRef = useRef(null);
   const [models, setModels] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [createdKeys, setCreatedKeys] = useState([]);
+  const [showCreatedModal, setShowCreatedModal] = useState(false);
   const isEdit = props.editingToken.id !== undefined;
 
   const getInitValues = () => ({
@@ -236,6 +239,7 @@ const EditTokenModal = (props) => {
     } else {
       const count = parseInt(values.tokenCount, 10) || 1;
       let successCount = 0;
+      const collectedKeys = [];
       for (let i = 0; i < count; i++) {
         let { tokenCount: _tc, ...localInputs } = values;
         const baseName =
@@ -259,18 +263,24 @@ const EditTokenModal = (props) => {
         localInputs.model_limits = localInputs.model_limits.join(',');
         localInputs.model_limits_enabled = localInputs.model_limits.length > 0;
         let res = await API.post(`/api/token/`, localInputs);
-        const { success, message } = res.data;
+        const { success, message, data } = res.data;
         if (success) {
           successCount++;
+          if (data) collectedKeys.push(data);
         } else {
           showError(t(message));
           break;
         }
       }
       if (successCount > 0) {
-        showSuccess(t('令牌创建成功，请在列表页面点击复制获取令牌！'));
         props.refresh();
         props.handleClose();
+        if (collectedKeys.length > 0) {
+          setCreatedKeys(collectedKeys);
+          setShowCreatedModal(true);
+        } else {
+          showSuccess(t('令牌创建成功，请在列表页面点击复制获取令牌！'));
+        }
       }
     }
     setLoading(false);
@@ -278,6 +288,7 @@ const EditTokenModal = (props) => {
   };
 
   return (
+    <>
     <SideSheet
       placement={isEdit ? 'right' : 'left'}
       title={
@@ -580,6 +591,17 @@ const EditTokenModal = (props) => {
         </Form>
       </MacSpinner>
     </SideSheet>
+
+    <TokenCreatedModal
+      visible={showCreatedModal}
+      onClose={() => {
+        setShowCreatedModal(false);
+        setCreatedKeys([]);
+      }}
+      tokenKeys={createdKeys}
+      t={t}
+    />
+    </>
   );
 };
 

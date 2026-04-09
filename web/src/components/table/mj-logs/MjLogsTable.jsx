@@ -17,90 +17,269 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useMemo } from 'react';
-import { Empty } from '@douyinfe/semi-ui';
-import CardTable from '../../common/ui/CardTable';
+import React from 'react';
+import { Progress, Tooltip } from '@douyinfe/semi-ui';
+import { IconEyeOpened, IconImage } from '@douyinfe/semi-icons';
+import { Image as ImageIcon } from 'lucide-react';
+import CardList from '../../common/ui/CardList';
+import CardRow from '../../common/ui/CardRow';
 import {
-  IllustrationNoResult,
-  IllustrationNoResultDark,
-} from '@douyinfe/semi-illustrations';
-import { getMjLogsColumns } from './MjLogsColumnDefs';
+  renderType,
+  renderStatus,
+  renderDuration,
+  renderTimestamp,
+  mjStatusStyleMap,
+  InlineBadge,
+} from './MjLogsColumnDefs';
+
+const STATUS_META = {
+  SUCCESS:     'success',
+  NOT_START:   'muted',
+  SUBMITTED:   'warning',
+  IN_PROGRESS: 'accent',
+  FAILURE:     'error',
+  MODAL:       'warning',
+};
 
 const MjLogsTable = (mjLogsData) => {
   const {
     logs,
     loading,
-    activePage,
-    pageSize,
-    logCount,
-    compactMode,
-    visibleColumns,
-    handlePageChange,
-    handlePageSizeChange,
-    copyText,
     openContentModal,
     openImageModal,
     isAdminUser,
     t,
-    COLUMN_KEYS,
   } = mjLogsData;
 
-  // Get all columns
-  const allColumns = useMemo(() => {
-    return getMjLogsColumns({
-      t,
-      COLUMN_KEYS,
-      copyText,
-      openContentModal,
-      openImageModal,
-      isAdminUser,
-    });
-  }, [t, COLUMN_KEYS, copyText, openContentModal, openImageModal, isAdminUser]);
+  const renderCard = (record) => {
+    const statusColor = STATUS_META[record.status] || 'muted';
 
-  // Filter columns based on visibility settings
-  const getVisibleColumns = () => {
-    return allColumns.filter((column) => visibleColumns[column.key]);
+    const fields = [];
+
+    // SUBMIT TIME
+    fields.push({
+      label: t('提交时间'),
+      value: (
+        <span style={{ whiteSpace: 'nowrap' }}>
+          {renderTimestamp(record.submit_time / 1000)}
+        </span>
+      ),
+    });
+
+    // TYPE
+    fields.push({
+      label: t('类型'),
+      value: renderType(record.action, t),
+    });
+
+    // TASK ID (with copy on click)
+    fields.push({
+      label: t('任务 ID'),
+      value: (
+        <Tooltip content={record.mj_id} position='top'>
+          <InlineBadge
+            mono
+            style={{ cursor: 'pointer', fontSize: 11, padding: '0 6px' }}
+          >
+            {record.mj_id
+              ? record.mj_id.length > 18
+                ? record.mj_id.slice(0, 8) + '…' + record.mj_id.slice(-6)
+                : record.mj_id
+              : '—'}
+          </InlineBadge>
+        </Tooltip>
+      ),
+      mono: true,
+    });
+
+    // STATUS
+    fields.push({
+      label: t('状态'),
+      value: renderStatus(record.status, t),
+    });
+
+    // PROGRESS + DURATION
+    const percent = record.progress
+      ? parseInt(record.progress.replace('%', ''))
+      : 0;
+    fields.push({
+      label: t('进度'),
+      value: (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            width: '100%',
+            minWidth: 0,
+          }}
+        >
+          <Progress
+            percent={percent}
+            stroke={
+              record.status === 'FAILURE'
+                ? 'var(--warning)'
+                : record.status === 'SUCCESS'
+                  ? 'var(--success)'
+                  : undefined
+            }
+            showInfo={false}
+            size='small'
+            aria-label='task progress'
+          />
+          <span
+            style={{
+              fontSize: 11,
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            {percent}%
+            {record.finish_time && record.submit_time ? (
+              <>
+                {' · '}
+                {((record.finish_time - record.submit_time) / 1000).toFixed(1)}
+                {t('秒')}
+              </>
+            ) : null}
+          </span>
+        </div>
+      ),
+    });
+
+    // CHANNEL (admin only) or PROMPT summary
+    if (isAdminUser) {
+      fields.push({
+        label: t('渠道'),
+        value: (
+          <InlineBadge mono style={{ fontSize: 11, padding: '0 6px' }}>
+            {record.channel_id || '—'}
+          </InlineBadge>
+        ),
+        align: 'end',
+      });
+    } else if (record.prompt) {
+      fields.push({
+        label: 'Prompt',
+        value: (
+          <span
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              cursor: 'pointer',
+              color: 'var(--text-secondary)',
+            }}
+            title={record.prompt}
+            onClick={(e) => {
+              e.stopPropagation();
+              openContentModal(record.prompt);
+            }}
+          >
+            {record.prompt}
+          </span>
+        ),
+        align: 'end',
+      });
+    }
+
+    const actions = (
+      <>
+        {record.image_url && (
+          <Tooltip content={t('查看图片')} position='top'>
+            <button
+              type='button'
+              onClick={(e) => {
+                e.stopPropagation();
+                openImageModal(record.image_url);
+              }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 'var(--radius-md)',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--accent)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color var(--ease-micro)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--surface-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <ImageIcon size={16} />
+            </button>
+          </Tooltip>
+        )}
+        <Tooltip content={t('查看详情')} position='top'>
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation();
+              const detail = [
+                `${t('任务 ID')}: ${record.mj_id || '—'}`,
+                record.prompt ? `\nPrompt: ${record.prompt}` : '',
+                record.prompt_en ? `\nPrompt (EN): ${record.prompt_en}` : '',
+                record.fail_reason
+                  ? `\n${t('失败原因')}: ${record.fail_reason}`
+                  : '',
+              ]
+                .filter(Boolean)
+                .join('');
+              openContentModal(detail);
+            }}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 'var(--radius-md)',
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition:
+                'background-color var(--ease-micro), color var(--ease-micro)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--surface-hover)';
+              e.currentTarget.style.color = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+          >
+            <IconEyeOpened size='default' />
+          </button>
+        </Tooltip>
+      </>
+    );
+
+    return (
+      <CardRow
+        key={record.key || record.id}
+        statusIcon={<IconImage />}
+        statusColor={statusColor}
+        fields={fields}
+        actions={actions}
+      />
+    );
   };
 
-  const visibleColumnsList = useMemo(() => {
-    return getVisibleColumns();
-  }, [visibleColumns, allColumns]);
-
-  const tableColumns = useMemo(() => {
-    return compactMode
-      ? visibleColumnsList.map(({ fixed, ...rest }) => rest)
-      : visibleColumnsList;
-  }, [compactMode, visibleColumnsList]);
-
   return (
-    <CardTable
-      columns={tableColumns}
+    <CardList
       dataSource={logs}
-      rowKey='key'
+      renderCard={renderCard}
       loading={loading}
-      scroll={compactMode ? undefined : { x: 'max-content' }}
-      className='overflow-hidden' style={{ borderRadius: 'var(--radius-lg)' }}
-      size='middle'
-      empty={
-        <Empty
-          image={<IllustrationNoResult style={{ width: 150, height: 150 }} />}
-          darkModeImage={
-            <IllustrationNoResultDark style={{ width: 150, height: 150 }} />
-          }
-          description={t('搜索无结果')}
-          style={{ padding: 30 }}
-        />
-      }
-      pagination={{
-        currentPage: activePage,
-        pageSize: pageSize,
-        total: logCount,
-        pageSizeOptions: [10, 20, 50, 100],
-        showSizeChanger: true,
-        onPageSizeChange: handlePageSizeChange,
-        onPageChange: handlePageChange,
-      }}
-      hidePagination={true}
+      t={t}
     />
   );
 };

@@ -240,7 +240,7 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
       okButtonProps={{
         style: {
           borderRadius: 'var(--radius-md)',
-          background: 'var(--accent)',
+          background: 'var(--accent-gradient)',
           color: '#fff',
           border: 'none',
         },
@@ -261,8 +261,8 @@ const UpdateConfigModal = ({ visible, onCancel, deployment, onSuccess, t }) => {
         <div
           className='rounded-[var(--radius-lg)] p-4'
           style={{
-            background: 'var(--bg-subtle)',
-            border: '1px solid var(--border-subtle)',
+            background: 'var(--surface)',
+            border: '1px solid var(--border-default)',
           }}
         >
           <div className='flex items-center justify-between'>

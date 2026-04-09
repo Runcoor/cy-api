@@ -48,7 +48,7 @@ const DemoteUserModal = ({ visible, onCancel, onConfirm, user, t }) => {
         style: { background: 'var(--warning)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)' },
       }}
       cancelButtonProps={{
-        style: { borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' },
+        style: { borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)' },
       }}
     >
       <p className='text-sm m-0' style={{ color: 'var(--text-secondary)' }}>

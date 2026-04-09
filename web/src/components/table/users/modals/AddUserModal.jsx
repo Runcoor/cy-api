@@ -118,7 +118,7 @@ const AddUserModal = (props) => {
               loading={loading}
               style={{
                 borderRadius: 'var(--radius-md)',
-                background: 'var(--accent)',
+                background: 'var(--accent-gradient)',
                 color: '#fff',
                 border: 'none',
               }}
@@ -157,7 +157,7 @@ const AddUserModal = (props) => {
                     className='w-7 h-7 flex items-center justify-center flex-shrink-0'
                     style={{
                       borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(0, 122, 255, 0.12)',
+                      background: 'var(--accent-light)',
                       color: 'var(--accent)',
                     }}
                   >

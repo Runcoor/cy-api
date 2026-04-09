@@ -17,113 +17,141 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
-import { Button, Form } from '@douyinfe/semi-ui';
-import { IconSearch } from '@douyinfe/semi-icons';
-
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { DatePicker } from '@douyinfe/semi-ui';
+import {
+  IconSearch,
+  IconRefresh,
+  IconClose,
+  IconCalendar,
+} from '@douyinfe/semi-icons';
 import { DATE_RANGE_PRESETS } from '../../../constants/console.constants';
 
 const MjLogsFilters = ({
-  formInitValues,
-  setFormApi,
-  refresh,
-  setShowColumnSelector,
-  formApi,
-  loading,
+  searchQuery,
+  setSearchQuery,
+  dateRange,
+  setDateRange,
   isAdminUser,
+  onSubmit,
+  onRefresh,
+  loading,
   t,
 }) => {
+  const [localValue, setLocalValue] = useState(searchQuery || '');
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    setLocalValue(searchQuery || '');
+  }, [searchQuery]);
+
+  const scheduleChange = useCallback(
+    (next) => {
+      setLocalValue(next);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        setSearchQuery(next);
+      }, 300);
+    },
+    [setSearchQuery],
+  );
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    setSearchQuery(localValue);
+    if (onSubmit) onSubmit();
+  };
+
+  const handleClear = () => {
+    setLocalValue('');
+    setSearchQuery('');
+    if (onSubmit) onSubmit();
+  };
+
   return (
-    <Form
-      initValues={formInitValues}
-      getFormApi={(api) => setFormApi(api)}
-      onSubmit={refresh}
-      allowEmpty={true}
-      autoComplete='off'
-      layout='vertical'
-      trigger='change'
-      stopValidateWithError={false}
-    >
-      <div className='flex flex-col gap-2'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2'>
-          {/* 时间选择器 */}
-          <div className='col-span-1 lg:col-span-2'>
-            <Form.DatePicker
-              field='dateRange'
-              className='w-full'
-              type='dateTimeRange'
-              placeholder={[t('开始时间'), t('结束时间')]}
-              showClear
-              pure
-              size='small'
-              presets={DATE_RANGE_PRESETS.map((preset) => ({
-                text: t(preset.text),
-                start: preset.start(),
-                end: preset.end(),
-              }))}
-            />
-          </div>
-
-          {/* 任务 ID */}
-          <Form.Input
-            field='mj_id'
-            prefix={<IconSearch />}
-            placeholder={t('任务 ID')}
-            showClear
-            pure
-            size='small'
+    <form className='cp-filter-bar' onSubmit={handleSubmit}>
+      <div className='cp-filter-row'>
+        <div className='cp-search'>
+          <span className='cp-search-icon'>
+            <IconSearch size='default' />
+          </span>
+          <input
+            type='text'
+            value={localValue}
+            onChange={(e) => scheduleChange(e.target.value)}
+            placeholder={
+              isAdminUser
+                ? t('搜索任务ID / Prompt / 类型 / 状态 / 渠道ID')
+                : t('搜索任务ID / Prompt / 类型 / 状态')
+            }
+            autoComplete='off'
           />
-
-          {/* 渠道 ID - 仅管理员可见 */}
-          {isAdminUser && (
-            <Form.Input
-              field='channel_id'
-              prefix={<IconSearch />}
-              placeholder={t('渠道 ID')}
-              showClear
-              pure
-              size='small'
-            />
+          {localValue && (
+            <button
+              type='button'
+              className='cp-search-clear'
+              onClick={handleClear}
+              aria-label={t('清除')}
+            >
+              <IconClose size='small' />
+            </button>
           )}
         </div>
 
-        {/* 操作按钮区域 */}
-        <div className='flex justify-between items-center'>
-          <div></div>
-          <div className='flex gap-2'>
-            <Button
-              type='tertiary'
-              htmlType='submit'
-              loading={loading}
-              size='small'
-            >
-              {t('查询')}
-            </Button>
-            <Button
-              type='tertiary'
-              onClick={() => {
-                if (formApi) {
-                  formApi.reset();
-                  setTimeout(() => {
-                    refresh();
-                  }, 100);
-                }
-              }}
-              size='small'
-            >
-              {t('重置')}
-            </Button>
-            <Button
-              type='tertiary'
-              onClick={() => setShowColumnSelector(true)}
-              size='small'
-            >
-              {t('列设置')}
-            </Button>
-          </div>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '4px 8px 4px 12px',
+            background: 'var(--surface)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid transparent',
+            minHeight: 42,
+          }}
+        >
+          <IconCalendar
+            size='default'
+            style={{ color: 'var(--accent)', flexShrink: 0 }}
+          />
+          <DatePicker
+            type='dateTimeRange'
+            value={dateRange}
+            onChange={(v) => setDateRange(v || [])}
+            placeholder={[t('开始时间'), t('结束时间')]}
+            size='default'
+            showClear
+            density='compact'
+            style={{
+              border: 'none',
+              background: 'transparent',
+              minWidth: 240,
+              padding: 0,
+            }}
+            presets={DATE_RANGE_PRESETS.map((preset) => ({
+              text: t(preset.text),
+              start: preset.start(),
+              end: preset.end(),
+            }))}
+          />
         </div>
+
+        <button
+          type='button'
+          className='cp-icon-btn'
+          onClick={() => onRefresh && onRefresh()}
+          aria-label={t('刷新')}
+          disabled={loading}
+          style={{ opacity: loading ? 0.55 : 1 }}
+        >
+          <IconRefresh size='default' />
+        </button>
       </div>
-    </Form>
+    </form>
   );
 };
 

@@ -16,8 +16,8 @@
 /* ==================== macOS Vibrancy Design Tokens ==================== */
 :root {
   /* -- Layout -- */
-  --sidebar-width: 200px;
-  --sidebar-width-collapsed: 60px;
+  --sidebar-width: 72px;
+  --sidebar-width-collapsed: 72px;
   --sidebar-current-width: var(--sidebar-width);
   --header-height: 52px;
 
@@ -35,11 +35,14 @@
   --text-secondary: rgba(0,0,0,0.55);
   --text-muted: rgba(0,0,0,0.3);
 
-  /* -- Color: Accent (iOS Light) -- */
-  --accent: #007AFF;
-  --accent-hover: #0066D6;
-  --accent-active: #004EA8;
-  --accent-light: rgba(0,122,255,0.08);
+  /* -- Color: Accent (Emerald gradient) -- */
+  --accent: #0072ff;
+  --accent-hover: #005fd6;
+  --accent-active: #004ba8;
+  --accent-end: #00c6ff;
+  --accent-light: rgba(0, 114, 255,0.10);
+  --accent-gradient: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #0066e6 0%, #14b4ff 100%);
 
   /* -- Color: Semantic (iOS Light) -- */
   --success: #34C759;
@@ -51,13 +54,13 @@
   --info: #5AC8FA;
   --info-light: rgba(90,200,250,0.10);
 
-  /* -- Color: Borders (Light) -- */
-  --border-subtle: rgba(0,0,0,0.06);
-  --border-default: rgba(0,0,0,0.10);
+  /* -- Color: Borders (Light) — softened, prefer bg contrast over lines -- */
+  --border-subtle: rgba(0,0,0,0.03);
+  --border-default: rgba(0,0,0,0.04);
 
   /* -- Glass (Light) -- */
-  --glass-bg: rgba(255,255,255,0.72);
-  --glass-border: rgba(0,0,0,0.06);
+  --glass-bg: rgba(250,250,252,0.72);
+  --glass-border: rgba(0,0,0,0.08);
   --glass-blur: 20px;
 
   /* -- Radius -- */
@@ -72,9 +75,10 @@
   --shadow-ring: 0 0 0 0.5px rgba(0,0,0,0.06);
 
   /* -- Typography -- */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-serif: 'Georgia', 'Times New Roman', serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI Variable', 'Segoe UI', 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
+  /* Legacy var — kept for compatibility. Previously Georgia (serif) was misused on UI. Points to sans now. */
+  --font-serif: var(--font-sans);
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', 'Consolas', monospace;
 
   /* -- Motion -- */
   --ease-micro: 150ms ease-out;
@@ -83,12 +87,12 @@
   --mv-ease: cubic-bezier(0.2, 0, 0, 1);
 
   /* -- Semi Design Bridge (Light) -- */
-  --semi-color-primary: #007AFF;
-  --semi-color-primary-hover: #0066D6;
-  --semi-color-primary-active: #004EA8;
-  --semi-color-primary-light-default: rgba(0,122,255,0.08);
-  --semi-color-primary-light-hover: rgba(0,122,255,0.12);
-  --semi-color-primary-light-active: rgba(0,122,255,0.18);
+  --semi-color-primary: #0072ff;
+  --semi-color-primary-hover: #005fd6;
+  --semi-color-primary-active: #004ba8;
+  --semi-color-primary-light-default: rgba(0, 114, 255,0.10);
+  --semi-color-primary-light-hover: rgba(0, 114, 255,0.16);
+  --semi-color-primary-light-active: rgba(0, 114, 255,0.22);
 }
 
 html.dark {
@@ -106,11 +110,14 @@ html.dark {
   --text-secondary: rgba(255,255,255,0.70);
   --text-muted: rgba(255,255,255,0.35);
 
-  /* -- Color: Accent (iOS Dark) -- */
-  --accent: #0a84ff;
-  --accent-hover: #409CFF;
-  --accent-active: #007AFF;
-  --accent-light: rgba(10,132,255,0.14);
+  /* -- Color: Accent (Emerald gradient — Dark) -- */
+  --accent: #38b6ff;
+  --accent-hover: #5ec4ff;
+  --accent-active: #0072ff;
+  --accent-end: #00c6ff;
+  --accent-light: rgba(56, 182, 255,0.16);
+  --accent-gradient: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #1a8bff 0%, #3cd2ff 100%);
 
   /* -- Color: Semantic (iOS Dark) -- */
   --success: #30D158;
@@ -122,13 +129,13 @@ html.dark {
   --info: #64D2FF;
   --info-light: rgba(100,210,255,0.14);
 
-  /* -- Color: Borders (Dark) -- */
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-default: rgba(255,255,255,0.10);
+  /* -- Color: Borders (Dark) — softened, prefer bg contrast -- */
+  --border-subtle: rgba(255,255,255,0.03);
+  --border-default: rgba(255,255,255,0.05);
 
   /* -- Glass (Dark) -- */
-  --glass-bg: rgba(28,28,30,0.80);
-  --glass-border: rgba(255,255,255,0.08);
+  --glass-bg: rgba(28,28,30,0.75);
+  --glass-border: rgba(255,255,255,0.10);
 
   /* -- Shadow (Dark) -- */
   --shadow-md: 0 1px 0 rgba(255,255,255,0.05);
@@ -136,12 +143,12 @@ html.dark {
   --shadow-ring: 0 0 0 0.5px rgba(255,255,255,0.06);
 
   /* -- Semi Design Bridge (Dark) -- */
-  --semi-color-primary: #0a84ff;
-  --semi-color-primary-hover: #409CFF;
-  --semi-color-primary-active: #007AFF;
-  --semi-color-primary-light-default: rgba(10,132,255,0.14);
-  --semi-color-primary-light-hover: rgba(10,132,255,0.20);
-  --semi-color-primary-light-active: rgba(10,132,255,0.28);
+  --semi-color-primary: #38b6ff;
+  --semi-color-primary-hover: #5ec4ff;
+  --semi-color-primary-active: #0072ff;
+  --semi-color-primary-light-default: rgba(56, 182, 255,0.16);
+  --semi-color-primary-light-hover: rgba(56, 182, 255,0.24);
+  --semi-color-primary-light-active: rgba(56, 182, 255,0.32);
 }
 
 /* ==================== Global Base Styles ==================== */
@@ -151,24 +158,59 @@ body {
   background-color: var(--bg-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01', 'ss03', 'kern', 'palt';
+  font-variant-numeric: tabular-nums;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
 }
 
 body.sidebar-collapsed {
   --sidebar-current-width: var(--sidebar-width-collapsed);
 }
 
-/* Desktop: prevent body scroll from chart tooltips */
-@media (min-width: 768px) {
-  body {
-    overflow-y: hidden;
-  }
+.app-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-.app-layout {
-  height: 100vh;
-  height: 100dvh;
+/* Spin animation used by Verifier fetch button */
+@keyframes cy-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== Plans page responsive ==================== */
+@media (max-width: 900px) {
+  .cy-plans-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 460px !important;
+  }
+  .cy-plans-table-desktop { display: none !important; }
+  .cy-plans-table-mobile { display: flex !important; }
+}
+
+/* ==================== Wide-table fallback ==================== */
+/* Semi Table with scroll.x = 'max-content' renders an internal horizontally
+   scrollable wrapper. Some pages wrap the table in a card with `overflow: hidden`,
+   which clips that internal scroller and hides the right-side columns. Force the
+   inner wrapper to allow horizontal overflow so the table's own scroll works,
+   regardless of any ancestor `overflow: hidden`. */
+.semi-table-wrapper,
+.semi-table-container {
+  max-width: 100%;
+}
+.semi-table-container .semi-table-body {
+  overflow-x: auto !important;
+}
+/* Make scrollbars subtle but visible on narrow viewports */
+.semi-table-container .semi-table-body::-webkit-scrollbar {
+  height: 8px;
+}
+.semi-table-container .semi-table-body::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
 }
 
 .app-sider {
@@ -195,10 +237,33 @@ h1, h2, h3, h4, h5, h6, .mv-heading {
 
 /* ==================== Glass Morphism Utilities ==================== */
 .glass-header {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg) !important;
+  backdrop-filter: saturate(180%) blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(var(--glass-blur)) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+/* Top header — frosted glass. Hardcoded colors so no theme/variable can override. */
+header.app-header-glass,
+.semi-layout-header > header.app-header-glass {
+  background-color: rgba(255, 255, 255, 0.28) !important;
+  -webkit-backdrop-filter: saturate(200%) blur(80px) !important;
+  backdrop-filter: saturate(200%) blur(80px) !important;
+  border-bottom: none !important;
+  /* Ensure dropdown menus anchored inside nav can overflow below the header */
+  overflow: visible !important;
+}
+/* Same for the Semi Layout.Header wrapper so nothing in the chain clips */
+.semi-layout-header {
+  overflow: visible !important;
+}
+.app-header-glass > div,
+.app-header-glass > div > div {
+  overflow: visible !important;
+}
+html.dark header.app-header-glass,
+html.dark .semi-layout-header > header.app-header-glass {
+  background-color: rgba(28, 28, 30, 0.28) !important;
 }
 
 .glass-sidebar {
@@ -364,6 +429,15 @@ h1, h2, h3, h4, h5, h6, .mv-heading {
   padding: 10px !important;
 }
 
+/* Card header — transparent so it blends with the card surface, no awkward strip */
+.semi-card-header {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+.semi-card-header-wrapper {
+  background: transparent !important;
+}
+
 /* --- Settings Section Panel --- */
 /* Native macOS-style section panel for settings pages.
    More generous padding than default card, proper visual hierarchy. */
@@ -424,6 +498,58 @@ html.dark .semi-tagInput:hover {
   border-color: rgba(255,255,255,0.16);
 }
 
+/* DatePicker / TimePicker range input — the REAL inner segment class is
+   .semi-datepicker-range-input-wrapper (with -start / -end modifiers and
+   a -focus state). Semi's default -focus paints its own background, border
+   and border-radius, which ignores the outer container's rounding and
+   produces a square gray fill with a mis-aligned blue outline when a
+   segment is focused. Strip that inner styling entirely. */
+.semi-datepicker-range-input .semi-datepicker-range-input-wrapper,
+.semi-datepicker-range-input .semi-datepicker-range-input-wrapper:hover,
+.semi-datepicker-range-input .semi-datepicker-range-input-wrapper-focus,
+.semi-datepicker-range-input
+  .semi-datepicker-range-input-wrapper.semi-datepicker-range-input-wrapper-focus,
+.semi-datepicker-range-input .semi-datepicker-range-input-wrapper-start,
+.semi-datepicker-range-input .semi-datepicker-range-input-wrapper-end {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* Kill the inner .semi-input focus outline too */
+.semi-datepicker-range-input .semi-input-wrapper,
+.semi-datepicker-range-input .semi-input-wrapper-focus,
+.semi-datepicker-range-input .semi-input,
+.semi-datepicker-range-input .semi-input:focus {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* Same for TimePicker */
+.semi-timepicker-range-input .semi-timepicker-range-input-wrapper,
+.semi-timepicker-range-input .semi-timepicker-range-input-wrapper:hover,
+.semi-timepicker-range-input .semi-timepicker-range-input-wrapper-focus,
+.semi-timepicker-range-input
+  .semi-timepicker-range-input-wrapper.semi-timepicker-range-input-wrapper-focus,
+.semi-timepicker-range-input .semi-input-wrapper,
+.semi-timepicker-range-input .semi-input-wrapper-focus,
+.semi-timepicker-range-input .semi-input,
+.semi-timepicker-range-input .semi-input:focus {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* Focus indication lives on the outer rounded shell */
+.semi-datepicker-range-input:focus-within,
+.semi-timepicker-range-input:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-light) !important;
+}
+
 html.dark .semi-input-wrapper-focus,
 html.dark .semi-select-focus,
 html.dark .semi-input-textarea-wrapper-focus,
@@ -431,37 +557,7 @@ html.dark .semi-tagInput-focus {
   border-color: var(--accent);
 }
 
-/* --- Table Overrides --- */
-.semi-table {
-  background: transparent;
-}
-
-.semi-table-thead > .semi-table-row > .semi-table-row-head {
-  background: var(--bg-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-html.dark .semi-table-thead > .semi-table-row > .semi-table-row-head {
-  background: var(--bg-subtle);
-}
-
-.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.semi-table-tbody > .semi-table-row:hover > .semi-table-row-cell {
-  background: var(--surface-hover);
-}
-
-/* No alternating row colors */
-.semi-table-row-striped > .semi-table-row-cell {
-  background: transparent !important;
-}
+/* (Table styles moved to "Enterprise Table Design" section near EOF) */
 
 /* --- Modal Overrides --- */
 .semi-modal-content {
@@ -503,6 +599,37 @@ html.dark .semi-table-thead > .semi-table-row > .semi-table-row-head {
 .semi-sidesheet-inner {
   background: var(--surface);
   border-left: 1px solid var(--border-default);
+}
+
+/* Normalize drawer footer buttons — override the aggressive 46px-high
+   gradient button rule further down in this file (search for "THE
+   gradient-filled button"). That rule makes ALL non-light buttons in
+   the sidesheet 46px tall with huge shadow, while cancel (light) stays
+   32px — a 14px mismatch. We force both to Semi's default 32px here.
+   Compound class selectors .semi-sidesheet .semi-sidesheet-footer bump
+   specificity above the existing rule. */
+.semi-sidesheet .semi-sidesheet-footer .semi-button,
+.semi-sidesheet .semi-sidesheet-footer .semi-button.semi-button-primary,
+.semi-sidesheet .semi-sidesheet-footer .semi-button.semi-button-light,
+.semi-sidesheet .semi-sidesheet-footer .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline) {
+  box-sizing: border-box !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  min-width: 0 !important;
+  padding: 0 18px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius-md) !important;
+  border: 0 none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+}
+.semi-sidesheet .semi-sidesheet-footer .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline):hover {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* --- Popover/Tooltip/Dropdown Overrides --- */
@@ -663,10 +790,35 @@ html.dark .semi-slider-rail {
   background-color: var(--accent) !important;
 }
 
+/* Compact slider — half Semi default (wrapper 32→20, rail 4→3, handle 24→12) */
+.semi-slider {
+  height: 20px !important;
+}
+.semi-slider-wrap {
+  height: 20px !important;
+}
+.semi-slider-rail {
+  height: 3px !important;
+  top: 8px !important;
+}
+.semi-slider-track {
+  height: 3px !important;
+  top: 8px !important;
+}
 .semi-slider-handle {
-  background-color: var(--surface) !important;
+  width: 12px !important;
+  height: 12px !important;
+  top: 4px !important;
+  margin-top: 0 !important;
+  background-color: #ffffff !important;
   border: 2px solid var(--accent) !important;
-  box-shadow: var(--shadow-ring) !important;
+  box-shadow: 0 1px 3px rgba(0, 114, 255, 0.25) !important;
+}
+/* Slider dots on marks */
+.semi-slider-dot {
+  width: 6px !important;
+  height: 6px !important;
+  top: 6px !important;
 }
 
 .semi-slider-handle:hover,
@@ -678,9 +830,80 @@ html.dark .semi-slider-handle {
   background-color: var(--bg-muted) !important;
 }
 
-/* --- Switch Overrides --- */
+/* --- Switch Overrides — compact sizing ---
+   Semi default positioning: knob has `left: 0` + `transform: translateX(2px)`
+   when unchecked, `translateX(18px)` when checked on a 40×24 container.
+   For our compact 32×18 container with a 14×14 knob:
+     unchecked → translateX(2px)  → knob at 2..16, gap 2 on left
+     checked   → translateX(16px) → knob at 16..30, gap 2 on right
+   Knob top: (18-14)/2 = 2px → perfectly centered. */
 .semi-switch {
   transition: background-color var(--ease-micro) !important;
+  width: 32px !important;
+  height: 18px !important;
+  min-width: 32px !important;
+  border-radius: 9px !important;
+  padding: 0 !important;
+}
+.semi-switch .semi-switch-knob {
+  width: 14px !important;
+  height: 14px !important;
+  top: 50% !important;
+  left: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  transform: translate(2px, -50%) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+.semi-switch.semi-switch-checked .semi-switch-knob {
+  transform: translate(16px, -50%) !important;
+}
+/* Small size: 26×14, knob 10×10 */
+.semi-switch-small,
+.semi-switch.semi-switch-size-small {
+  width: 26px !important;
+  height: 14px !important;
+  min-width: 26px !important;
+  border-radius: 7px !important;
+}
+.semi-switch-small .semi-switch-knob,
+.semi-switch.semi-switch-size-small .semi-switch-knob {
+  width: 10px !important;
+  height: 10px !important;
+  top: 50% !important;
+  left: 0 !important;
+  transform: translate(2px, -50%) !important;
+}
+.semi-switch-small.semi-switch-checked .semi-switch-knob,
+.semi-switch.semi-switch-size-small.semi-switch-checked .semi-switch-knob {
+  transform: translate(14px, -50%) !important;
+}
+/* Large size: 44×24, knob 20×20 */
+.semi-switch-large,
+.semi-switch.semi-switch-size-large {
+  width: 44px !important;
+  height: 24px !important;
+  min-width: 44px !important;
+  border-radius: 12px !important;
+}
+.semi-switch-large .semi-switch-knob,
+.semi-switch.semi-switch-size-large .semi-switch-knob {
+  width: 20px !important;
+  height: 20px !important;
+  top: 50% !important;
+  left: 0 !important;
+  transform: translate(2px, -50%) !important;
+}
+.semi-switch-large.semi-switch-checked .semi-switch-knob,
+.semi-switch.semi-switch-size-large.semi-switch-checked .semi-switch-knob {
+  transform: translate(22px, -50%) !important;
+}
+
+/* Hide the 开/关 text — Semi uses `.semi-switch-checked-text` and
+   `.semi-switch-unchecked-text` (NOT `.semi-switch-inner-*`). */
+.semi-switch .semi-switch-checked-text,
+.semi-switch .semi-switch-unchecked-text {
+  display: none !important;
 }
 
 .semi-switch-checked {
@@ -856,19 +1079,288 @@ html.dark .semi-progress-line-outer {
   background-color: var(--accent) !important;
 }
 
-/* --- TimePicker/DatePicker Overrides --- */
-.semi-datepicker-day-selected,
-.semi-datepicker-day-selected-start,
-.semi-datepicker-day-selected-end {
-  background-color: var(--accent) !important;
+/* --- DatePicker / TimePicker — Apple-style Overrides --- */
+
+/* Panel container */
+.semi-datepicker {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-float) !important;
+  overflow: hidden;
 }
 
+/* Navigation bar (month/year header with arrows) */
+.semi-datepicker-navigation {
+  background: transparent !important;
+  padding: 10px 8px 4px !important;
+}
+
+/* Arrow buttons — small, ghost */
+.semi-datepicker-navigation .semi-button {
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 11px !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+.semi-datepicker-navigation .semi-button .semi-icon {
+  font-size: 11px !important;
+}
+.semi-datepicker-navigation .semi-button:hover {
+  background: var(--surface-hover) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Month/year label — smaller */
+.semi-datepicker-navigation-month .semi-button {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: var(--text-primary) !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 22px !important;
+  padding: 0 6px !important;
+}
+.semi-datepicker-navigation-month .semi-button:hover {
+  background: var(--surface-hover) !important;
+}
+
+/* Weekday header row */
+.semi-datepicker-weekday {
+  padding: 0 12px !important;
+}
+.semi-datepicker-weekday-item {
+  color: var(--text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Week rows */
+.semi-datepicker-weeks {
+  padding: 0 8px 8px !important;
+}
+
+/* Individual day cells */
+.semi-datepicker-day {
+  border-radius: 50% !important;
+  transition: background 0.15s ease !important;
+}
+.semi-datepicker-day-main {
+  border-radius: 50% !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: var(--text-primary) !important;
+}
+.semi-datepicker-day:hover .semi-datepicker-day-main {
+  background: var(--surface-hover) !important;
+}
+
+/* Today */
+.semi-datepicker-day-today .semi-datepicker-day-main {
+  border: 1.5px solid var(--accent) !important;
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+}
+
+/* Selected day */
+.semi-datepicker-day-selected .semi-datepicker-day-main,
+.semi-datepicker-day-selected-start .semi-datepicker-day-main,
+.semi-datepicker-day-selected-end .semi-datepicker-day-main {
+  background: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0,114,255,0.3) !important;
+}
+
+/* In-range days */
 .semi-datepicker-day-inrange {
-  background-color: var(--accent-light) !important;
+  background: var(--accent-light) !important;
+  border-radius: 0 !important;
+}
+.semi-datepicker-day-inrange .semi-datepicker-day-main {
+  color: var(--accent) !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+}
+.semi-datepicker-day-selected-start {
+  border-radius: 50% 0 0 50% !important;
+}
+.semi-datepicker-day-selected-end {
+  border-radius: 0 50% 50% 0 !important;
 }
 
-.semi-datepicker-day-today {
+/* Hover days in range mode */
+.semi-datepicker-day-hoverday .semi-datepicker-day-main,
+.semi-datepicker-day-hoverday-inrange .semi-datepicker-day-main {
+  background: var(--accent-light) !important;
+}
+
+/* Disabled days */
+.semi-datepicker-day-disabled .semi-datepicker-day-main {
+  color: var(--text-muted) !important;
+  opacity: 0.4 !important;
+}
+
+/* Month grid (dual month view) */
+.semi-datepicker-month-grid {
+  gap: 0 !important;
+}
+.semi-datepicker-month-grid-left,
+.semi-datepicker-month-grid-right {
+  border-color: var(--border-default) !important;
+}
+
+/* Year/Month picker panel */
+.semi-datepicker-yam {
+  background: var(--surface) !important;
+}
+.semi-datepicker-yearmonth-header {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  padding: 10px 12px !important;
+}
+
+/* "返回选择日期" button — ghost pill style */
+.semi-datepicker-yearmonth-header .semi-button-primary,
+.semi-datepicker-yearmonth-header .semi-button-tertiary {
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 1.5px solid #0072ff !important;
+  color: #0072ff !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 2px 14px !important;
+  height: auto !important;
+  line-height: 1.6 !important;
+  transition: background-color 0.15s ease !important;
+}
+.semi-datepicker-yearmonth-header .semi-button-primary:hover,
+.semi-datepicker-yearmonth-header .semi-button-primary:focus,
+.semi-datepicker-yearmonth-header .semi-button-primary:active,
+.semi-datepicker-yearmonth-header .semi-button-tertiary:hover,
+.semi-datepicker-yearmonth-header .semi-button-tertiary:focus {
+  background-color: rgba(0, 114, 255, 0.08) !important;
+  background-image: none !important;
+  border-color: #0072ff !important;
+  color: #0072ff !important;
+  box-shadow: none !important;
+}
+html.dark .semi-datepicker-yearmonth-header .semi-button-primary,
+html.dark .semi-datepicker-yearmonth-header .semi-button-tertiary {
+  border-color: #38b6ff !important;
+  color: #38b6ff !important;
+}
+html.dark .semi-datepicker-yearmonth-header .semi-button-primary:hover,
+html.dark .semi-datepicker-yearmonth-header .semi-button-tertiary:hover {
+  background-color: rgba(56, 182, 255, 0.12) !important;
+  background-image: none !important;
+  color: #38b6ff !important;
+}
+/* Footer slot */
+.semi-datepicker-footer,
+.semi-datepicker-bottomSlot {
+  border-top: 1px solid var(--border-default) !important;
+  background: transparent !important;
+  padding: 8px 12px !important;
+}
+
+/* Quick control (preset ranges) */
+.semi-datepicker-quick-control {
+  border-color: var(--border-default) !important;
+  background: transparent !important;
+  padding: 8px 10px !important;
+}
+.semi-datepicker-quick-control-header {
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+}
+
+/* Quick control preset buttons — mirrors the "返回选择日期" pill style,
+   but with the text rendered via accent gradient instead of solid accent. */
+.semi-datepicker-quick-control .semi-button-primary,
+.semi-datepicker-quick-control .semi-button-primary:link,
+.semi-datepicker-quick-control .semi-button-primary:visited {
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 1.5px solid var(--accent) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 2px 14px !important;
+  height: auto !important;
+  line-height: 1.6 !important;
+  color: transparent !important;
+  transition: background-color 0.15s ease !important;
+}
+/* Gradient text lives on the inner content span only — keeps the button
+   background independent so hover fills cleanly without clipping the text. */
+.semi-datepicker-quick-control .semi-button-primary .semi-button-content {
+  background: var(--accent-gradient) !important;
+  -webkit-background-clip: text !important;
+          background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+.semi-datepicker-quick-control .semi-button-primary:hover,
+.semi-datepicker-quick-control .semi-button-primary:focus,
+.semi-datepicker-quick-control .semi-button-primary:active {
+  background-color: var(--accent-light) !important;
+  background-image: none !important;
   border-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* Date/Time switch tabs */
+.semi-datepicker-switch-date,
+.semi-datepicker-switch-time {
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius-md) !important;
+  transition: all 0.15s ease !important;
+}
+.semi-datepicker-switch-date-active,
+.semi-datepicker-switch-time-active {
+  color: var(--accent) !important;
+  background: var(--accent-light) !important;
+  font-weight: 600 !important;
+}
+
+/* TimePicker within DatePicker */
+.semi-datepicker-tpk {
+  border-top: 1px solid var(--border-default) !important;
+}
+
+/* Inset input */
+.semi-datepicker-inset-input-wrapper {
+  border-top: 1px solid var(--border-default) !important;
+  background: transparent !important;
+}
+
+/* Dark mode adjustments */
+html.dark .semi-datepicker {
+  background: var(--surface) !important;
+  border-color: var(--border-default) !important;
+}
+html.dark .semi-datepicker-day-selected .semi-datepicker-day-main,
+html.dark .semi-datepicker-day-selected-start .semi-datepicker-day-main,
+html.dark .semi-datepicker-day-selected-end .semi-datepicker-day-main {
+  box-shadow: 0 1px 6px rgba(56,182,255,0.35) !important;
 }
 
 /* --- Transfer Overrides --- */
@@ -967,12 +1459,12 @@ html.dark .semi-transfer-right {
   color: #fff !important;
 }
 
-/* Card-style tabs — macOS segmented control look */
+/* Card-style tabs — transparent bar, accent-tinted active pill */
 .semi-tabs-bar-card {
-  background: var(--bg-subtle) !important;
+  background: transparent !important;
   border-radius: var(--radius-md) !important;
   padding: 3px !important;
-  border: 1px solid var(--border-subtle) !important;
+  border: none !important;
   gap: 2px !important;
 }
 
@@ -994,14 +1486,23 @@ html.dark .semi-transfer-right {
 }
 
 .semi-tabs-bar-card .semi-tabs-tab-active {
-  background: var(--surface) !important;
-  color: var(--text-primary) !important;
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
   font-weight: 600 !important;
-  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
 }
 
 html.dark .semi-tabs-bar-card .semi-tabs-tab-active {
-  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: none !important;
+}
+
+/* Hide ink bar / underline for card-style tabs — active state is the pill */
+.semi-tabs-bar-card .semi-tabs-ink-bar {
+  display: none !important;
+}
+.semi-tabs-bar-card {
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 /* --- Anchor Overrides --- */
@@ -1239,6 +1740,352 @@ html.dark .semi-sidesheet-inner {
   color: var(--text-primary) !important;
 }
 
+/* ==================== Aetheris Drawer System ====================
+   Global makeover for all Semi SideSheet drawers. Reference:
+   tmp/reference-diagram-6.png, tmp/reference-diagram-7.png.
+
+   Design rule: AT MOST ONE element inside a drawer uses the brand
+   gradient FILL — reserved for the single primary CTA (Submit/Save).
+   Every other "accent" element (secondary buttons, tag chips, links,
+   section markers) uses gradient BORDER + gradient TEXT instead. */
+
+/* ---------- Mask ---------- */
+.semi-sidesheet-mask {
+  background: rgba(15, 23, 42, 0.42) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+}
+
+/* ---------- Shell (rounded inner corners + big shadow) ---------- */
+.semi-sidesheet-right .semi-sidesheet-inner {
+  background: #ffffff !important;
+  border-left: 1px solid rgba(193, 198, 216, 0.18) !important;
+  border-top-left-radius: 28px !important;
+  border-bottom-left-radius: 28px !important;
+  box-shadow: -24px 0 80px rgba(15, 23, 42, 0.14),
+    -2px 0 6px rgba(15, 23, 42, 0.04) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.semi-sidesheet-left .semi-sidesheet-inner {
+  background: #ffffff !important;
+  border-right: 1px solid rgba(193, 198, 216, 0.18) !important;
+  border-top-right-radius: 28px !important;
+  border-bottom-right-radius: 28px !important;
+  box-shadow: 24px 0 80px rgba(15, 23, 42, 0.14),
+    2px 0 6px rgba(15, 23, 42, 0.04) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+html.dark .semi-sidesheet-right .semi-sidesheet-inner,
+html.dark .semi-sidesheet-left .semi-sidesheet-inner {
+  background: #1c1f22 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ---------- Header ---------- */
+.semi-sidesheet-header {
+  padding: 28px 36px 20px !important;
+  border-bottom: 1px solid rgba(193, 198, 216, 0.18) !important;
+  background: transparent !important;
+  flex: 0 0 auto !important;
+  align-items: flex-start !important;
+}
+.semi-sidesheet-title,
+.semi-sidesheet-header > div:first-child {
+  display: flex !important;
+  flex-direction: column-reverse !important; /* eyebrow caption above title */
+  gap: 6px !important;
+  flex: 1 1 auto !important;
+}
+.semi-sidesheet-header-text {
+  font-family: var(--font-serif) !important;
+  color: var(--text-primary) !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.2 !important;
+}
+.semi-sidesheet-close {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  transition: background 150ms ease !important;
+  flex-shrink: 0 !important;
+}
+.semi-sidesheet-close:hover {
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+/* ---------- Body (must scroll!) ----------
+   CRITICAL: both the inner shell and the body must coordinate so
+   content scrolls inside the drawer instead of overflowing. */
+.semi-sidesheet-body {
+  padding: 28px 36px 140px !important;
+  background: transparent !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+}
+@media (max-width: 767px) {
+  .semi-sidesheet-header {
+    padding: 20px 22px 16px !important;
+  }
+  .semi-sidesheet-body {
+    padding: 22px 22px 140px !important;
+  }
+}
+
+/* ---------- Section hierarchy ----------
+   Section headings inside drawers get a small blue gradient vertical
+   bar marker (reference-diagram-7 "CORE CONFIGURATION"). Targets any
+   heading element + the Semi Typography h3/h4/h5 classes. */
+.semi-sidesheet-body h3,
+.semi-sidesheet-body h4,
+.semi-sidesheet-body h5,
+.semi-sidesheet-body .semi-typography-h3,
+.semi-sidesheet-body .semi-typography-h4,
+.semi-sidesheet-body .semi-typography-h5 {
+  position: relative !important;
+  padding-left: 14px !important;
+  margin-top: 32px !important;
+  margin-bottom: 18px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: var(--text-secondary) !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+.semi-sidesheet-body h3::before,
+.semi-sidesheet-body h4::before,
+.semi-sidesheet-body h5::before,
+.semi-sidesheet-body .semi-typography-h3::before,
+.semi-sidesheet-body .semi-typography-h4::before,
+.semi-sidesheet-body .semi-typography-h5::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 2px !important;
+  bottom: 2px !important;
+  width: 3px !important;
+  border-radius: 2px !important;
+  background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%) !important;
+}
+
+/* ---------- Form labels (above inputs) ---------- */
+.semi-sidesheet-body .semi-form-field-label-text,
+.semi-sidesheet-body .semi-form-field-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  padding-left: 4px !important;
+  margin-bottom: 8px !important;
+}
+
+/* ---------- Inputs / Selects / Textareas (soft fill) ---------- */
+.semi-sidesheet-body .semi-input-wrapper,
+.semi-sidesheet-body .semi-select,
+.semi-sidesheet-body .semi-input-textarea-wrapper,
+.semi-sidesheet-body .semi-tagInput,
+.semi-sidesheet-body .semi-datepicker-range-input {
+  background-color: #f2f4f6 !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  min-height: 46px !important;
+  transition: background 150ms, border-color 150ms, box-shadow 150ms !important;
+}
+.semi-sidesheet-body .semi-input-wrapper:hover,
+.semi-sidesheet-body .semi-select:hover,
+.semi-sidesheet-body .semi-input-textarea-wrapper:hover,
+.semi-sidesheet-body .semi-tagInput:hover {
+  background-color: #eceef0 !important;
+}
+.semi-sidesheet-body .semi-input-wrapper-focus,
+.semi-sidesheet-body .semi-select-focus,
+.semi-sidesheet-body .semi-input-textarea-wrapper-focus,
+.semi-sidesheet-body .semi-tagInput-focus {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 114, 255, 0.35) !important;
+  box-shadow: 0 0 0 4px rgba(0, 114, 255, 0.08) !important;
+}
+html.dark .semi-sidesheet-body .semi-input-wrapper,
+html.dark .semi-sidesheet-body .semi-select,
+html.dark .semi-sidesheet-body .semi-input-textarea-wrapper,
+html.dark .semi-sidesheet-body .semi-tagInput,
+html.dark .semi-sidesheet-body .semi-datepicker-range-input {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* ---------- Card / section blocks (toggle rows, etc.) ---------- */
+.semi-sidesheet-body .semi-card {
+  background: #f7f9fb !important;
+  border: 1px solid rgba(193, 198, 216, 0.15) !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+html.dark .semi-sidesheet-body .semi-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ---------- Tag chips (model selection etc.) ----------
+   Per rule: NOT gradient fill — use gradient border + gradient text. */
+.semi-sidesheet-body .semi-tag {
+  background: transparent !important;
+  border: 1.5px solid transparent !important;
+  background-image:
+    linear-gradient(#f7f9fb, #f7f9fb),
+    linear-gradient(135deg, #00c6ff, #0072ff) !important;
+  background-origin: padding-box, border-box !important;
+  background-clip: padding-box, border-box !important;
+  border-radius: 999px !important;
+  padding: 2px 10px !important;
+  height: 26px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #0072ff !important;
+}
+.semi-sidesheet-body .semi-tag .semi-tag-content,
+.semi-sidesheet-body .semi-tag span {
+  color: #0072ff !important;
+}
+.semi-sidesheet-body .semi-tag .semi-tag-close {
+  color: #0072ff !important;
+  opacity: 0.7 !important;
+}
+
+/* ---------- Buttons: gradient fill ONLY for the solid-theme CTA ----------
+   IMPORTANT: Semi button themes produce these classes:
+     theme="solid"      → no extra class (solid is default-no-suffix)
+     theme="light"      → .semi-button-light
+     theme="borderless" → .semi-button-borderless
+     theme="outline"    → .semi-button-outline
+   There is NO `.semi-button-solid` class. "Solid" = a button that has
+   none of the other theme classes. Detect it with triple :not().
+
+   Rule: every drawer's bottom Save/Submit button is `theme="solid"` →
+   gets the brand-gradient fill. All other buttons (light / outline /
+   borderless / any theme + primary-light style) become ghost pills with
+   gradient border + gradient text. */
+
+/* THE gradient-filled button — theme="solid" (any type) */
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline) {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
+  background-image: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
+  background-color: #0072ff !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 14px !important;
+  height: 46px !important;
+  min-width: 120px !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  padding: 0 28px !important;
+  box-shadow: 0 10px 28px rgba(0, 114, 255, 0.28) !important;
+  transition: transform 150ms, box-shadow 150ms !important;
+}
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline):hover {
+  background: linear-gradient(135deg, #00b8f0 0%, #0068e8 100%) !important;
+  background-image: linear-gradient(135deg, #00b8f0 0%, #0068e8 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 32px rgba(0, 114, 255, 0.35) !important;
+}
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline):active {
+  transform: translateY(0) !important;
+}
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline),
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline)
+  .semi-button-content,
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline)
+  span,
+.semi-sidesheet
+  .semi-button:not(.semi-button-light):not(.semi-button-borderless):not(.semi-button-outline)
+  svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* Ghost pill — every light/outline button (including primary-light) */
+.semi-sidesheet .semi-button.semi-button-light,
+.semi-sidesheet .semi-button.semi-button-outline {
+  background-color: transparent !important;
+  background-image:
+    linear-gradient(#ffffff, #ffffff),
+    linear-gradient(135deg, #00c6ff, #0072ff) !important;
+  background-origin: padding-box, border-box !important;
+  background-clip: padding-box, border-box !important;
+  border: 1.5px solid transparent !important;
+  border-radius: 14px !important;
+  min-height: 38px !important;
+  padding: 0 18px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  box-shadow: none !important;
+  transition: background-image 150ms !important;
+}
+.semi-sidesheet .semi-button.semi-button-light .semi-button-content,
+.semi-sidesheet .semi-button.semi-button-light > span,
+.semi-sidesheet .semi-button.semi-button-outline .semi-button-content,
+.semi-sidesheet .semi-button.semi-button-outline > span {
+  background: linear-gradient(135deg, #00c6ff, #0072ff) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.semi-sidesheet .semi-button.semi-button-light:hover,
+.semi-sidesheet .semi-button.semi-button-outline:hover {
+  background-image:
+    linear-gradient(#f2f8ff, #f2f8ff),
+    linear-gradient(135deg, #00c6ff, #0072ff) !important;
+}
+.semi-sidesheet .semi-button.semi-button-light .semi-icon,
+.semi-sidesheet .semi-button.semi-button-light svg,
+.semi-sidesheet .semi-button.semi-button-outline .semi-icon,
+.semi-sidesheet .semi-button.semi-button-outline svg {
+  color: #0072ff !important;
+  fill: #0072ff !important;
+}
+
+/* Borderless buttons — minimal */
+.semi-sidesheet .semi-button.semi-button-borderless {
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  border-radius: 10px !important;
+}
+.semi-sidesheet .semi-button.semi-button-borderless:hover {
+  background: rgba(0, 114, 255, 0.06) !important;
+  color: #0072ff !important;
+}
+
+html.dark .semi-sidesheet .semi-button.semi-button-light,
+html.dark .semi-sidesheet .semi-button.semi-button-outline {
+  background-image:
+    linear-gradient(#1c1f22, #1c1f22),
+    linear-gradient(135deg, #00c6ff, #0072ff) !important;
+}
+html.dark .semi-sidesheet-body .semi-tag {
+  background-image:
+    linear-gradient(#1c1f22, #1c1f22),
+    linear-gradient(135deg, #00c6ff, #0072ff) !important;
+}
+
+/* Stacked drawer gap was causing layout glitches on right/left placement
+   and interference with other portals (tooltips, dropdowns). Removed for
+   now — stacked drawers fall back to Semi's default full-cover behavior. */
+
 /* --- ImagePreview Overrides --- */
 .semi-image-preview-footer {
   background: rgba(0, 0, 0, 0.65) !important;
@@ -1247,23 +2094,134 @@ html.dark .semi-sidesheet-inner {
   border-radius: var(--radius-lg) !important;
 }
 
-/* --- Chat Component Overrides (Playground) --- */
-.semi-chat-inputBox {
-  background: var(--surface) !important;
-  border: 1px solid var(--border-default) !important;
-  border-radius: var(--radius-lg) !important;
+/* --- Chat Component Overrides (Playground — Aetheris style) --- */
+.cy-playground-chat .semi-chat-inputBox {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.cy-playground-chat .semi-chat-container {
+  background: transparent !important;
+}
+.cy-playground-chat .semi-chat-list {
+  max-width: 880px !important;
+  margin: 0 auto !important;
+  padding: 24px 20px 180px !important;
+}
+@media (max-width: 767px) {
+  .cy-playground-chat .semi-chat-list {
+    padding: 16px 12px 180px !important;
+  }
+}
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-other
+  .semi-chat-chatBox-content {
+  background: #ffffff !important;
+  color: #191c1e !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 20px 20px 20px 6px !important;
+  padding: 14px 18px !important;
+  box-shadow: 0 1px 2px rgba(0, 20, 60, 0.03) !important;
+}
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-other
+  .semi-chat-chatBox-content * {
+  color: #191c1e !important;
+}
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-self
+  .semi-chat-chatBox-content {
+  background: linear-gradient(135deg, #0072ff 0%, #002d7a 90%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 20px 20px 6px 20px !important;
+  padding: 14px 18px !important;
+  box-shadow: 0 6px 20px rgba(0, 45, 122, 0.28) !important;
+}
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-self
+  .semi-chat-chatBox-content * {
+  color: #ffffff !important;
+}
+/* Error bubble — legible: light red tint bg, solid red text, red border */
+.cy-playground-chat .semi-chat-chatBox-content-error,
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-self
+  .semi-chat-chatBox-content-error,
+.cy-playground-chat .semi-chat-chatBox-bubble-wrapper-other
+  .semi-chat-chatBox-content-error {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #b91c1c !important;
+  box-shadow: none !important;
+}
+.cy-playground-chat .semi-chat-chatBox-content-error *,
+.cy-playground-chat .semi-chat-chatBox-content-error span {
+  color: #b91c1c !important;
 }
 
-.semi-chat-chatBox-bubble-wrapper-other .semi-chat-chatBox-content {
+/* Floating input area overlays the chat list bottom */
+.cy-playground-chat .semi-chat-inputBox-container {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: transparent !important;
+  border-top: none !important;
+  padding: 0 !important;
+}
+
+/* Embedded model selector in the input panel */
+.cy-playground-model-select .semi-select {
   background: var(--surface-hover) !important;
-  color: var(--text-primary) !important;
-  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 999px !important;
+  min-height: 30px !important;
+  height: 30px !important;
 }
+.cy-playground-model-select .semi-select-selection {
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--accent) !important;
+}
+.cy-playground-model-select .semi-select-arrow {
+  color: var(--accent) !important;
+}
+/* Select dropdown — bigger rounded corners, glass card.
+   The real outer shell Semi renders is `.semi-popover-wrapper` — it owns
+   the background, shadow and 6px radius. If we only round the inner list,
+   the wrapper's default 6px corners poke out as gray nubs.
 
-.semi-chat-chatBox-bubble-wrapper-self .semi-chat-chatBox-content {
-  background: var(--accent) !important;
-  color: #fff !important;
-  border-radius: var(--radius-lg) !important;
+   NOTE: only the OUTER popover-wrapper uses `overflow: hidden` (so the
+   rounded corners clip). The inner list wrapper must keep `overflow-y:
+   auto` so long option lists scroll. */
+.semi-popover-wrapper:has(.semi-select-option-list),
+.semi-popover-wrapper:has(.semi-select-option-list-wrapper) {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 20px 60px rgba(0, 20, 60, 0.14),
+    0 2px 6px rgba(0, 20, 60, 0.04) !important;
+}
+.semi-select-option-list-wrapper {
+  background: transparent !important;
+  border-radius: 20px !important;
+  max-height: 320px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+.semi-select-option-list {
+  background: transparent !important;
+  border-radius: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+.semi-portal .semi-select-option-list {
+  padding: 8px !important;
+}
+.semi-portal .semi-select-option {
+  border-radius: 12px !important;
+  margin-bottom: 2px !important;
 }
 
 /* ==================== Navigation & Sidebar ==================== */
@@ -1505,6 +2463,7 @@ html.dark .semi-sidesheet-inner {
   min-width: 0 !important;
 }
 
+
 .sbg-content {
   display: flex;
   align-items: center;
@@ -1521,100 +2480,83 @@ html.dark .semi-sidesheet-inner {
   text-overflow: ellipsis;
 }
 
-/* Badge */
+/* Badge — count number next to label */
 .sbg-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 6px;
-  border-radius: 9px;
-  font-size: 11px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 8px;
+  font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   background-color: var(--surface-active);
-  color: var(--text-secondary);
+  color: var(--text-muted);
   transition: background-color var(--ease-micro), color var(--ease-micro);
 }
 
 .sbg-badge-active {
-  background-color: var(--accent-light);
-  color: var(--accent);
+  background-color: rgba(255,255,255,0.35);
+  color: #fff;
 }
 
-/* SBG Color Variants */
-.sbg-variant-violet {
-  --semi-color-primary: #6d28d9;
-  --semi-color-primary-light-default: rgba(124, 58, 237, 0.08);
-  --semi-color-primary-light-hover: rgba(124, 58, 237, 0.15);
-  --semi-color-primary-light-active: rgba(124, 58, 237, 0.22);
+/* Selected button: gradient background — NOT the heavy Semi theme color */
+.sbg-button.semi-button-light.semi-button-primary {
+  background: var(--accent-gradient) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.sbg-button.semi-button-light.semi-button-primary .sbg-ellipsis {
+  color: #fff;
+}
+.sbg-button.semi-button-light.semi-button-primary::after,
+.sbg-button.semi-button-light.semi-button-primary::before {
+  display: none !important;
 }
 
-.sbg-variant-teal {
-  --semi-color-primary: #0f766e;
-  --semi-color-primary-light-default: rgba(20, 184, 166, 0.08);
-  --semi-color-primary-light-hover: rgba(20, 184, 166, 0.15);
-  --semi-color-primary-light-active: rgba(20, 184, 166, 0.22);
+/* Unselected button: clean outline */
+.sbg-button.semi-button-outline.semi-button-tertiary {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-secondary) !important;
+  outline: none !important;
+}
+.sbg-button.semi-button-outline.semi-button-tertiary:hover {
+  background: var(--surface-hover) !important;
+  border-color: var(--border-default) !important;
 }
 
-.sbg-variant-amber {
-  --semi-color-primary: #b45309;
-  --semi-color-primary-light-default: rgba(245, 158, 11, 0.08);
-  --semi-color-primary-light-hover: rgba(245, 158, 11, 0.15);
-  --semi-color-primary-light-active: rgba(245, 158, 11, 0.22);
+/* All sbg-buttons: suppress Semi focus outline */
+.sbg-button.semi-button:focus-visible {
+  outline: none !important;
 }
 
-.sbg-variant-rose {
-  --semi-color-primary: #be123c;
-  --semi-color-primary-light-default: rgba(244, 63, 94, 0.08);
-  --semi-color-primary-light-hover: rgba(244, 63, 94, 0.15);
-  --semi-color-primary-light-active: rgba(244, 63, 94, 0.22);
-}
-
+/* SBG Color Variants — no longer override Semi primary, just for badge tinting */
+.sbg-variant-violet,
+.sbg-variant-teal,
+.sbg-variant-amber,
+.sbg-variant-rose,
 .sbg-variant-green {
-  --semi-color-primary: #047857;
-  --semi-color-primary-light-default: rgba(16, 185, 129, 0.08);
-  --semi-color-primary-light-hover: rgba(16, 185, 129, 0.15);
-  --semi-color-primary-light-active: rgba(16, 185, 129, 0.22);
+  --semi-color-primary: var(--accent);
+  --semi-color-primary-light-default: transparent;
+  --semi-color-primary-light-hover: transparent;
+  --semi-color-primary-light-active: transparent;
 }
-
-/* Dark mode SBG variants */
-html.dark .sbg-variant-violet {
-  --semi-color-primary: #a78bfa;
-  --semi-color-primary-light-default: rgba(139, 92, 246, 0.14);
-  --semi-color-primary-light-hover: rgba(139, 92, 246, 0.22);
-  --semi-color-primary-light-active: rgba(139, 92, 246, 0.3);
-}
-
-html.dark .sbg-variant-teal {
-  --semi-color-primary: #2dd4bf;
-  --semi-color-primary-light-default: rgba(45, 212, 191, 0.14);
-  --semi-color-primary-light-hover: rgba(45, 212, 191, 0.22);
-  --semi-color-primary-light-active: rgba(45, 212, 191, 0.3);
-}
-
-html.dark .sbg-variant-amber {
-  --semi-color-primary: #fbbf24;
-  --semi-color-primary-light-default: rgba(251, 191, 36, 0.14);
-  --semi-color-primary-light-hover: rgba(251, 191, 36, 0.22);
-  --semi-color-primary-light-active: rgba(251, 191, 36, 0.3);
-}
-
-html.dark .sbg-variant-rose {
-  --semi-color-primary: #fb7185;
-  --semi-color-primary-light-default: rgba(251, 113, 133, 0.14);
-  --semi-color-primary-light-hover: rgba(251, 113, 133, 0.22);
-  --semi-color-primary-light-active: rgba(251, 113, 133, 0.3);
-}
-
+html.dark .sbg-variant-violet,
+html.dark .sbg-variant-teal,
+html.dark .sbg-variant-amber,
+html.dark .sbg-variant-rose,
 html.dark .sbg-variant-green {
-  --semi-color-primary: #34d399;
-  --semi-color-primary-light-default: rgba(52, 211, 153, 0.14);
-  --semi-color-primary-light-hover: rgba(52, 211, 153, 0.22);
-  --semi-color-primary-light-active: rgba(52, 211, 153, 0.3);
+  --semi-color-primary: var(--accent);
+  --semi-color-primary-light-default: transparent;
+  --semi-color-primary-light-hover: transparent;
+  --semi-color-primary-light-active: transparent;
 }
 
 /* ==================== Table Visibility ==================== */
@@ -1823,7 +2765,7 @@ html.dark * {
   color: var(--text-primary);
 }
 
-/* ==================== ScrollList ==================== */
+/* ==================== ScrollList / TimePicker — Apple-style ==================== */
 .semi-scrolllist,
 .semi-scrolllist * {
   -ms-overflow-style: none;
@@ -1844,6 +2786,41 @@ html.dark * {
 
 .semi-scrolllist-list-outer {
   padding-right: 0 !important;
+}
+
+.semi-scrolllist-item-sel,
+.semi-scrolllist-item-selected {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+.semi-scrolllist-selector {
+  border-color: var(--border-default) !important;
+  background: var(--accent-light) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.semi-timepicker-panel,
+.semi-timepicker-range-panel {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+.semi-scrolllist-header {
+  border-bottom: 1px solid var(--border-default) !important;
+}
+.semi-scrolllist-header-title {
+  color: var(--text-secondary) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+}
+
+.semi-scrolllist-footer {
+  border-top: 1px solid var(--border-default) !important;
 }
 
 /* ==================== Table Card Scroll ==================== */
@@ -1904,13 +2881,18 @@ html.dark * {
 }
 
 .pricing-sidebar {
-  width: clamp(280px, 24vw, 520px) !important;
-  min-width: clamp(280px, 24vw, 520px) !important;
-  max-width: clamp(280px, 24vw, 520px) !important;
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
   height: calc(100vh - var(--header-height));
-  background-color: var(--bg-subtle);
+  background-color: var(--bg-base);
   overflow: auto;
+  border-right: 1px solid var(--border-subtle);
 }
+
+.pricing-sidebar .sbg-button { font-size: 12px; height: 26px; }
+.pricing-sidebar .mb-8 { margin-bottom: 8px; }
+.pricing-sidebar .semi-row .semi-col { max-width: 50% !important; flex: 0 0 50% !important; overflow: hidden; }
 
 .pricing-content {
   height: calc(100vh - var(--header-height));
@@ -1931,12 +2913,13 @@ html.dark * {
 }
 
 .pricing-search-header {
-  padding: 0.5rem;
+  padding: 0 0 6px;
   background-color: var(--bg-base);
   flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 5;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .pricing-view-container {
@@ -1948,6 +2931,25 @@ html.dark * {
   flex: 1;
   overflow: auto;
   min-height: 0;
+}
+
+.pricing-row {
+  transition: box-shadow 120ms ease;
+}
+.pricing-row:hover {
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+
+.pricing-table-compact .semi-table-thead th {
+  padding: 8px 12px !important;
+  font-size: 12px;
+}
+.pricing-table-compact .semi-table-tbody td {
+  padding: 8px 12px !important;
+  font-size: 13px;
+}
+.pricing-table-compact .semi-table-row:hover td {
+  background: var(--surface-hover) !important;
 }
 
 /* ==================== Channel Affinity Tag ==================== */
@@ -2004,6 +3006,1320 @@ html.dark * {
 }
 .mv-skeleton-pulse {
   animation: mv-skeleton-fade 1.5s ease-in-out infinite;
+}
+
+/* ==================== Pill Sidebar (icon-only with hover tooltips) ==================== */
+.pill-sidebar-container {
+  width: var(--sidebar-current-width);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 24px;
+  background: transparent;
+  border-right: none;
+  overflow: visible !important;
+}
+
+/* Pill sidebar tooltip — Semi Tooltip used (rendered via portal) */
+.pill-tooltip-semi .semi-tooltip-content {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+}
+
+.pill-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 52px;
+  /* Allow tooltip to escape horizontally; vertical scroll only when truly needed */
+  overflow: visible;
+  max-height: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.pill-sidebar-nav::-webkit-scrollbar { display: none; }
+
+/* Each section is a rounded "pill" card */
+.pill-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 22px;
+  background: var(--bg-subtle);
+  overflow: visible;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 0.5px var(--border-subtle),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: background-color var(--ease-micro);
+}
+
+html.dark .pill-section {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Single icon button */
+.pill-icon {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition:
+    background-color var(--ease-micro),
+    color var(--ease-micro),
+    transform var(--ease-micro),
+    box-shadow var(--ease-micro);
+}
+
+.pill-icon-inner {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-icon-inner svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.75;
+}
+
+.pill-icon:hover {
+  z-index: 1001;
+  background: var(--surface);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 0.5px var(--border-subtle);
+}
+
+html.dark .pill-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+}
+
+/* Selected — soft glow halo with brand gradient */
+.pill-icon-selected {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow:
+    0 0 0 0.5px var(--border-default),
+    0 4px 14px rgba(0, 114, 255, 0.28),
+    0 0 22px rgba(0, 198, 255, 0.18);
+}
+
+html.dark .pill-icon-selected {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--accent);
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.08),
+    0 4px 18px rgba(0, 114, 255, 0.45),
+    0 0 24px rgba(0, 198, 255, 0.22);
+}
+
+.pill-icon-selected:hover {
+  transform: translateY(-1px);
+}
+
+/* Hover tooltip — animated label appearing to the right */
+.pill-tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  padding: 6px 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: var(--shadow-float);
+  transition:
+    opacity 180ms var(--mv-ease),
+    transform 220ms var(--mv-ease);
+  z-index: 1000;
+}
+
+/* Tooltip arrow */
+.pill-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: var(--glass-border);
+}
+.pill-tooltip::after {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: -1px;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: var(--glass-bg);
+}
+
+html.dark .pill-tooltip {
+  background: rgba(44, 44, 46, 0.92);
+}
+html.dark .pill-tooltip::after {
+  border-right-color: rgba(44, 44, 46, 0.92);
+}
+
+.pill-icon:hover .pill-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Mobile: hide pill tooltips (touch — no hover) */
+@media (max-width: 767px) {
+  .pill-tooltip { display: none; }
+  .pill-sidebar-container {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border-default) !important;
+  }
+}
+
+/* ==================== Docs Page ====================
+   Stripe/Linear-style developer documentation layout.
+   Three columns: section nav · main · TOC. Fully theme-aware via CSS vars.
+*/
+.docs-page {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 220px;
+  gap: 0;
+  height: calc(100vh - var(--header-height));
+  background: var(--bg-base);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+@media (max-width: 1280px) {
+  .docs-page { grid-template-columns: 220px minmax(0, 1fr); }
+  .docs-toc { display: none; }
+}
+@media (max-width: 900px) {
+  .docs-page { grid-template-columns: 1fr; }
+  .docs-sidebar { display: none; }
+}
+
+/* Mobile docs drawer (slide-in) */
+.docs-mobile-nav-toggle {
+  display: none;
+}
+@media (max-width: 900px) {
+  .docs-mobile-nav-toggle {
+    position: fixed;
+    top: calc(var(--header-height) + 12px);
+    left: 14px;
+    z-index: 80;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  .docs-mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    top: var(--header-height);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 90;
+  }
+  .docs-mobile-drawer {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: 0;
+    width: 80vw;
+    max-width: 300px;
+    z-index: 91;
+    background: var(--surface);
+    border-right: 1px solid var(--border-default);
+    overflow-y: auto;
+    animation: docsDrawerIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .docs-mobile-drawer .docs-sidebar {
+    display: block;
+    height: 100%;
+    border-right: none;
+  }
+  .docs-main {
+    padding-top: 64px !important;
+  }
+}
+@keyframes docsDrawerIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* ---------- Left sidebar ---------- */
+.docs-sidebar {
+  height: 100%;
+  padding: 32px 16px 32px 24px;
+  border-right: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+
+.docs-sidebar-header {
+  margin-bottom: 24px;
+  padding-left: 12px;
+}
+.docs-sidebar-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.docs-sidebar-version {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.docs-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.docs-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color var(--ease-micro), color var(--ease-micro);
+}
+.docs-sidebar-link:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+.docs-sidebar-link.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
+  position: relative;
+}
+.docs-sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--accent-gradient);
+  border-radius: 0 2px 2px 0;
+}
+
+/* ---------- Main column ---------- */
+.docs-main {
+  padding: 48px 56px 96px;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .docs-main { padding: 32px 20px 64px; }
+}
+
+.docs-section {
+  margin-bottom: 64px;
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
+.docs-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.docs-h1 {
+  font-family: var(--font-serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+}
+.docs-intro {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 720px;
+  margin: 0;
+}
+
+.docs-h2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.docs-h2-bar {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--accent-gradient);
+  flex-shrink: 0;
+}
+
+.docs-section-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0 0 28px;
+  max-width: 720px;
+}
+
+/* ---------- Quick start grid ---------- */
+.docs-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .docs-step-grid { grid-template-columns: 1fr; }
+}
+.docs-step-card {
+  padding: 24px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  transition: transform var(--ease-micro), box-shadow var(--ease-micro);
+}
+.docs-step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 114, 255, 0.10), 0 0 0 0.5px rgba(0, 114, 255, 0.18);
+}
+.docs-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--accent-gradient);
+  color: #fff;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.docs-step-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+.docs-step-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+.docs-step-cta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap var(--ease-micro);
+}
+.docs-step-cta:hover { gap: 8px; }
+
+/* ---------- Base URL table card ---------- */
+.docs-table-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  overflow: hidden;
+}
+.docs-base-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 4px 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.docs-base-row:last-child { border-bottom: none; }
+@media (max-width: 768px) {
+  .docs-base-row { grid-template-columns: 1fr; }
+}
+.docs-base-protocol {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+.docs-base-url,
+.docs-base-header {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  width: fit-content;
+}
+.docs-base-header { color: var(--text-secondary); background: var(--bg-subtle); }
+.docs-base-note {
+  grid-column: 2 / span 2;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+@media (max-width: 768px) {
+  .docs-base-note { grid-column: 1; }
+}
+
+/* ---------- Endpoint card ---------- */
+.docs-endpoint-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  overflow: hidden;
+}
+.docs-endpoint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--bg-subtle);
+}
+.docs-endpoint-method-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.docs-endpoint-method {
+  background: var(--accent-gradient);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.docs-endpoint-path {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.docs-endpoint-compat {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.docs-endpoint-body { padding: 24px; }
+.docs-endpoint-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+.docs-params {
+  display: flex;
+  flex-direction: column;
+}
+.docs-param-row {
+  display: grid;
+  grid-template-columns: 200px 80px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+}
+.docs-param-row:last-child { border-bottom: none; }
+@media (max-width: 768px) {
+  .docs-param-row { grid-template-columns: 1fr; gap: 4px; }
+}
+.docs-param-name-col { display: flex; align-items: baseline; gap: 8px; }
+.docs-param-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.docs-param-type {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.docs-param-req {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.docs-param-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ---------- Tabs (code examples) ---------- */
+.docs-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+.docs-tab {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--ease-micro);
+}
+.docs-tab:hover { color: var(--text-primary); }
+.docs-tab.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------- Code block ---------- */
+.docs-code-block {
+  background: #0f172a;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin: 1.5rem 0;
+}
+
+html.dark .docs-code-block { background: #0a0a0c; }
+.docs-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.docs-code-lang {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.docs-code-copy {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--ease-micro);
+}
+.docs-code-copy:hover { background: rgba(255, 255, 255, 0.16); }
+.docs-code-block pre {
+  margin: 0;
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #e2e8f0;
+}
+.docs-code-block pre code {
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ---------- Errors grid ---------- */
+.docs-error-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.docs-error-card {
+  padding: 18px 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+}
+.docs-error-code {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.docs-error-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.docs-error-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ---------- Metrics grid ---------- */
+.docs-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) { .docs-metrics-grid { grid-template-columns: 1fr; } }
+.docs-metric-card {
+  padding: 24px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+}
+.docs-metric-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.docs-metric-value {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.docs-metric-sub {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ---------- Best practices ---------- */
+.docs-best-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 768px) { .docs-best-grid { grid-template-columns: 1fr; } }
+.docs-best-card {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+}
+.docs-best-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.docs-best-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.docs-best-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- Sidebar groups (collapsible) ---------- */
+.docs-sidebar-group {
+  margin-top: 12px;
+}
+.docs-sidebar-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--ease-micro);
+}
+.docs-sidebar-group-header:hover { color: var(--text-secondary); }
+.docs-sidebar-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-subtle);
+  margin-left: 16px;
+}
+.docs-sidebar-link.child {
+  font-size: 12.5px;
+  padding: 6px 10px;
+}
+
+/* ---------- Body content elements ---------- */
+.docs-content { max-width: 100%; }
+.docs-h3 {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.docs-p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+  max-width: 720px;
+}
+.docs-list {
+  margin: 0 0 20px;
+  padding-left: 22px;
+  list-style: none;
+}
+.docs-list li {
+  position: relative;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  max-width: 720px;
+}
+.docs-list li::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+}
+
+/* ---------- Tables in body ---------- */
+.docs-table-wrapper {
+  margin: 0 0 24px;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+}
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  font-size: 13px;
+}
+.docs-table thead {
+  background: var(--bg-subtle);
+}
+.docs-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-default);
+}
+.docs-table td {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.docs-table tbody tr:last-child td { border-bottom: none; }
+.docs-table tbody tr:hover { background: var(--surface-hover); }
+
+/* ---------- Callout (info / warn / tip) ---------- */
+.docs-callout {
+  display: flex;
+  gap: 12px;
+  padding: 14px 18px;
+  margin: 0 0 24px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  line-height: 1.65;
+  border: 1px solid;
+}
+.docs-callout-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+}
+.docs-callout-text { flex: 1; color: var(--text-primary); }
+.docs-callout-info {
+  background: var(--accent-light);
+  border-color: rgba(0, 114, 255, 0.18);
+}
+.docs-callout-info .docs-callout-icon { background: var(--accent-gradient); }
+.docs-callout-warn {
+  background: var(--warning-light);
+  border-color: rgba(255, 149, 0, 0.22);
+}
+.docs-callout-warn .docs-callout-icon { background: var(--warning); }
+.docs-callout-tip {
+  background: var(--success-light);
+  border-color: rgba(52, 199, 89, 0.20);
+}
+.docs-callout-tip .docs-callout-icon { background: var(--success); }
+
+/* ---------- Content cards (cards block) ---------- */
+.docs-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 0 0 24px;
+}
+@media (max-width: 700px) { .docs-card-grid { grid-template-columns: 1fr; } }
+.docs-content-card {
+  padding: 18px 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  transition: transform var(--ease-micro), box-shadow var(--ease-micro);
+}
+.docs-content-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 114, 255, 0.10), 0 0 0 0.5px rgba(0, 114, 255, 0.18);
+}
+.docs-content-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.docs-content-card h4 {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.docs-content-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gradient);
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.docs-content-card p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ---------- Pagination (prev/next at bottom) ---------- */
+.docs-pagination {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-subtle);
+}
+.docs-page-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-ring);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: transform var(--ease-micro), box-shadow var(--ease-micro);
+}
+.docs-page-nav.next { text-align: right; align-items: flex-end; }
+.docs-page-nav:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 114, 255, 0.10), 0 0 0 0.5px rgba(0, 114, 255, 0.18);
+}
+.docs-page-nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.docs-page-nav-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ---------- Right TOC ---------- */
+.docs-toc {
+  height: 100%;
+  padding: 48px 24px 32px 8px;
+  overflow-y: auto;
+}
+
+.docs-toc-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.docs-toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.docs-toc-link {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color var(--ease-micro);
+  border-left: 2px solid transparent;
+  padding-left: 12px;
+  margin-left: -14px;
+}
+.docs-toc-link:hover { color: var(--text-primary); }
+.docs-toc-link.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+
+/* ==================== VChart canvas (force transparent) ====================
+   VChart's underlying <canvas> has a default white fill, which appears as a
+   white block on top of any non-white background (e.g. row hover). */
+.dashboard-trend-chart,
+.dashboard-trend-chart *,
+.dashboard-trend-chart canvas {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ==================== Brand Logo (theme-aware) ==================== */
+.brand-logo-dark { display: none; }
+html.dark .brand-logo-light { display: none; }
+html.dark .brand-logo-dark { display: block; }
+
+/* ==================== Primary Button Gradient ==================== */
+.semi-button-primary,
+.semi-button.semi-button-primary.semi-button-solid {
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 1px 2px rgba(0, 114, 255, 0.25) !important;
+}
+.semi-button-primary:hover,
+.semi-button.semi-button-primary.semi-button-solid:hover {
+  background: var(--accent-gradient-hover) !important;
+  box-shadow: 0 2px 6px rgba(0, 114, 255, 0.35) !important;
+}
+.semi-button-primary:active,
+.semi-button.semi-button-primary.semi-button-solid:active {
+  background: var(--accent-gradient) !important;
+  filter: brightness(0.92);
+}
+/* Disabled primary button: keep flat */
+.semi-button-primary.semi-button-disabled,
+.semi-button.semi-button-primary.semi-button-disabled {
+  background: var(--surface-active) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+}
+
+/* Selected nav item — gradient bar */
+.semi-navigation-item-selected::before {
+  background: var(--accent-gradient) !important;
+}
+
+/* Tabs ink bar uses gradient */
+.semi-tabs-ink-bar {
+  background: var(--accent-gradient) !important;
+}
+
+/* Pagination active — gradient */
+.semi-page-item-active,
+.semi-page-item-active:hover {
+  background: var(--accent-gradient) !important;
+  border-color: transparent !important;
+}
+
+/* Progress bar uses gradient */
+.semi-progress-line-inner {
+  background: var(--accent-gradient) !important;
+}
+
+/* Slider track uses gradient */
+.semi-slider-track {
+  background: var(--accent-gradient) !important;
+}
+
+/* ==================== Borderless Card System ==================== */
+/* Remove hard borders from major surfaces; rely on bg contrast */
+.semi-card,
+.mv-card,
+.mv-settings-section,
+.semi-modal-content,
+.semi-sidesheet-inner,
+.semi-banner,
+.semi-collapse,
+.semi-popconfirm-body {
+  border: none !important;
+}
+
+/* ==================== Table Design (shadcn/ui-style) ====================
+   Used by Linear, Vercel, Notion, and most modern SaaS dashboards.
+
+   Key principle: the THEAD has NO background color.
+   It's just transparent rows with a single 1px border-bottom separating
+   header from body. This eliminates ALL corner-bleed and fixed-column
+   white-overlay problems because there's nothing colored to leak.
+
+   - thead: transparent, normal text weight, single bottom border
+   - tbody: transparent rows, thin row dividers, subtle hover
+   - last row: no border (merges into card edge)
+   - selected row: subtle accent tint
+   - fixed columns: ::before pseudo defeated to transparent
+*/
+
+.semi-table,
+.semi-table-wrapper,
+.semi-table-container {
+  background: transparent !important;
+}
+
+/* ---------- Header ---------- */
+/* Subtle primary-tinted gradient — replaces Semi's default grey fill */
+:root {
+  --table-head-gradient: linear-gradient(90deg, rgba(0, 114, 255, 0.06) 0%, rgba(0, 198, 255, 0.11) 50%, rgba(0, 114, 255, 0.04) 100%);
+  --table-head-gradient-hover: linear-gradient(90deg, rgba(0, 114, 255, 0.10) 0%, rgba(0, 198, 255, 0.16) 50%, rgba(0, 114, 255, 0.08) 100%);
+}
+html.dark {
+  --table-head-gradient: linear-gradient(90deg, rgba(0, 114, 255, 0.12) 0%, rgba(0, 198, 255, 0.18) 50%, rgba(0, 114, 255, 0.09) 100%);
+  --table-head-gradient-hover: linear-gradient(90deg, rgba(0, 114, 255, 0.18) 0%, rgba(0, 198, 255, 0.26) 50%, rgba(0, 114, 255, 0.14) 100%);
+}
+
+.semi-table-thead {
+  background: transparent !important;
+}
+.semi-table-thead > .semi-table-row {
+  background: var(--table-head-gradient) !important;
+}
+
+.semi-table-thead > .semi-table-row > .semi-table-row-head {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  border-right: none !important;
+  text-align: left;
+}
+
+/* Fixed header cells — Semi hard-codes a white ::before overlay; repaint with
+   the same tinted gradient so the header stays uniform across fixed/non-fixed. */
+.semi-table-thead > .semi-table-row > .semi-table-row-head.semi-table-cell-fixed-left,
+.semi-table-thead > .semi-table-row > .semi-table-row-head.semi-table-cell-fixed-right {
+  background-color: transparent !important;
+  background-image: var(--table-head-gradient) !important;
+  background-attachment: local !important;
+}
+.semi-table-thead > .semi-table-row > .semi-table-row-head.semi-table-cell-fixed-left::before,
+.semi-table-thead > .semi-table-row > .semi-table-row-head.semi-table-cell-fixed-right::before {
+  background-color: transparent !important;
+  background-image: none !important;
+  display: none !important;
+}
+
+/* Sortable header hover — slightly stronger tint */
+.semi-table-thead > .semi-table-row > .semi-table-row-head.semi-table-row-head-clickSort:hover {
+  background-color: transparent !important;
+  background-image: var(--table-head-gradient-hover) !important;
+}
+
+/* Kill the fixed-column shadow & extra borders */
+.semi-table-cell-fixed-left-last,
+.semi-table-cell-fixed-right-first {
+  box-shadow: none !important;
+  border-right-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+/* ---------- Body ---------- */
+.semi-table-tbody > .semi-table-row {
+  background-color: transparent !important;
+}
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+  background-color: transparent !important;
+  background-image: none !important;
+  padding: 12px 16px !important;
+  font-size: 13px !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  border-right: none !important;
+  transition: background-color var(--ease-micro) !important;
+}
+
+/* Defeat ::before on body fixed cells */
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell.semi-table-cell-fixed-left,
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell.semi-table-cell-fixed-right {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell.semi-table-cell-fixed-left::before,
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell.semi-table-cell-fixed-right::before {
+  background-color: transparent !important;
+  background-image: none !important;
+  display: none !important;
+}
+
+/* Last row: drop the bottom border so it merges into the card edge */
+.semi-table-tbody > .semi-table-row:last-child > .semi-table-row-cell {
+  border-bottom: none !important;
+}
+
+/* Row hover — subtle muted */
+.semi-table-tbody > .semi-table-row:hover > .semi-table-row-cell {
+  background-color: var(--surface-hover) !important;
+  background-image: none !important;
+}
+
+/* No alternating stripes */
+.semi-table-row-striped > .semi-table-row-cell {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Selected row — accent tint */
+.semi-table-tbody > .semi-table-row.semi-table-row-selected > .semi-table-row-cell {
+  background-color: var(--accent-light) !important;
+  background-image: none !important;
+}
+
+/* Pagination footer */
+.semi-table-pagination-outer {
+  padding: 12px 16px !important;
+  background: transparent !important;
+  border-top: 1px solid var(--border-subtle) !important;
 }
 
 /* ==================== Misc ==================== */

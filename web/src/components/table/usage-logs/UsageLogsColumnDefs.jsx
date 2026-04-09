@@ -39,12 +39,12 @@ import { CircleAlert, Route, Sparkles } from 'lucide-react';
 // iOS system color palette for channel badges
 const channelColors = [
   { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
-  { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+  { color: 'var(--accent)', bg: 'var(--accent-light)' },
   { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)' },
   { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
   { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
   { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)' },
-  { color: '#007AFF', bg: 'rgba(0, 122, 255, 0.12)' },
+  { color: '#007AFF', bg: 'var(--accent-light)' },
   { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' },
   { color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' },
   { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)' },
@@ -56,7 +56,7 @@ const channelColors = [
 ];
 
 // iOS-style inline badge helper
-const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+export const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
   <span
     style={{
       display: 'inline-flex',
@@ -118,7 +118,7 @@ function buildChannelAffinityTooltip(affinity, t) {
 }
 
 // Render functions — iOS system colors
-const logTypeStyleMap = {
+export const logTypeStyleMap = {
   1: { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)', label: '充值' },
   2: { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', label: '消费' },
   3: { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', label: '管理' },
@@ -127,7 +127,7 @@ const logTypeStyleMap = {
   6: { color: '#30B0C7', bg: 'rgba(48, 176, 199, 0.12)', label: '退款' },
 };
 
-function renderType(type, t) {
+export function renderType(type, t) {
   const cfg = logTypeStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', label: '未知' };
   return (
     <InlineBadge color={cfg.color} bg={cfg.bg}>
@@ -157,13 +157,13 @@ function buildStreamStatusTooltip(ss, t) {
   );
 }
 
-function renderIsStream(bool, t, streamStatus) {
+export function renderIsStream(bool, t, streamStatus) {
   const isError = streamStatus && streamStatus.status !== 'ok';
 
   if (bool) {
     return (
       <span style={{ position: 'relative', display: 'inline-block' }}>
-        <InlineBadge color='var(--accent)' bg='rgba(10, 132, 255, 0.12)'>
+        <InlineBadge color='var(--accent)' bg='var(--accent-light)'>
           {t('流')}
         </InlineBadge>
         {isError && (
@@ -204,7 +204,7 @@ function getTimeColor(time, thresholds) {
   return { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)' };
 }
 
-function renderUseTime(type, t) {
+export function renderUseTime(type, t) {
   const time = parseInt(type);
   const style = getTimeColor(time, [101, 300]);
   return (
@@ -214,7 +214,7 @@ function renderUseTime(type, t) {
   );
 }
 
-function renderFirstUseTime(type, t) {
+export function renderFirstUseTime(type, t) {
   let time = parseFloat(type) / 1000.0;
   time = time.toFixed(1);
   const style = getTimeColor(parseFloat(time), [3, 10]);
@@ -225,7 +225,7 @@ function renderFirstUseTime(type, t) {
   );
 }
 
-function renderBillingTag(record, t) {
+export function renderBillingTag(record, t) {
   const other = getLogOther(record.other);
   if (other?.billing_source === 'subscription') {
     return (
@@ -237,7 +237,7 @@ function renderBillingTag(record, t) {
   return null;
 }
 
-function renderModelName(record, copyText, t) {
+export function renderModelName(record, copyText, t) {
   let other = getLogOther(record.other);
   let modelMapped =
     other?.is_model_mapped &&
@@ -355,7 +355,7 @@ function getUsageLogGroupSummary(groupRatio, userGroupRatio, t) {
   return `${useUserGroupRatio ? t('专属倍率') : t('分组')} ${formatRatio(ratio)}x`;
 }
 
-function renderCompactDetailSummary(summarySegments) {
+export function renderCompactDetailSummary(summarySegments) {
   const segments = Array.isArray(summarySegments)
     ? summarySegments.filter((segment) => segment?.text)
     : [];
@@ -391,7 +391,7 @@ function renderCompactDetailSummary(summarySegments) {
   );
 }
 
-function getUsageLogDetailSummary(record, text, billingDisplayMode, t) {
+export function getUsageLogDetailSummary(record, text, billingDisplayMode, t) {
   const other = getLogOther(record.other);
 
   if (record.type === 6) {

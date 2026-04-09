@@ -161,7 +161,7 @@ const EditUserModal = (props) => {
               className='w-7 h-7 flex items-center justify-center'
               style={{
                 borderRadius: 'var(--radius-sm)',
-                background: 'rgba(0, 122, 255, 0.12)',
+                background: 'var(--accent-light)',
                 color: 'var(--accent)',
               }}
             >
@@ -206,7 +206,7 @@ const EditUserModal = (props) => {
               loading={loading}
               style={{
                 borderRadius: 'var(--radius-md)',
-                background: 'var(--accent)',
+                background: 'var(--accent-gradient)',
                 color: '#fff',
                 border: 'none',
               }}
@@ -239,7 +239,7 @@ const EditUserModal = (props) => {
                       className='w-7 h-7 flex items-center justify-center flex-shrink-0'
                       style={{
                         borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(0, 122, 255, 0.12)',
+                        background: 'var(--accent-light)',
                         color: 'var(--accent)',
                       }}
                     >
@@ -358,7 +358,7 @@ const EditUserModal = (props) => {
                       onClick={openBindingModal}
                       style={{
                         borderRadius: 'var(--radius-md)',
-                        background: 'var(--accent)',
+                        background: 'var(--accent-gradient)',
                         color: '#fff',
                         border: 'none',
                         flexShrink: 0,
@@ -402,7 +402,7 @@ const EditUserModal = (props) => {
               className='w-6 h-6 flex items-center justify-center'
               style={{
                 borderRadius: 'var(--radius-sm)',
-                background: 'rgba(0, 122, 255, 0.12)',
+                background: 'var(--accent-light)',
                 color: 'var(--accent)',
               }}
             >

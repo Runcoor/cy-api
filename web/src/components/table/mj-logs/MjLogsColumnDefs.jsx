@@ -50,12 +50,12 @@ import {
 // iOS system color palette for channel badges
 const channelColors = [
   { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)' },
-  { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)' },
+  { color: 'var(--accent)', bg: 'var(--accent-light)' },
   { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)' },
   { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)' },
   { color: 'var(--text-muted)', bg: 'var(--surface-active)' },
   { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)' },
-  { color: '#007AFF', bg: 'rgba(0, 122, 255, 0.12)' },
+  { color: '#007AFF', bg: 'var(--accent-light)' },
   { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)' },
   { color: '#FF9500', bg: 'rgba(255, 149, 0, 0.08)' },
   { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)' },
@@ -67,7 +67,7 @@ const channelColors = [
 ];
 
 // iOS-style inline badge helper
-const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
+export const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) => (
   <span
     style={{
       display: 'inline-flex',
@@ -91,8 +91,8 @@ const InlineBadge = ({ color, bg, mono, children, style: extraStyle, ...rest }) 
 );
 
 // MJ action type style map
-const mjTypeStyleMap = {
-  'IMAGINE': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Palette, label: '绘图' },
+export const mjTypeStyleMap = {
+  'IMAGINE': { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Palette, label: '绘图' },
   'UPSCALE': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: ZoomIn, label: '放大' },
   'VIDEO': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Video, label: '视频' },
   'EDITS': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Video, label: '编辑' },
@@ -102,7 +102,7 @@ const mjTypeStyleMap = {
   'PAN': { color: '#32ADE6', bg: 'rgba(50, 173, 230, 0.12)', icon: Move, label: '平移' },
   'DESCRIBE': { color: '#FFCC00', bg: 'rgba(255, 204, 0, 0.15)', icon: FileText, label: '图生文' },
   'BLEND': { color: '#34C759', bg: 'rgba(52, 199, 89, 0.08)', icon: Blend, label: '图混合' },
-  'UPLOAD': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Upload, label: '上传文件' },
+  'UPLOAD': { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Upload, label: '上传文件' },
   'SHORTEN': { color: '#FF2D55', bg: 'rgba(255, 45, 85, 0.12)', icon: Minimize2, label: '缩词' },
   'REROLL': { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.12)', icon: RotateCcw, label: '重绘' },
   'INPAINT': { color: '#5856D6', bg: 'rgba(88, 86, 214, 0.08)', icon: PaintBucket, label: '局部重绘-提交' },
@@ -121,17 +121,17 @@ const mjCodeStyleMap = {
 };
 
 // MJ task status style map
-const mjStatusStyleMap = {
+export const mjStatusStyleMap = {
   'SUCCESS': { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', icon: CheckCircle, label: '成功' },
   'NOT_START': { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: Pause, label: '未启动' },
   'SUBMITTED': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: Clock, label: '队列中' },
-  'IN_PROGRESS': { color: 'var(--accent)', bg: 'rgba(10, 132, 255, 0.12)', icon: Loader, label: '执行中' },
+  'IN_PROGRESS': { color: 'var(--accent)', bg: 'var(--accent-light)', icon: Loader, label: '执行中' },
   'FAILURE': { color: 'var(--error)', bg: 'rgba(255, 59, 48, 0.12)', icon: XCircle, label: '失败' },
   'MODAL': { color: 'var(--warning)', bg: 'rgba(255, 149, 0, 0.12)', icon: AlertCircle, label: '窗口等待' },
 };
 
 // Render functions
-function renderType(type, t) {
+export function renderType(type, t) {
   const cfg = mjTypeStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
   const Icon = cfg.icon;
   return (
@@ -142,7 +142,7 @@ function renderType(type, t) {
   );
 }
 
-function renderCode(code, t) {
+export function renderCode(code, t) {
   const cfg = mjCodeStyleMap[code] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
   const Icon = cfg.icon;
   return (
@@ -153,7 +153,7 @@ function renderCode(code, t) {
   );
 }
 
-function renderStatus(type, t) {
+export function renderStatus(type, t) {
   const cfg = mjStatusStyleMap[type] || { color: 'var(--text-muted)', bg: 'var(--surface-active)', icon: HelpCircle, label: '未知' };
   const Icon = cfg.icon;
   return (
@@ -164,7 +164,7 @@ function renderStatus(type, t) {
   );
 }
 
-const renderTimestamp = (timestampInSeconds) => {
+export const renderTimestamp = (timestampInSeconds) => {
   const date = new Date(timestampInSeconds * 1000);
   const year = date.getFullYear();
   const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -176,7 +176,7 @@ const renderTimestamp = (timestampInSeconds) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-function renderDuration(submit_time, finishTime, t) {
+export function renderDuration(submit_time, finishTime, t) {
   if (!submit_time || !finishTime) return 'N/A';
 
   const start = new Date(submit_time);

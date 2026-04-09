@@ -351,9 +351,9 @@ const ExtendDurationModal = ({
           durationHours < 1,
         style: {
           borderRadius: 'var(--radius-md)',
-          background: 'var(--accent)',
+          background: 'var(--accent-gradient)',
           color: '#fff',
-          border: 'none',
+          border: '1px solid transparent',
         },
       }}
       cancelButtonProps={{
@@ -484,7 +484,7 @@ const ExtendDurationModal = ({
                 style={{
                   borderRadius: 'var(--radius-sm)',
                   ...(durationHours === hours
-                    ? { background: 'var(--accent)', color: '#fff', border: 'none' }
+                    ? { background: 'var(--accent-gradient)', color: '#fff' }
                     : { border: '1px solid var(--border-default)' }),
                 }}
               >

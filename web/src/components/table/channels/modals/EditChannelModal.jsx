@@ -2134,7 +2134,7 @@ const EditChannelModal = (props) => {
             <div className='flex items-center gap-2.5'>
               <span
                 className='w-7 h-7 flex items-center justify-center'
-                style={{ borderRadius: 'var(--radius-sm)', background: isEdit ? 'rgba(0, 122, 255, 0.12)' : 'rgba(52, 199, 89, 0.15)', color: isEdit ? 'var(--accent)' : 'var(--success)' }}
+                style={{ borderRadius: 'var(--radius-sm)', background: isEdit ? 'var(--accent-light)' : 'rgba(52, 199, 89, 0.15)', color: isEdit ? 'var(--accent)' : 'var(--success)' }}
               >
                 <IconServer size={16} />
               </span>
@@ -2171,7 +2171,7 @@ const EditChannelModal = (props) => {
               theme='light'
               onClick={handleCancel}
               icon={<IconClose />}
-              style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)', border: '1px solid var(--border-default)' }}
+              style={{ borderRadius: 'var(--radius-md)', background: 'var(--surface-active)', color: 'var(--text-primary)' }}
             >
               {t('取消')}
             </Button>
@@ -2179,7 +2179,7 @@ const EditChannelModal = (props) => {
               theme='solid'
               onClick={() => formApiRef.current?.submitForm()}
               icon={<IconSave />}
-              style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: '#fff', border: 'none' }}
+              style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', color: '#fff' }}
             >
               {t('提交')}
             </Button>
