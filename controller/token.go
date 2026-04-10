@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/i18n"
+	"github.com/QuantumNous/aggre-api/model"
+	"github.com/QuantumNous/aggre-api/setting/operation_setting"
 
 	"github.com/gin-gonic/gin"
 )

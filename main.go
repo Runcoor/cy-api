@@ -11,19 +11,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/controller"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/middleware"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/oauth"
-	"github.com/QuantumNous/new-api/relay"
-	"github.com/QuantumNous/new-api/router"
-	"github.com/QuantumNous/new-api/service"
-	_ "github.com/QuantumNous/new-api/setting/performance_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/constant"
+	"github.com/QuantumNous/aggre-api/controller"
+	"github.com/QuantumNous/aggre-api/i18n"
+	"github.com/QuantumNous/aggre-api/logger"
+	"github.com/QuantumNous/aggre-api/middleware"
+	"github.com/QuantumNous/aggre-api/model"
+	"github.com/QuantumNous/aggre-api/oauth"
+	"github.com/QuantumNous/aggre-api/relay"
+	"github.com/QuantumNous/aggre-api/router"
+	"github.com/QuantumNous/aggre-api/service"
+	_ "github.com/QuantumNous/aggre-api/setting/performance_setting"
+	"github.com/QuantumNous/aggre-api/setting/ratio_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-contrib/sessions"
@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	common.SysLog("New API " + common.Version + " started")
+	common.SysLog("Aggre API " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -157,8 +157,8 @@ func main() {
 		common.SysLog(fmt.Sprintf("panic detected: %v", err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": gin.H{
-				"message": fmt.Sprintf("Panic detected, error: %v. Please submit a issue here: https://github.com/Calcium-Ion/new-api", err),
-				"type":    "new_api_panic",
+				"message": fmt.Sprintf("Panic detected, error: %v. Please submit a issue here: https://github.com/QuantumNous/aggre-api", err),
+				"type":    "aggre_api_panic",
 			},
 		})
 	}))

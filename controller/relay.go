@@ -9,20 +9,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/middleware"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/relay"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/relay/helper"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/constant"
+	"github.com/QuantumNous/aggre-api/dto"
+	"github.com/QuantumNous/aggre-api/logger"
+	"github.com/QuantumNous/aggre-api/middleware"
+	"github.com/QuantumNous/aggre-api/model"
+	"github.com/QuantumNous/aggre-api/relay"
+	relaycommon "github.com/QuantumNous/aggre-api/relay/common"
+	relayconstant "github.com/QuantumNous/aggre-api/relay/constant"
+	"github.com/QuantumNous/aggre-api/relay/helper"
+	"github.com/QuantumNous/aggre-api/service"
+	"github.com/QuantumNous/aggre-api/setting"
+	"github.com/QuantumNous/aggre-api/setting/operation_setting"
+	"github.com/QuantumNous/aggre-api/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/samber/lo"
@@ -440,7 +440,7 @@ func RelayMidjourney(c *gin.Context) {
 func RelayNotImplemented(c *gin.Context) {
 	err := types.OpenAIError{
 		Message: "API not implemented",
-		Type:    "new_api_error",
+		Type:    "aggre_api_error",
 		Param:   "",
 		Code:    "api_not_implemented",
 	}

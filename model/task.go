@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	commonRelay "github.com/QuantumNous/new-api/relay/common"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/constant"
+	"github.com/QuantumNous/aggre-api/dto"
+	commonRelay "github.com/QuantumNous/aggre-api/relay/common"
 
 	"gorm.io/gorm"
 )

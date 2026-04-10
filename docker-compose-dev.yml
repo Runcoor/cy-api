@@ -1,17 +1,10 @@
-###############################################################################
-#  CY-API Docker Compose — 开发环境
-#  - 后端走 Dockerfile.dev（跳过前端构建，省内存避免 OOM）
-#  - 前端本地 `cd web && bun run dev` 热更新 (http://localhost:5173)
-#  - 数据库/Redis 复用正式 compose 的 volume 和 network，数据不动
-###############################################################################
-
 services:
-  cy-api:
-    image: cy-api:dev
+  aggre-api:
+    image: aggre-api:dev
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: cy-api
+    container_name: aggre-api
     restart: always
     command: --log-dir /app/logs
     ports:
@@ -20,8 +13,8 @@ services:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      - SQL_DSN=postgresql://${DB_USER:-root}:${DB_PASSWORD:-123456}@${DB_HOST:-cy-postgres}:${DB_PORT:-5432}/${DB_NAME:-cy-api}
-      - REDIS_CONN_STRING=${REDIS_CONN_STRING:-redis://cy-redis}
+      - SQL_DSN=postgresql://${DB_USER:-root}:${DB_PASSWORD:-123456}@${DB_HOST:-aggre-postgres}:${DB_PORT:-5432}/${DB_NAME:-aggre-api}
+      - REDIS_CONN_STRING=${REDIS_CONN_STRING:-redis://aggre-redis}
       - PORT=${PORT:-3000}
       - GIN_MODE=${GIN_MODE:-debug}
       - TZ=${TZ:-Asia/Shanghai}
@@ -31,11 +24,10 @@ services:
       # 允许本地 5173 前端跨域访问
       - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:-http://localhost:5173}
     depends_on:
-      - cy-redis
-      - cy-postgres
+      - aggre-redis
+      - aggre-postgres
     networks:
-      - cy-network
-    # 运行时内存限制，防止失控
+      - aggre-network
     deploy:
       resources:
         limits:
@@ -46,33 +38,32 @@ services:
       timeout: 10s
       retries: 3
 
-  cy-redis:
+  aggre-redis:
     image: redis:latest
-    container_name: cy-redis
+    container_name: aggre-redis
     restart: always
     networks:
-      - cy-network
+      - aggre-network
 
-  cy-postgres:
+  aggre-postgres:
     image: postgres:15
-    container_name: cy-postgres
+    container_name: aggre-postgres
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-root}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
-      POSTGRES_DB: ${DB_NAME:-cy-api}
+      POSTGRES_DB: ${DB_NAME:-aggre-api}
     volumes:
       # 复用正式 compose 的同一个 volume，数据完全一致
-      - cy_pg_data:/var/lib/postgresql/data
+      - aggre_pg_data:/var/lib/postgresql/data
     networks:
-      - cy-network
+      - aggre-network
 
 volumes:
-  # external: 引用已存在的 volume（由 docker-compose.yml 创建的 new-api_cy_pg_data）
-  cy_pg_data:
+  aggre_pg_data:
     external: true
-    name: new-api_cy_pg_data
+    name: aggre-api_aggre_pg_data
 
 networks:
-  cy-network:
+  aggre-network:
     driver: bridge

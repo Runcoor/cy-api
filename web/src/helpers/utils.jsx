@@ -48,7 +48,7 @@ export function isRoot() {
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
-  if (!system_name || system_name === 'New API') return 'AGGRETOKEN';
+  if (!system_name || system_name === 'Aggre API') return 'AGGRETOKEN';
   return system_name;
 }
 

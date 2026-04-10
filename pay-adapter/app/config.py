@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # 易支付参数 (自定义，填到 new-api 后台的「易支付」配置里)
+    # 易支付参数 (自定义，填到 aggre-api 后台的「易支付」配置里)
     EPAY_PID: str
     EPAY_KEY: str
 
@@ -14,11 +14,11 @@ class Settings(BaseSettings):
     # 本适配器的公网地址 (例如 https://pay.yourdomain.com)
     BRIDGE_URL: str
 
-    # new-api 的对外地址 (例如 https://api.yourdomain.com)
+    # aggre-api 的对外地址 (例如 https://aggretoken.com)
     # 回调时根据订单号前缀自动路由到正确的 notify 端点
-    NEW_API_BASE_URL: str
+    AGGRE_BASE_URL: str
 
-    # 通知 new-api 失败时的最大重试次数
+    # 通知 aggre-api 失败时的最大重试次数
     NOTIFY_MAX_RETRIES: int = 5
     # 重试基础间隔（秒），指数退避: 5, 10, 20, 40, 80
     NOTIFY_RETRY_BASE_DELAY: float = 5.0

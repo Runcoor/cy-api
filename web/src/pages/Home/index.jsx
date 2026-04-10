@@ -285,7 +285,7 @@ const Home = () => {
                       }}
                       onClick={() =>
                         window.open(
-                          'https://github.com/QuantumNous/new-api',
+                          'https://github.com/QuantumNous/aggre-api',
                           '_blank',
                         )
                       }

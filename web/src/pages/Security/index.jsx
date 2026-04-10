@@ -150,7 +150,6 @@ const Security = () => {
       ],
       list: [
         t('安全漏洞报告与紧急响应：support@aggretoken.com'),
-        t('商务安全评估与合规：contact@aggretoken.com'),
       ],
       note: t('我们承诺 24 小时内确认收到安全报告，并依据严重程度启动对应响应流程。'),
     },

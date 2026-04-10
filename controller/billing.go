@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/model"
+	"github.com/QuantumNous/aggre-api/setting/operation_setting"
+	"github.com/QuantumNous/aggre-api/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -83,7 +83,7 @@ func GetUsage(c *gin.Context) {
 	if err != nil {
 		openAIError := types.OpenAIError{
 			Message: err.Error(),
-			Type:    "new_api_error",
+			Type:    "aggre_api_error",
 		}
 		c.JSON(200, gin.H{
 			"error": openAIError,

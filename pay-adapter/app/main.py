@@ -39,20 +39,20 @@ def _extract_params(request: Request, form_data=None) -> dict[str, str]:
 
 
 def _get_notify_url(out_trade_no: str) -> str:
-    """根据订单号前缀路由到 new-api 的正确 notify 端点。
+    """根据订单号前缀路由到 aggre-api 的正确 notify 端点。
 
-    new-api 生成的订单号格式：
+    aggre-api 生成的订单号格式：
       - 充值订单: USR{userId}NO{random}{timestamp}
       - 订阅订单: SUBUSR{userId}NO{random}{timestamp}
     """
-    base = settings.NEW_API_BASE_URL.rstrip("/")
+    base = settings.AGGRE_BASE_URL.rstrip("/")
     if out_trade_no.startswith("SUB"):
         return f"{base}/api/subscription/epay/notify"
     return f"{base}/api/user/epay/notify"
 
 
-async def _notify_new_api(notify_url: str, epay_data: dict[str, str]):
-    """异步通知 new-api，带指数退避重试。
+async def _notify_aggre_api(notify_url: str, epay_data: dict[str, str]):
+    """异步通知 aggre-api，带指数退避重试。
 
     go-epay 的 EpayNotify 同时支持 GET 和 POST，这里用 GET。
     """
@@ -97,12 +97,12 @@ async def health():
 
 
 # ============================================================
-# 接收 new-api 请求 → 调用虎皮椒 API → 重定向到支付页
+# 接收 aggre-api 请求 → 调用虎皮椒 API → 重定向到支付页
 # ============================================================
 
 @app.api_route("/submit.php", methods=["GET", "POST"])
 async def epay_submit(request: Request):
-    """接收 new-api (go-epay) 的易支付标准请求，转换并跳转到虎皮椒收银台。"""
+    """接收 aggre-api (go-epay) 的易支付标准请求，转换并跳转到虎皮椒收银台。"""
 
     form_data = None
     if request.method == "POST":
@@ -177,12 +177,12 @@ async def epay_submit(request: Request):
 
 
 # ============================================================
-# 接收虎皮椒回调 → 翻译为易支付格式 → 通知 new-api
+# 接收虎皮椒回调 → 翻译为易支付格式 → 通知 aggre-api
 # ============================================================
 
 @app.post("/notify/hupi")
 async def hupi_notify(request: Request):
-    """接收虎皮椒异步回调，验签后翻译为易支付格式通知 new-api。"""
+    """接收虎皮椒异步回调，验签后翻译为易支付格式通知 aggre-api。"""
 
     form_data = await request.form()
     params = {k: str(v) for k, v in form_data.items()}
@@ -217,11 +217,11 @@ async def hupi_notify(request: Request):
     epay_notify_data["sign"] = epay_sign(epay_notify_data, settings.EPAY_KEY)
     epay_notify_data["sign_type"] = "MD5"
 
-    # 5. 确定 new-api 的通知地址并异步发送（带重试）
+    # 5. 确定 aggre-api 的通知地址并异步发送（带重试）
     notify_url = _get_notify_url(out_trade_no)
-    log.info("Will notify new-api | order=%s url=%s", out_trade_no, notify_url)
+    log.info("Will notify aggre-api | order=%s url=%s", out_trade_no, notify_url)
 
-    asyncio.create_task(_notify_new_api(notify_url, epay_notify_data))
+    asyncio.create_task(_notify_aggre_api(notify_url, epay_notify_data))
 
     # 立即告诉虎皮椒已收到，防止重复推送
     return PlainTextResponse("success")

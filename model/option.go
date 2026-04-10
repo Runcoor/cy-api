@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/config"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/performance_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/setting"
+	"github.com/QuantumNous/aggre-api/setting/config"
+	"github.com/QuantumNous/aggre-api/setting/operation_setting"
+	"github.com/QuantumNous/aggre-api/setting/performance_setting"
+	"github.com/QuantumNous/aggre-api/setting/ratio_setting"
+	"github.com/QuantumNous/aggre-api/setting/system_setting"
 )
 
 type Option struct {
@@ -181,7 +181,7 @@ func loadOptionsFromDatabase() {
 		// If SystemName was never customized (still the old upstream default),
 		// overwrite it with the current compiled-in default so the brand name
 		// propagates automatically without manual admin intervention.
-		if option.Key == "SystemName" && option.Value == "New API" {
+		if option.Key == "SystemName" && option.Value == "Aggre API" {
 			_ = UpdateOption("SystemName", common.SystemName)
 			continue
 		}

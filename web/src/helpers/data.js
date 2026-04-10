@@ -22,7 +22,7 @@ export function setStatusData(data) {
   const DEFAULT_BRAND = 'AGGRETOKEN';
   localStorage.setItem(
     'system_name',
-    !data.system_name || data.system_name === 'New API'
+    !data.system_name || data.system_name === 'Aggre API'
       ? DEFAULT_BRAND
       : data.system_name,
   );

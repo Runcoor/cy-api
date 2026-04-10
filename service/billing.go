@@ -3,9 +3,9 @@ package service
 import (
 	"fmt"
 
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/QuantumNous/aggre-api/logger"
+	relaycommon "github.com/QuantumNous/aggre-api/relay/common"
+	"github.com/QuantumNous/aggre-api/types"
 	"github.com/gin-gonic/gin"
 )
 

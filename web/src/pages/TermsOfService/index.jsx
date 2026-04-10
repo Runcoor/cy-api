@@ -105,6 +105,19 @@ const TermsOfService = () => {
       ],
     },
     {
+      id: 'open-source',
+      title: t('开源声明'),
+      paragraphs: [
+        t(
+          '本服务基于 new-api 开源项目构建，遵循 GNU Affero General Public License v3.0 (AGPL-3.0) 协议。本服务的源代码已依据协议要求公开发布。',
+        ),
+      ],
+      list: [
+        t('上游项目：https://github.com/QuantumNous/new-api'),
+        t('本项目源码：https://github.com/Runcoor/aggre-api'),
+      ],
+    },
+    {
       id: 'liability',
       title: t('免责声明与责任限制'),
       paragraphs: [
@@ -153,7 +166,6 @@ const TermsOfService = () => {
         t('客户支持：support@aggretoken.com'),
         t('商务合作：hello@aggretoken.com'),
         t('账单与支付：billing@aggretoken.com'),
-        t('一般联系：contact@aggretoken.com'),
       ],
     },
   ];

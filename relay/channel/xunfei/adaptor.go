@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/relay/channel"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/QuantumNous/aggre-api/dto"
+	"github.com/QuantumNous/aggre-api/relay/channel"
+	relaycommon "github.com/QuantumNous/aggre-api/relay/common"
+	"github.com/QuantumNous/aggre-api/types"
 
 	"github.com/gin-gonic/gin"
 )

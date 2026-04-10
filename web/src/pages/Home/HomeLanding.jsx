@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Button, Input, ScrollList, ScrollItem } from '@douyinfe/semi-ui';
+import { Button } from '@douyinfe/semi-ui';
 import { API, showError, copy, showSuccess } from '../../helpers';
 import { useIsMobile } from '../../hooks/common/useIsMobile';
 import { API_ENDPOINTS } from '../../constants/common.constant';
@@ -11,7 +11,7 @@ import {
   IconGithubLogo,
   IconPlay,
   IconFile,
-  IconCopy,
+
 } from '@douyinfe/semi-icons';
 import { Link } from 'react-router-dom';
 import NoticeModal from '../../components/layout/NoticeModal';
@@ -500,9 +500,13 @@ const HomeLanding = () => {
     setHomePageContentLoaded(true);
   };
 
+  const [copied, setCopied] = useState(false);
   const handleCopyBaseURL = async () => {
     const ok = await copy(serverAddress);
-    if (ok) showSuccess(t('已复制到剪切板'));
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
   useEffect(() => {
@@ -630,44 +634,63 @@ const HomeLanding = () => {
                 {t('的 API 体验。')}
               </p>
 
-              {/* Base URL */}
-              <div className='flex flex-col md:flex-row items-center justify-center gap-3 w-full max-w-md mb-10'>
-                <Input
-                  readonly
-                  value={serverAddress}
-                  size={isMobile ? 'default' : 'large'}
+              {/* Base URL — code snippet style */}
+              <div
+                onClick={handleCopyBaseURL}
+                className='group flex items-center gap-3 px-5 py-3 mb-10 cursor-pointer transition-all duration-200'
+                style={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: 'var(--radius-lg)',
+                  maxWidth: '480px',
+                  width: '100%',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent)';
+                  e.currentTarget.style.boxShadow = '0 0 0 1px var(--accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <span
                   style={{
-                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--accent)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    userSelect: 'none',
+                  }}
+                >
+                  $
+                </span>
+                <span
+                  className='flex-1 text-left truncate'
+                  style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '13px',
+                    color: 'var(--text-secondary)',
+                    letterSpacing: '-0.01em',
                   }}
-                  suffix={
-                    <div className='flex items-center gap-1.5'>
-                      <ScrollList
-                        bodyHeight={32}
-                        style={{ border: 'unset', boxShadow: 'unset' }}
-                      >
-                        <ScrollItem
-                          mode='wheel'
-                          cycled={true}
-                          list={endpointItems}
-                          selectedIndex={endpointIndex}
-                          onSelect={({ index }) => setEndpointIndex(index)}
-                        />
-                      </ScrollList>
-                      <Button
-                        type='primary'
-                        onClick={handleCopyBaseURL}
-                        icon={<IconCopy style={{ color: '#ffffff' }} />}
-                        style={{
-                          borderRadius: 'var(--radius-sm)',
-                          minWidth: '32px',
-                          height: '32px',
-                        }}
-                      />
-                    </div>
-                  }
-                />
+                >
+                  {serverAddress}
+                  <span style={{ color: 'var(--text-muted)', transition: 'opacity 200ms' }}>
+                    {endpointItems[endpointIndex]?.value}
+                  </span>
+                </span>
+                <span
+                  style={{
+                    color: copied ? 'var(--accent)' : 'var(--text-muted)',
+                    fontSize: '12px',
+                    fontFamily: 'var(--font-mono)',
+                    whiteSpace: 'nowrap',
+                    transition: 'color 200ms',
+                    userSelect: 'none',
+                  }}
+                >
+                  {copied ? t('已复制') : t('复制')}
+                </span>
               </div>
 
               {/* CTAs */}
@@ -700,7 +723,7 @@ const HomeLanding = () => {
                       color: 'var(--text-primary)',
                       border: '1px solid var(--border-default)',
                     }}
-                    onClick={() => window.open('https://github.com/QuantumNous/new-api', '_blank')}
+                    onClick={() => window.open('https://github.com/QuantumNous/aggre-api', '_blank')}
                   >
                     {statusState.status.version}
                   </Button>
@@ -904,8 +927,8 @@ const HomeLanding = () => {
                 >
                   {systemName}
                 </div>
-                <p className='text-sm' style={{ color: 'var(--text-muted)' }}>
-                  © {new Date().getFullYear()} {systemName}. {t('统一智能。')}
+                <p className='text-sm' style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+                  © {new Date().getFullYear()} {systemName}.
                 </p>
               </div>
               <div className='flex gap-6'>
@@ -913,14 +936,15 @@ const HomeLanding = () => {
                   { label: t('隐私政策'), to: '/privacy-policy' },
                   { label: t('服务条款'), to: '/terms-of-service' },
                   { label: t('安全'), to: '/security' },
+                  { label: t('关于'), to: '/about' },
                 ].map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
                     className='text-sm transition-colors duration-200'
-                    style={{ color: 'var(--text-muted)' }}
-                    onMouseEnter={(e) => (e.target.style.color = 'var(--accent)')}
-                    onMouseLeave={(e) => (e.target.style.color = 'var(--text-muted)')}
+                    style={{ color: 'var(--text-muted)', opacity: 0.5 }}
+                    onMouseEnter={(e) => { e.target.style.color = 'var(--accent)'; e.target.style.opacity = '0.8'; }}
+                    onMouseLeave={(e) => { e.target.style.color = 'var(--text-muted)'; e.target.style.opacity = '0.5'; }}
                   >
                     {item.label}
                   </Link>

@@ -190,7 +190,7 @@ const FooterBar = () => {
                       Midjourney-Proxy
                     </a>
                     <a
-                      href='https://github.com/Calcium-Ion/neko-api-key-tool'
+                      href='https://github.com/QuantumNous/neko-api-key-tool'
                       target='_blank'
                       rel='noopener noreferrer'
                       style={footerLinkStyle}
@@ -208,14 +208,14 @@ const FooterBar = () => {
                   </p>
                   <div className='flex flex-col gap-3'>
                     <a
-                      href='https://github.com/Calcium-Ion/new-api-horizon'
+                      href='https://github.com/QuantumNous/aggre-api-horizon'
                       target='_blank'
                       rel='noopener noreferrer'
                       style={footerLinkStyle}
                       onMouseEnter={footerLinkHover}
                       onMouseLeave={footerLinkLeave}
                     >
-                      new-api-horizon
+                      aggre-api-horizon
                     </a>
                     <a
                       href='https://github.com/coaidev/coai'

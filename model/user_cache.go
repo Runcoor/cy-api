@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/constant"
+	"github.com/QuantumNous/aggre-api/dto"
 
 	"github.com/gin-gonic/gin"
 

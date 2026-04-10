@@ -1,15 +1,10 @@
-###############################################################################
-#  CY-API Docker Compose
-#  配合 .env 使用 — 所有可调配置均集中在 .env 中
-###############################################################################
-
 services:
-  cy-api:
-    image: cy-api:latest
+  aggre-api:
+    image: aggre-api:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cy-api
+    container_name: aggre-api
     restart: always
     command: --log-dir /app/logs
     ports:
@@ -18,8 +13,8 @@ services:
       - ./data:/data
       - ./logs:/app/logs
     environment:
-      - SQL_DSN=postgresql://${DB_USER:-root}:${DB_PASSWORD:-123456}@${DB_HOST:-cy-postgres}:${DB_PORT:-5432}/${DB_NAME:-cy-api}
-      - REDIS_CONN_STRING=${REDIS_CONN_STRING:-redis://cy-redis}
+      - SQL_DSN=postgresql://${DB_USER:-root}:${DB_PASSWORD:-123456}@${DB_HOST:-aggre-postgres}:${DB_PORT:-5432}/${DB_NAME:-aggre-api}
+      - REDIS_CONN_STRING=${REDIS_CONN_STRING:-redis://aggre-redis}
       - PORT=${PORT:-3000}
       - GIN_MODE=${GIN_MODE:-debug}
       - TZ=${TZ:-Asia/Shanghai}
@@ -27,39 +22,39 @@ services:
       - ERROR_LOG_ENABLED=${ERROR_LOG_ENABLED:-true}
       - BATCH_UPDATE_ENABLED=${BATCH_UPDATE_ENABLED:-true}
     depends_on:
-      - cy-redis
-      - cy-postgres
+      - aggre-redis
+      - aggre-postgres
     networks:
-      - cy-network
+      - aggre-network
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:${PORT:-3000}/api/status | grep -o '\"success\":\\s*true' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  cy-redis:
+  aggre-redis:
     image: redis:latest
-    container_name: cy-redis
+    container_name: aggre-redis
     restart: always
     networks:
-      - cy-network
+      - aggre-network
 
-  cy-postgres:
+  aggre-postgres:
     image: postgres:15
-    container_name: cy-postgres
+    container_name: aggre-postgres
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-root}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
-      POSTGRES_DB: ${DB_NAME:-cy-api}
+      POSTGRES_DB: ${DB_NAME:-aggre-api}
     volumes:
-      - cy_pg_data:/var/lib/postgresql/data
+      - aggre_pg_data:/var/lib/postgresql/data
     networks:
-      - cy-network
+      - aggre-network
 
 volumes:
-  cy_pg_data:
+  aggre_pg_data:
 
 networks:
-  cy-network:
+  aggre-network:
     driver: bridge

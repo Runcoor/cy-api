@@ -125,7 +125,7 @@ function TokensPage() {
       loadModels();
     }
     if (!key && localStorage.getItem(SUPPRESS_KEY) === '1') return;
-    const container = document.getElementById('fluent-new-api-container');
+    const container = document.getElementById('fluent-aggre-api-container');
     if (!container) {
       Toast.warning(t('未检测到 FluentRead（流畅阅读），请确认扩展已启用'));
       return;
@@ -208,7 +208,7 @@ function TokensPage() {
       prefillKey: overrideKey,
       fetchTokenKey,
     } = latestRef.current;
-    const container = document.getElementById('fluent-new-api-container');
+    const container = document.getElementById('fluent-aggre-api-container');
     if (!container) {
       Toast.error(t('未检测到 Fluent 容器'));
       return;
@@ -251,7 +251,7 @@ function TokensPage() {
     }
 
     const payload = {
-      id: 'new-api',
+      id: 'aggre-api',
       baseUrl: serverAddress,
       apiKey: apiKeyToUse,
       model: chosenModel,
@@ -291,7 +291,7 @@ function TokensPage() {
   }, [modelOptions, selectedModel, tokensData.t, fluentNoticeOpen]);
 
   useEffect(() => {
-    const selector = '#fluent-new-api-container';
+    const selector = '#fluent-aggre-api-container';
     const root = document.body || document.documentElement;
 
     const existing = document.querySelector(selector);
@@ -304,7 +304,7 @@ function TokensPage() {
 
     const isOrContainsTarget = (node) => {
       if (!(node && node.nodeType === 1)) return false;
-      if (node.id === 'fluent-new-api-container') return true;
+      if (node.id === 'fluent-aggre-api-container') return true;
       return (
         typeof node.querySelector === 'function' &&
         !!node.querySelector(selector)

@@ -70,34 +70,6 @@ const UserArea = ({
           render={
             <Dropdown.Menu>
               <Dropdown.Item
-                onClick={() => navigate('/console/personal')}
-                style={menuItemStyle}
-              >
-                <div className='flex items-center gap-2'>
-                  <IconUserSetting size='small' style={menuIconStyle} />
-                  <span>{t('个人设置')}</span>
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => navigate('/console/token')}
-                style={menuItemStyle}
-              >
-                <div className='flex items-center gap-2'>
-                  <IconKey size='small' style={menuIconStyle} />
-                  <span>{t('令牌管理')}</span>
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => navigate('/console/topup')}
-                style={menuItemStyle}
-              >
-                <div className='flex items-center gap-2'>
-                  <IconCreditCard size='small' style={menuIconStyle} />
-                  <span>{t('钱包管理')}</span>
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item
                 onClick={logout}
                 style={{ ...menuItemStyle, color: 'var(--error)' }}
               >

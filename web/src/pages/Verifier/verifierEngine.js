@@ -451,7 +451,7 @@ async function sendProbe({ baseUrl, apiKey, model, prompt, previousAssistantText
     //    Different providers expose the reasoning track under different names:
     //      - OpenAI:     choices[0].message.reasoning_content
     //      - OpenRouter: choices[0].message.reasoning
-    //      - new-api:    choices[0].message.reasoning_content
+    //      - aggre-api:    choices[0].message.reasoning_content
     //      - xAI/Grok:   choices[0].message.reasoning_content
     if (typeof msg.reasoning_content === 'string' && msg.reasoning_content) {
       parts.push(msg.reasoning_content);

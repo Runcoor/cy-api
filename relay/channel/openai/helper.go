@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/relay/helper"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/QuantumNous/aggre-api/common"
+	"github.com/QuantumNous/aggre-api/dto"
+	"github.com/QuantumNous/aggre-api/logger"
+	relaycommon "github.com/QuantumNous/aggre-api/relay/common"
+	relayconstant "github.com/QuantumNous/aggre-api/relay/constant"
+	"github.com/QuantumNous/aggre-api/relay/helper"
+	"github.com/QuantumNous/aggre-api/service"
+	"github.com/QuantumNous/aggre-api/types"
 
 	"github.com/samber/lo"
 

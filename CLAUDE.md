@@ -19,7 +19,7 @@ AI API gateway/proxy built with Go. Aggregates 40+ upstream AI providers (OpenAI
 
 ### Backend
 ```bash
-go build -o new-api                    # Build binary
+go build -o aggre-api                  # Build binary
 go run main.go                         # Run dev server (default port 3000)
 go test ./...                          # Run all tests
 go test ./relay/channel/claude/...     # Run tests for a specific package
@@ -47,7 +47,7 @@ make build-frontend                    # Build frontend only
 
 ### Docker
 ```bash
-docker build -t new-api .              # Multi-stage build (bun frontend + go backend)
+docker build -t aggre-api .              # Multi-stage build (bun frontend + go backend)
 ```
 
 The frontend is embedded into the Go binary via `//go:embed web/dist` at build time. For production builds, the frontend must be built first.

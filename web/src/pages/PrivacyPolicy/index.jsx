@@ -135,7 +135,6 @@ const PrivacyPolicy = () => {
       ],
       list: [
         t('隐私与数据保护咨询：support@aggretoken.com'),
-        t('一般业务联系：contact@aggretoken.com'),
         t('账单与支付相关：billing@aggretoken.com'),
       ],
     },
