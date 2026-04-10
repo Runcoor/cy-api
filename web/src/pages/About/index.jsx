@@ -20,6 +20,7 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { Zap, Shield, Workflow, BarChart3 } from 'lucide-react';
 import { StatusContext } from '../../context/Status';
 
 const About = () => {
@@ -30,8 +31,13 @@ const About = () => {
 
   return (
     <div
-      className='w-full min-h-screen overflow-x-hidden'
-      style={{ background: 'var(--bg-base)' }}
+      className='w-full overflow-x-hidden'
+      style={{
+        background: 'var(--bg-base)',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
     >
       <style>{`
         .about-gradient-text {
@@ -109,7 +115,7 @@ const About = () => {
               fontWeight: 800,
               fontSize: 'clamp(48px, 8vw, 96px)',
               letterSpacing: '-0.045em',
-              lineHeight: 0.92,
+              lineHeight: 1.05,
               color: 'var(--text-primary)',
               margin: '0 0 32px 0',
             }}
@@ -127,7 +133,6 @@ const About = () => {
           </div>
 
           <p
-            className='mx-auto'
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(16px, 2.2vw, 22px)',
@@ -135,7 +140,8 @@ const About = () => {
               lineHeight: 1.65,
               color: 'var(--text-secondary)',
               maxWidth: 640,
-              margin: 0,
+              margin: '0 auto',
+              textAlign: 'center',
             }}
           >
             {t(
@@ -188,8 +194,8 @@ const About = () => {
               style={{
                 fontFamily: 'Manrope, var(--font-sans)',
                 fontWeight: 300,
-                fontSize: 'clamp(24px, 3.5vw, 44px)',
-                lineHeight: 1.4,
+                fontSize: 'clamp(20px, 2.8vw, 36px)',
+                lineHeight: 1.5,
                 color: 'var(--text-secondary)',
                 margin: 0,
               }}
@@ -253,28 +259,32 @@ const About = () => {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {[
               {
-                icon: 'flash_on',
+                key: 'routing',
+                Icon: Zap,
                 title: t('极速路由'),
                 desc: t(
                   '智能负载均衡与毫秒级路由决策，确保每一次 API 调用都以最优路径到达最佳供应商。',
                 ),
               },
               {
-                icon: 'shield',
+                key: 'security',
+                Icon: Shield,
                 title: t('企业安全'),
                 desc: t(
                   'AES-256 加密、TLS 1.3 全链路保护、零信任架构，为企业数据筑起坚实屏障。',
                 ),
               },
               {
-                icon: 'hub',
+                key: 'aggregate',
+                Icon: Workflow,
                 title: t('统一聚合'),
                 desc: t(
                   '40+ 供应商、数百个模型，一个 API 端点全部覆盖。不再维护多套 SDK 和凭证。',
                 ),
               },
               {
-                icon: 'monitoring',
+                key: 'observe',
+                Icon: BarChart3,
                 title: t('透明可观测'),
                 desc: t(
                   '实时用量面板、细粒度日志、多维度统计。每一分消耗都清晰可查、可审计。',
@@ -282,7 +292,7 @@ const About = () => {
               },
             ].map((v) => (
               <div
-                key={v.icon}
+                key={v.key}
                 className='group flex flex-col items-center text-center'
                 style={{
                   padding: 'clamp(32px, 4vw, 40px)',
@@ -293,13 +303,11 @@ const About = () => {
                     'background-color 220ms, border-color 220ms, box-shadow 220ms',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--surface)';
                   e.currentTarget.style.borderColor = 'var(--border-default)';
                   e.currentTarget.style.boxShadow =
                     '0 12px 32px -12px rgba(0,0,0,0.06)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--surface)';
                   e.currentTarget.style.borderColor = 'transparent';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
@@ -316,24 +324,8 @@ const About = () => {
                     justifyContent: 'center',
                     transition: 'background-color 220ms',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--accent-light)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--bg-subtle)';
-                  }}
                 >
-                  <span
-                    className='material-symbols-outlined'
-                    style={{
-                      fontSize: 28,
-                      color: 'var(--accent)',
-                      fontVariationSettings:
-                        "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
-                    }}
-                  >
-                    {v.icon}
-                  </span>
+                  <v.Icon size={26} style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
                 </div>
                 <h3
                   style={{
@@ -369,6 +361,7 @@ const About = () => {
         style={{
           padding: 'clamp(64px, 8vw, 128px) 0',
           background: 'var(--bg-subtle)',
+          flex: '1 0 auto',
         }}
       >
         <div className='max-w-3xl mx-auto px-6 text-center'>
@@ -397,26 +390,24 @@ const About = () => {
             )}
           </p>
 
-          <div className='flex flex-wrap justify-center gap-3'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto'>
             {[
               { label: t('客户支持'), email: 'support@aggretoken.com' },
               { label: t('商务合作'), email: 'hello@aggretoken.com' },
-              { label: t('一般联系'), email: 'contact@aggretoken.com' },
             ].map((c) => (
               <a
                 key={c.email}
                 href={`mailto:${c.email}`}
+                className='group'
                 style={{
-                  display: 'inline-flex',
+                  display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '12px 20px',
+                  padding: '20px 24px',
                   background: 'var(--surface)',
                   border: '1px solid var(--border-default)',
-                  borderRadius: 'var(--radius-md)',
-                  color: 'var(--text-primary)',
-                  fontSize: 13,
-                  fontWeight: 500,
+                  borderRadius: 'var(--radius-lg)',
                   textDecoration: 'none',
                   transition: 'border-color 180ms, box-shadow 180ms',
                 }}
@@ -432,7 +423,7 @@ const About = () => {
               >
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: 600,
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
@@ -441,7 +432,14 @@ const About = () => {
                 >
                   {c.label}
                 </span>
-                <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                <span
+                  style={{
+                    color: 'var(--accent)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 14,
+                    fontWeight: 500,
+                  }}
+                >
                   {c.email}
                 </span>
               </a>
@@ -458,6 +456,7 @@ const About = () => {
           background: 'var(--surface)',
           borderTop: '1px solid var(--border-subtle)',
           padding: '32px 0',
+          flexShrink: 0,
         }}
       >
         <div className='max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-6'>
