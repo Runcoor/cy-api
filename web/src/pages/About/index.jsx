@@ -36,7 +36,12 @@ const About = () => {
         background: 'var(--bg-base)',
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh',
+        /* Use 100% instead of 100vh — this component renders inside
+           PageLayout's <Content> which is already flex-stretched to
+           fill the viewport minus header. Using 100vh here would
+           overshoot and create blank space below the footer. */
+        minHeight: '100%',
+        flex: '1 0 auto',
       }}
     >
       <style>{`
@@ -212,7 +217,11 @@ const About = () => {
               {t('的基础设施。我们致力于消除接入壁垒，让每一位开发者都能用')}
               <span
                 className='about-gradient-text'
-                style={{ fontWeight: 600, fontStyle: 'italic' }}
+                style={{
+                  fontWeight: 600,
+                  fontStyle: 'italic',
+                  paddingRight: '0.15em',
+                }}
               >
                 {t('一个端点、一把钥匙')}
               </span>
