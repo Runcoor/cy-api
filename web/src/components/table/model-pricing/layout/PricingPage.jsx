@@ -42,17 +42,19 @@ import PricingTable from '../view/table/PricingTable';
 import { useModelPricingData } from '../../../../hooks/model-pricing/useModelPricingData';
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
 import { usePricingFilterCounts } from '../../../../hooks/model-pricing/usePricingFilterCounts';
-import { resetPricingFilters } from '../../../../helpers/data';
+import { resetPricingFilters } from '../../../../helpers/utils';
 
-/* ─── Segmented pill toggle — matches mockup's Provider/Modality control ─── */
+/* ─── Segmented pill toggle — matches mockup exactly:
+   container: bg-surface-container-high rounded-xl p-1
+   active:    bg-surface-container-lowest shadow-sm rounded-lg ─── */
 const SegmentedPills = ({ items, value, onChange }) => (
   <div
     style={{
       display: 'inline-flex',
-      padding: 3,
+      padding: 4,
       background: 'var(--bg-muted)',
-      borderRadius: 'var(--radius-lg)',
-      gap: 2,
+      borderRadius: 12,
+      gap: 0,
       flexWrap: 'wrap',
     }}
   >
@@ -64,8 +66,8 @@ const SegmentedPills = ({ items, value, onChange }) => (
           type='button'
           onClick={() => onChange(item.value)}
           style={{
-            padding: '6px 14px',
-            borderRadius: 'calc(var(--radius-lg) - 2px)',
+            padding: '7px 16px',
+            borderRadius: 8,
             border: 'none',
             fontSize: 12,
             fontWeight: 600,
@@ -74,9 +76,7 @@ const SegmentedPills = ({ items, value, onChange }) => (
             transition: 'all 150ms',
             background: active ? 'var(--surface)' : 'transparent',
             color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-            boxShadow: active
-              ? 'var(--shadow-ring), 0 1px 2px rgba(0,0,0,0.05)'
-              : 'none',
+            boxShadow: active ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
           }}
         >
           {item.label}
@@ -290,56 +290,50 @@ const PricingPage = () => {
                 {t('模型列表')}
               </h1>
             </div>
-            <div
-              className='w-full md:w-96'
-              style={{ position: 'relative' }}
-            >
-              <span
+            {/* Search — matches mockup: h-14, rounded-2xl, glass bg */}
+            <div className='w-full md:w-96'>
+              <div
+                className='flex items-center gap-3'
                 style={{
-                  position: 'absolute',
-                  left: 16,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  pointerEvents: 'none',
-                  display: 'inline-flex',
-                }}
-              >
-                <IconSearch />
-              </span>
-              <input
-                type='text'
-                value={searchValue}
-                onChange={handleChange}
-                onCompositionStart={handleCompositionStart}
-                onCompositionEnd={handleCompositionEnd}
-                placeholder={t('搜索模型名称...')}
-                style={{
-                  width: '100%',
-                  padding: '14px 16px 14px 44px',
+                  height: 56,
+                  padding: '0 20px',
                   background:
                     'color-mix(in srgb, var(--bg-muted) 50%, transparent)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-lg)',
-                  fontSize: 14,
-                  color: 'var(--text-primary)',
-                  outline: 'none',
-                  transition: 'background 150ms, box-shadow 150ms',
-                  fontFamily: 'var(--font-sans)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  borderRadius: 16,
+                  transition: 'background 200ms, box-shadow 200ms',
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.background = 'var(--surface)';
                   e.currentTarget.style.boxShadow =
-                    '0 4px 20px -4px rgba(0,0,0,0.08)';
+                    '0 8px 24px -8px rgba(0,0,0,0.1)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.background =
                     'color-mix(in srgb, var(--bg-muted) 50%, transparent)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-              />
+              >
+                <IconSearch style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <input
+                  type='text'
+                  value={searchValue}
+                  onChange={(e) => handleChange(e.target.value)}
+                  onCompositionStart={handleCompositionStart}
+                  onCompositionEnd={handleCompositionEnd}
+                  placeholder={t('搜索模型名称...')}
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: 14,
+                    color: 'var(--text-primary)',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -353,16 +347,16 @@ const PricingPage = () => {
           </div>
 
           {/* Row 3: Segmented filter toggles + actions */}
+          {/* Matches mockup: bg-surface-container-lowest/40 backdrop-blur-md rounded-3xl */}
           <div
             className='flex flex-wrap items-center gap-4 md:gap-6'
             style={{
-              padding: isMobile ? '12px 14px' : '14px 20px',
+              padding: isMobile ? '12px 14px' : '16px 24px',
               background:
                 'color-mix(in srgb, var(--surface) 40%, transparent)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
-              borderRadius: 'clamp(12px, 2vw, 20px)',
-              border: '1px solid var(--border-subtle)',
+              borderRadius: 24,
             }}
           >
             {/* Provider */}
