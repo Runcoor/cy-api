@@ -30,7 +30,7 @@ import { useMinimumLoadingTime } from '../../../../../hooks/common/useMinimumLoa
 import { useIsMobile } from '../../../../../hooks/common/useIsMobile';
 
 /* ─── Model icon (unchanged from before) ─── */
-const ModelIcon = ({ model, size = 56 }) => {
+const ModelIcon = ({ model, size = 44 }) => {
   const iconKey = model?.icon || model?.vendor_icon;
   if (iconKey) {
     return (
@@ -119,9 +119,9 @@ const PriceCell = ({ label, value, suffix }) => (
     <span
       style={{
         fontFamily: 'Manrope, var(--font-sans)',
-        fontSize: 'clamp(18px, 2vw, 22px)',
+        fontSize: 16,
         fontWeight: 800,
-        letterSpacing: '-0.02em',
+        letterSpacing: '-0.01em',
         background: 'var(--accent-gradient)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
@@ -188,8 +188,8 @@ const ModelCard = ({
         border: isSelected
           ? '1px solid var(--accent)'
           : '1px solid transparent',
-        borderRadius: 'clamp(16px, 2vw, 24px)',
-        padding: 'clamp(20px, 3vw, 32px)',
+        borderRadius: 16,
+        padding: '18px 20px',
         cursor: 'pointer',
         transition:
           'box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms',
@@ -208,17 +208,17 @@ const ModelCard = ({
       {/* ── Header: icon + name + badge ── */}
       <div
         className='flex justify-between items-start'
-        style={{ marginBottom: 'clamp(24px, 3vw, 40px)' }}
+        style={{ marginBottom: 16 }}
       >
-        <div className='flex gap-4 items-start min-w-0'>
-          <ModelIcon model={model} size={56} />
+        <div className='flex gap-3 items-center min-w-0'>
+          <ModelIcon model={model} size={44} />
           <div className='min-w-0'>
             <h3
               style={{
                 fontFamily: 'Manrope, var(--font-sans)',
-                fontSize: 'clamp(18px, 2vw, 24px)',
+                fontSize: 16,
                 fontWeight: 700,
-                letterSpacing: '-0.015em',
+                letterSpacing: '-0.01em',
                 color: 'var(--text-primary)',
                 margin: '0 0 4px 0',
                 overflow: 'hidden',
@@ -230,7 +230,7 @@ const ModelCard = ({
             </h3>
             <p
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 color: 'var(--text-muted)',
                 margin: 0,
                 overflow: 'hidden',
@@ -259,13 +259,13 @@ const ModelCard = ({
 
       {/* ── Pricing grid — 3 cols ── */}
       <div
-        className='grid gap-4'
+        className='grid gap-3'
         style={{
           gridTemplateColumns:
             cachePrice || showRatio
               ? 'repeat(3, minmax(0, 1fr))'
               : 'repeat(2, minmax(0, 1fr))',
-          marginBottom: 'clamp(24px, 3vw, 40px)',
+          marginBottom: 16,
         }}
       >
         {inputPrice && (
@@ -298,7 +298,7 @@ const ModelCard = ({
       <div
         className='flex items-center justify-between'
         style={{
-          paddingTop: 'clamp(16px, 2vw, 24px)',
+          paddingTop: 14,
           borderTop: '1px solid color-mix(in srgb, var(--border-default) 50%, transparent)',
         }}
       >
@@ -353,8 +353,8 @@ const ModelCard = ({
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '10px 24px',
-              borderRadius: 'clamp(12px, 1.5vw, 16px)',
+              padding: '8px 18px',
+              borderRadius: 12,
               border: 'none',
               background: 'var(--accent-gradient)',
               color: '#fff',
