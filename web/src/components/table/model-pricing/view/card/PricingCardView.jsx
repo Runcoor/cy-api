@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Checkbox, Empty, Pagination } from '@douyinfe/semi-ui';
+import { Checkbox, Empty, Pagination, Tooltip } from '@douyinfe/semi-ui';
 import {
   stringToColor,
   calculateModelPrice,
@@ -29,8 +29,8 @@ import PricingCardSkeleton from './PricingCardSkeleton';
 import { useMinimumLoadingTime } from '../../../../../hooks/common/useMinimumLoadingTime';
 import { useIsMobile } from '../../../../../hooks/common/useIsMobile';
 
-
-const ModelIcon = ({ model, size = 48 }) => {
+/* ─── Model icon (unchanged from before) ─── */
+const ModelIcon = ({ model, size = 56 }) => {
   const iconKey = model?.icon || model?.vendor_icon;
   if (iconKey) {
     return (
@@ -38,12 +38,12 @@ const ModelIcon = ({ model, size = 48 }) => {
         style={{
           width: size,
           height: size,
-          borderRadius: '12px',
+          borderRadius: 'var(--radius-lg)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          background: 'var(--semi-color-bg-0, #fff)',
+          background: 'var(--bg-subtle)',
           border: '1px solid var(--border-subtle)',
           overflow: 'hidden',
         }}
@@ -59,16 +59,16 @@ const ModelIcon = ({ model, size = 48 }) => {
       style={{
         width: size,
         height: size,
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-lg)',
         background: `${c}18`,
         color: c,
-        fontSize: size * 0.33,
+        fontSize: size * 0.3,
         fontWeight: 700,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        border: `1px solid ${c}28`,
+        border: `1px solid ${c}22`,
       }}
     >
       {text}
@@ -76,171 +76,318 @@ const ModelIcon = ({ model, size = 48 }) => {
   );
 };
 
-const SpecLabel = ({ label, value }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
-    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-      {label}
-    </span>
-    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', whiteSpace: 'nowrap', marginTop: '1px' }}>
-      {value}
-    </span>
-  </div>
-);
-
-const PriceBlock = ({ label, value }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: 0 }}>
-    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-      {label}
-    </span>
-    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', marginTop: '1px', fontFamily: 'var(--font-mono)' }}>
-      {value}
-    </span>
-  </div>
-);
-
-const TagBadge = ({ children, color, bg }) => (
+/* ─── Tag badge ─── */
+const TagBadge = ({ children, color, bg, accent }) => (
   <span
     style={{
       display: 'inline-flex',
       alignItems: 'center',
-      padding: '1px 7px',
-      borderRadius: '20px',
-      fontSize: '11px',
-      fontWeight: 600,
-      color: color || 'var(--text-secondary)',
-      background: bg || 'var(--surface-active)',
+      padding: '2px 10px',
+      borderRadius: 9999,
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      color: accent ? 'var(--accent)' : color || 'var(--text-secondary)',
+      background: accent
+        ? 'color-mix(in srgb, var(--accent) 10%, transparent)'
+        : bg || 'var(--surface-active)',
       whiteSpace: 'nowrap',
       lineHeight: '18px',
+      boxShadow: accent ? '0 0 16px rgba(0,114,255,0.12)' : 'none',
     }}
   >
     {children}
   </span>
 );
 
-const CACHE_KEYS = new Set(['cache', 'create-cache', 'cache-ratio', 'create-cache-ratio']);
+/* ─── Price cell — large gradient number ─── */
+const PriceCell = ({ label, value, suffix }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <span
+      style={{
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: 'var(--text-muted)',
+        lineHeight: 1,
+      }}
+    >
+      {label}
+    </span>
+    <span
+      style={{
+        fontFamily: 'Manrope, var(--font-sans)',
+        fontSize: 'clamp(18px, 2vw, 22px)',
+        fontWeight: 800,
+        letterSpacing: '-0.02em',
+        background: 'var(--accent-gradient)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        lineHeight: 1.2,
+      }}
+    >
+      {value}
+      {suffix && (
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            WebkitTextFillColor: 'var(--text-muted)',
+            color: 'var(--text-muted)',
+            marginLeft: 2,
+          }}
+        >
+          {suffix}
+        </span>
+      )}
+    </span>
+  </div>
+);
 
-const ModelRow = ({
+const CACHE_KEYS = new Set([
+  'cache',
+  'create-cache',
+  'cache-ratio',
+  'create-cache-ratio',
+]);
+
+/* ═══════════════════════════════════════════════════════════
+   ModelCard — large vertical card matching the HTML mockup.
+   2-col grid on desktop, 1-col on mobile.
+   ═══════════════════════════════════════════════════════════ */
+const ModelCard = ({
   model,
   isSelected,
   priceData,
   rowSelection,
-  copyText,
   showRatio,
   openModelDetail,
   handleCheckboxChange,
   t,
 }) => {
-  const endpoints = model.supported_endpoint_types || [];
   const priceItems = priceData ? getModelPriceItems(priceData, t) : [];
-
-  const inputPrice = priceItems.find((i) => i.key === 'input' || i.key === 'prompt');
-  const outputPrice = priceItems.find((i) => i.key === 'output' || i.key === 'completion');
-  const cachePrice = priceItems.find((i) => CACHE_KEYS.has(i.key));
-  const otherSpecs = priceItems.filter(
-    (i) => !['input', 'prompt', 'output', 'completion'].includes(i.key) && !CACHE_KEYS.has(i.key),
+  const inputPrice = priceItems.find(
+    (i) => i.key === 'input' || i.key === 'prompt',
   );
-
+  const outputPrice = priceItems.find(
+    (i) => i.key === 'output' || i.key === 'completion',
+  );
+  const cachePrice = priceItems.find((i) => CACHE_KEYS.has(i.key));
   const tags = model.tags || [];
 
   return (
-    <div
+    <article
       onClick={() => openModelDetail?.(model)}
-      className='pricing-row'
+      className='group'
       style={{
-        borderRadius: 'var(--radius-lg)',
+        position: 'relative',
         background: isSelected ? 'var(--accent-light)' : 'var(--surface)',
-        border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-        padding: '14px 16px',
+        border: isSelected
+          ? '1px solid var(--accent)'
+          : '1px solid transparent',
+        borderRadius: 'clamp(16px, 2vw, 24px)',
+        padding: 'clamp(20px, 3vw, 32px)',
         cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '14px',
+        transition:
+          'box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms',
+        overflow: 'hidden',
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.boxShadow =
+            '0 24px 64px -16px rgba(0,0,0,0.06)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      {/* ── 左侧图标 ── */}
-      <ModelIcon model={model} size={48} />
-
-      {/* ── 中间主体 ── */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* 模型名 + tags */}
-        <div className='flex items-center flex-wrap gap-1.5' style={{ marginBottom: '6px' }}>
-          <span
-            style={{
-              fontSize: '14px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {model.model_name}
-          </span>
-          {model.quota_type === 1 && (
-            <TagBadge color='#30B0C7' bg='rgba(48,176,199,0.10)'>{t('按次')}</TagBadge>
-          )}
-          {tags.slice(0, 3).map((tag) => (
-            <TagBadge key={tag}>{tag}</TagBadge>
-          ))}
+      {/* ── Header: icon + name + badge ── */}
+      <div
+        className='flex justify-between items-start'
+        style={{ marginBottom: 'clamp(24px, 3vw, 40px)' }}
+      >
+        <div className='flex gap-4 items-start min-w-0'>
+          <ModelIcon model={model} size={56} />
+          <div className='min-w-0'>
+            <h3
+              style={{
+                fontFamily: 'Manrope, var(--font-sans)',
+                fontSize: 'clamp(18px, 2vw, 24px)',
+                fontWeight: 700,
+                letterSpacing: '-0.015em',
+                color: 'var(--text-primary)',
+                margin: '0 0 4px 0',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {model.model_name}
+            </h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: 'var(--text-muted)',
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {model.description ||
+                (model.vendor_name ? model.vendor_name : '')}
+            </p>
+          </div>
         </div>
-
-        {/* 规格标签行 */}
-        <div className='flex items-center flex-wrap gap-3'>
-          {endpoints.slice(0, 4).map((ep) => (
-            <SpecLabel key={ep} label={ep} value={''} />
-          ))}
-          {otherSpecs.slice(0, 3).map((item) => (
-            <SpecLabel key={item.key} label={item.label} value={`${item.value}${item.suffix || ''}`} />
-          ))}
-          {model.description && (
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
-              {model.description}
-            </span>
+        <div className='flex items-center gap-2 flex-shrink-0 ml-3'>
+          {model.quota_type === 1 && (
+            <TagBadge color='#30B0C7' bg='rgba(48,176,199,0.10)'>
+              {t('按次')}
+            </TagBadge>
           )}
+          {tags.slice(0, 2).map((tag) => (
+            <TagBadge key={tag} accent>
+              {tag}
+            </TagBadge>
+          ))}
         </div>
       </div>
 
-      {/* ── 右侧价格区 ── */}
-      <div className='flex items-center gap-4 flex-shrink-0'>
+      {/* ── Pricing grid — 3 cols ── */}
+      <div
+        className='grid gap-4'
+        style={{
+          gridTemplateColumns:
+            cachePrice || showRatio
+              ? 'repeat(3, minmax(0, 1fr))'
+              : 'repeat(2, minmax(0, 1fr))',
+          marginBottom: 'clamp(24px, 3vw, 40px)',
+        }}
+      >
         {inputPrice && (
-          <PriceBlock
+          <PriceCell
             label={t('输入价格')}
-            value={`${inputPrice.value}${inputPrice.suffix || ''}`}
+            value={inputPrice.value}
+            suffix={inputPrice.suffix}
           />
         )}
         {outputPrice && (
-          <PriceBlock
+          <PriceCell
             label={t('输出价格')}
-            value={`${outputPrice.value}${outputPrice.suffix || ''}`}
+            value={outputPrice.value}
+            suffix={outputPrice.suffix}
           />
         )}
         {cachePrice && (
-          <PriceBlock
+          <PriceCell
             label={cachePrice.label}
-            value={`${cachePrice.value}${cachePrice.suffix || ''}`}
+            value={cachePrice.value}
+            suffix={cachePrice.suffix}
           />
         )}
-        {showRatio && model.quota_type === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('倍率')}</span>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-              ×{model.model_ratio}
-            </span>
-          </div>
-        )}
-
-        {rowSelection && (
-          <Checkbox
-            checked={isSelected}
-            onChange={(e) => {
-              e.stopPropagation();
-              handleCheckboxChange(model, e.target.checked);
-            }}
-          />
+        {!cachePrice && showRatio && model.quota_type === 0 && (
+          <PriceCell label={t('倍率')} value={`×${model.model_ratio}`} />
         )}
       </div>
-    </div>
+
+      {/* ── Footer: status + action ── */}
+      <div
+        className='flex items-center justify-between'
+        style={{
+          paddingTop: 'clamp(16px, 2vw, 24px)',
+          borderTop: '1px solid color-mix(in srgb, var(--border-default) 50%, transparent)',
+        }}
+      >
+        <div className='flex items-center gap-2'>
+          {(model.supported_endpoint_types || []).slice(0, 3).map((ep) => (
+            <Tooltip key={ep} content={ep} position='top'>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'var(--surface-active)',
+                  color: 'var(--text-secondary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {ep}
+              </span>
+            </Tooltip>
+          ))}
+          {showRatio && cachePrice && model.quota_type === 0 && (
+            <span
+              style={{
+                fontSize: 11,
+                color: 'var(--text-muted)',
+                fontFamily: 'var(--font-mono)',
+              }}
+            >
+              ×{model.model_ratio}
+            </span>
+          )}
+        </div>
+        <div className='flex items-center gap-3'>
+          {rowSelection && (
+            <Checkbox
+              checked={isSelected}
+              onChange={(e) => {
+                e.stopPropagation();
+                handleCheckboxChange(model, e.target.checked);
+              }}
+            />
+          )}
+          <button
+            type='button'
+            onClick={(e) => {
+              e.stopPropagation();
+              openModelDetail?.(model);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '10px 24px',
+              borderRadius: 'clamp(12px, 1.5vw, 16px)',
+              border: 'none',
+              background: 'var(--accent-gradient)',
+              color: '#fff',
+              fontFamily: 'Manrope, var(--font-sans)',
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px -8px rgba(0,114,255,0.3)',
+              transition:
+                'transform 120ms ease-out, box-shadow 220ms cubic-bezier(0.22,1,0.36,1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow =
+                '0 12px 28px -8px rgba(0,114,255,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow =
+                '0 8px 20px -8px rgba(0,114,255,0.3)';
+            }}
+          >
+            {t('查看详情')}
+          </button>
+        </div>
+      </div>
+    </article>
   );
 };
 
+/* ═══════════════════════════════════════════════════════════
+   PricingCardView — 2-col grid + pagination
+   ═══════════════════════════════════════════════════════════ */
 const PricingCardView = ({
   filteredModels,
   loading,
@@ -268,7 +415,10 @@ const PricingCardView = ({
   const isMobile = useIsMobile();
 
   const startIndex = (currentPage - 1) * pageSize;
-  const paginatedModels = filteredModels.slice(startIndex, startIndex + pageSize);
+  const paginatedModels = filteredModels.slice(
+    startIndex,
+    startIndex + pageSize,
+  );
   const getModelKey = (m) => m.key ?? m.model_name ?? m.id;
 
   const handleCheckboxChange = (model, checked) => {
@@ -282,15 +432,32 @@ const PricingCardView = ({
   };
 
   if (showSkeleton) {
-    return <PricingCardSkeleton rowSelection={!!rowSelection} showRatio={showRatio} />;
+    return (
+      <PricingCardSkeleton
+        rowSelection={!!rowSelection}
+        showRatio={showRatio}
+      />
+    );
   }
 
   if (!filteredModels || filteredModels.length === 0) {
     return (
       <div className='flex justify-center items-center py-16'>
         <Empty
-          image={<img src='/NoDataillustration.svg' style={{ width: 120, height: 120 }} />}
-          darkModeImage={<img src='/NoDataillustration.svg' style={{ width: 120, height: 120 }} />}
+          image={
+            <img
+              src='/NoDataillustration.svg'
+              alt=''
+              style={{ width: 120, height: 120 }}
+            />
+          }
+          darkModeImage={
+            <img
+              src='/NoDataillustration.svg'
+              alt=''
+              style={{ width: 120, height: 120 }}
+            />
+          }
           description={t('搜索无结果')}
         />
       </div>
@@ -298,8 +465,16 @@ const PricingCardView = ({
   }
 
   return (
-    <div style={{ padding: '8px 16px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ padding: isMobile ? '8px 12px' : '12px 20px' }}>
+      {/* ── 2-col card grid ── */}
+      <div
+        className='grid gap-5'
+        style={{
+          gridTemplateColumns: isMobile
+            ? '1fr'
+            : 'repeat(2, minmax(0, 1fr))',
+        }}
+      >
         {paginatedModels.map((model, index) => {
           const key = getModelKey(model);
           const isSelected = selectedRowKeys.includes(key);
@@ -314,13 +489,12 @@ const PricingCardView = ({
           });
 
           return (
-            <ModelRow
+            <ModelCard
               key={key || index}
               model={model}
               isSelected={isSelected}
               priceData={priceData}
               rowSelection={rowSelection}
-              copyText={copyText}
               showRatio={showRatio}
               openModelDetail={openModelDetail}
               handleCheckboxChange={handleCheckboxChange}
@@ -330,17 +504,21 @@ const PricingCardView = ({
         })}
       </div>
 
+      {/* ── Pagination ── */}
       {filteredModels.length > 0 && (
         <div
-          className='flex justify-center py-3'
-          style={{ marginTop: '8px', borderTop: '1px solid var(--border-subtle)' }}
+          className='flex justify-center py-4'
+          style={{
+            marginTop: 16,
+            borderTop: '1px solid var(--border-subtle)',
+          }}
         >
           <Pagination
             currentPage={currentPage}
             pageSize={pageSize}
             total={filteredModels.length}
             showSizeChanger
-            pageSizeOptions={[10, 20, 50, 100]}
+            pageSizeOptions={[20, 50, 100, 200]}
             size={isMobile ? 'small' : 'default'}
             showQuickJumper={!isMobile}
             onPageChange={(page) => setCurrentPage(page)}
@@ -354,6 +532,5 @@ const PricingCardView = ({
     </div>
   );
 };
-
 
 export default PricingCardView;
