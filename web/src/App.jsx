@@ -45,6 +45,7 @@ import ModelPage from './pages/Model';
 import ModelDeploymentPage from './pages/ModelDeployment';
 import Playground from './pages/Playground';
 import Subscription from './pages/Subscription';
+const Finance = lazy(() => import('./pages/Finance'));
 import OAuth2Callback from './components/auth/OAuth2Callback';
 import PersonalSetting from './components/settings/PersonalSetting';
 import Setup from './pages/Setup';
@@ -60,9 +61,14 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const Security = lazy(() => import('./pages/Security'));
 const Verifier = lazy(() => import('./pages/Verifier'));
+const ChangelogPage = lazy(() => import('./pages/Changelog'));
+const StatusPage = lazy(() => import('./pages/Status'));
+
 const CurlGenerator = lazy(() => import('./pages/Tools/CurlGenerator'));
 const LatencyTester = lazy(() => import('./pages/Tools/LatencyTester'));
 const TokenCalculator = lazy(() => import('./pages/Tools/TokenCalculator'));
+const BalanceChecker = lazy(() => import('./pages/Tools/BalanceChecker'));
+const CacheCalculator = lazy(() => import('./pages/Tools/CacheCalculator'));
 const PlansPage = lazy(() => import('./pages/Plans'));
 
 // Shared shell for standalone tool pages — centered column, top padding,
@@ -173,6 +179,16 @@ function App() {
             <AdminRoute>
               <Channel />
             </AdminRoute>
+          }
+        />
+        <Route
+          path='/console/finance'
+          element={
+            <Suspense fallback={<Loading />}>
+              <AdminRoute>
+                <Finance />
+              </AdminRoute>
+            </Suspense>
           }
         />
         <Route
@@ -461,6 +477,42 @@ function App() {
               <ToolPageShell>
                 <TokenCalculator />
               </ToolPageShell>
+            </Suspense>
+          }
+        />
+        <Route
+          path='/tools/cache'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <ToolPageShell>
+                <CacheCalculator />
+              </ToolPageShell>
+            </Suspense>
+          }
+        />
+        <Route
+          path='/tools/balance'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <ToolPageShell>
+                <BalanceChecker />
+              </ToolPageShell>
+            </Suspense>
+          }
+        />
+        <Route
+          path='/changelog'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <ChangelogPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/status'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <StatusPage />
             </Suspense>
           }
         />
