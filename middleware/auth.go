@@ -73,12 +73,12 @@ func authHelper(c *gin.Context, minRole int) {
 			return
 		}
 	}
-	// get header New-Api-User
-	apiUserIdStr := c.Request.Header.Get("New-Api-User")
+	// get header Aggre-User
+	apiUserIdStr := c.Request.Header.Get("Aggre-User")
 	if apiUserIdStr == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，未提供 New-Api-User",
+			"message": "无权进行此操作，未提供 Aggre-User",
 		})
 		c.Abort()
 		return
@@ -87,7 +87,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，New-Api-User 格式错误",
+			"message": "无权进行此操作，Aggre-User 格式错误",
 		})
 		c.Abort()
 		return
@@ -96,7 +96,7 @@ func authHelper(c *gin.Context, minRole int) {
 	if id != apiUserId {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "无权进行此操作，New-Api-User 与登录用户不匹配",
+			"message": "无权进行此操作，Aggre-User 与登录用户不匹配",
 		})
 		c.Abort()
 		return
