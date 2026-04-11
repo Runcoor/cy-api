@@ -39,7 +39,6 @@ import { useTranslation } from 'react-i18next';
 import UserInfoHeader from './personal/components/UserInfoHeader';
 import AccountManagement from './personal/cards/AccountManagement';
 import NotificationSettings from './personal/cards/NotificationSettings';
-import PreferencesSettings from './personal/cards/PreferencesSettings';
 import CheckinCalendar from './personal/cards/CheckinCalendar';
 import EmailBindModal from './personal/modals/EmailBindModal';
 import WeChatBindModal from './personal/modals/WeChatBindModal';
@@ -484,7 +483,7 @@ const PersonalSetting = () => {
           onPasskeyDelete={handleRemovePasskey}
         />
 
-        {/* Section 4: 偏好设置 + 通知设置 */}
+        {/* Section 4: 通知与偏好设置 */}
         <section
           style={{
             background: 'var(--surface)',
@@ -493,21 +492,12 @@ const PersonalSetting = () => {
             padding: 'clamp(24px, 4vw, 48px)',
           }}
         >
-          <h2
-            className='text-2xl sm:text-3xl font-extrabold mb-8 sm:mb-10'
-            style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
-          >
-            {t('settings.preferencesInterface')}
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-14'>
-            <NotificationSettings
-              t={t}
-              notificationSettings={notificationSettings}
-              handleNotificationSettingChange={handleNotificationSettingChange}
-              saveNotificationSettings={saveNotificationSettings}
-            />
-            <PreferencesSettings t={t} />
-          </div>
+          <NotificationSettings
+            t={t}
+            notificationSettings={notificationSettings}
+            handleNotificationSettingChange={handleNotificationSettingChange}
+            saveNotificationSettings={saveNotificationSettings}
+          />
         </section>
       </div>
 

@@ -18,6 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useRef, useEffect, useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
 
@@ -33,7 +34,8 @@ import {
   Col,
 } from '@douyinfe/semi-ui';
 import { IconMail, IconKey, IconBell, IconLink } from '@douyinfe/semi-icons';
-import { ShieldCheck, Bell, DollarSign, Settings } from 'lucide-react';
+import { ShieldCheck, Bell, DollarSign, Settings, Globe, Check } from 'lucide-react';
+import { normalizeLanguage } from '../../../../i18n/language';
 import {
   renderQuotaWithPrompt,
   API,
@@ -56,9 +58,65 @@ const NotificationSettings = ({
   saveNotificationSettings,
 }) => {
   const formApiRef = useRef(null);
+  const { i18n } = useTranslation();
   const [statusState] = useContext(StatusContext);
-  const [userState] = useContext(UserContext);
+  const [userState, userDispatch] = useContext(UserContext);
   const isAdminOrRoot = (userState?.user?.role || 0) >= 10;
+
+  // Language settings
+  const languageOptions = [
+    { value: 'zh-CN', label: '简体中文', shortCode: '中' },
+    { value: 'zh-TW', label: '繁體中文', shortCode: '繁' },
+    { value: 'en',    label: 'English',  shortCode: 'EN' },
+    { value: 'fr',    label: 'Français', shortCode: 'FR' },
+    { value: 'ru',    label: 'Русский',  shortCode: 'RU' },
+    { value: 'ja',    label: '日本語',   shortCode: '日' },
+    { value: 'vi',    label: 'Tiếng Việt', shortCode: 'VI' },
+  ];
+  const [currentLanguage, setCurrentLanguage] = useState(normalizeLanguage(i18n.language) || 'zh-CN');
+  const [langLoading, setLangLoading] = useState(false);
+
+  useEffect(() => {
+    if (userState?.user?.setting) {
+      try {
+        const settings = JSON.parse(userState.user.setting);
+        if (settings.language) {
+          const lang = normalizeLanguage(settings.language);
+          setCurrentLanguage(lang);
+          if (i18n.language !== lang) i18n.changeLanguage(lang);
+        }
+      } catch (e) { /* ignore */ }
+    }
+  }, [userState?.user?.setting, i18n]);
+
+  const handleLanguageChange = async (lang) => {
+    if (lang === currentLanguage) return;
+    setLangLoading(true);
+    const prev = currentLanguage;
+    try {
+      setCurrentLanguage(lang);
+      i18n.changeLanguage(lang);
+      localStorage.setItem('i18nextLng', lang);
+      const res = await API.put('/api/user/self', { language: lang });
+      if (res.data.success) {
+        showSuccess(t('语言偏好已保存'));
+        let settings = {};
+        if (userState?.user?.setting) {
+          try { settings = JSON.parse(userState.user.setting) || {}; } catch (e) { settings = {}; }
+        }
+        settings.language = lang;
+        const nextUser = { ...userState.user, setting: JSON.stringify(settings) };
+        userDispatch({ type: 'login', payload: nextUser });
+        localStorage.setItem('user', JSON.stringify(nextUser));
+      } else {
+        showError(res.data.message || t('保存失败'));
+        setCurrentLanguage(prev); i18n.changeLanguage(prev); localStorage.setItem('i18nextLng', prev);
+      }
+    } catch (error) {
+      showError(t('保存失败，请重试'));
+      setCurrentLanguage(prev); i18n.changeLanguage(prev); localStorage.setItem('i18nextLng', prev);
+    } finally { setLangLoading(false); }
+  };
 
   // 左侧边栏设置相关状态
   const [sidebarLoading, setSidebarLoading] = useState(false);
@@ -359,10 +417,10 @@ const NotificationSettings = ({
           className='inline-flex items-center justify-center'
           style={{ width: 28, height: 28, borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)' }}
         >
-          <Bell size={16} style={{ color: 'var(--accent)' }} />
+          <Settings size={16} style={{ color: 'var(--accent)' }} />
         </span>
         <h3 className='text-lg font-bold' style={{ color: 'var(--text-primary)' }}>
-          {t('settings.deliveryChannels')}
+          {t('通知与偏好')}
         </h3>
       </div>
 
@@ -930,6 +988,76 @@ const NotificationSettings = ({
                 </div>
               </TabPane>
             )}
+            {/* 语言设置 Tab */}
+            <TabPane
+              tab={
+                <div className='flex items-center'>
+                  <Globe size={16} className='mr-2' />
+                  {t('语言设置')}
+                </div>
+              }
+              itemKey='language'
+            >
+              <div className='py-4'>
+                <div className='mb-3'>
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
+                    {t('当前使用')}:{' '}
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                      {languageOptions.find((o) => o.value === currentLanguage)?.label || currentLanguage}
+                    </span>
+                  </p>
+                </div>
+                <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2'>
+                  {languageOptions.map((opt) => {
+                    const active = currentLanguage === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleLanguageChange(opt.value)}
+                        disabled={langLoading}
+                        style={{
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: '10px 12px',
+                          borderRadius: 'var(--radius-md)',
+                          border: `1px solid ${active ? 'transparent' : 'var(--border-default)'}`,
+                          background: active ? 'var(--accent-light)' : 'var(--bg-subtle)',
+                          color: active ? 'var(--accent)' : 'var(--text-primary)',
+                          cursor: langLoading ? 'wait' : 'pointer',
+                          opacity: langLoading && !active ? 0.5 : 1,
+                          transition: 'all 150ms ease',
+                          textAlign: 'left',
+                          minHeight: 48,
+                          boxShadow: active ? '0 0 0 1px var(--accent), 0 4px 12px -4px rgba(0,114,255,0.2)' : 'none',
+                        }}
+                      >
+                        <span
+                          style={{
+                            flexShrink: 0, width: 28, height: 28, borderRadius: 'var(--radius-sm)',
+                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            background: active ? 'var(--accent-gradient)' : 'var(--surface)',
+                            color: active ? '#fff' : 'var(--text-secondary)',
+                            fontSize: 11, fontWeight: 700,
+                            border: active ? 'none' : '1px solid var(--border-default)',
+                          }}
+                        >
+                          {opt.shortCode}
+                        </span>
+                        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {opt.label}
+                        </span>
+                        {active && <Check size={14} style={{ flexShrink: 0, color: 'var(--accent)', strokeWidth: 3 }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '12px 0 0', lineHeight: 1.5 }}>
+                  {t('提示：语言偏好会同步到您登录的所有设备，并影响API返回的错误消息语言。')}
+                </p>
+              </div>
+            </TabPane>
           </Tabs>
         )}
       </Form>
