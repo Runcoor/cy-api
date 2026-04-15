@@ -52,6 +52,9 @@ var defaultModelRatio = map[string]float64{
 	"gpt-4o-realtime-preview-2024-12-17":      2.5,
 	"gpt-4o-mini-realtime-preview":            0.3,
 	"gpt-4o-mini-realtime-preview-2024-12-17": 0.3,
+	"gpt-4o-realtime":                         2.0,   // $4 / 1M tokens (text)
+	"gpt-4o-mini-realtime":                    0.3,   // $0.6 / 1M tokens (text)
+	"gpt-4o-mini-audio-preview":               0.3,   // $0.6 / 1M tokens (text)
 	"gpt-4.1":                          1.0,  // $2 / 1M tokens
 	"gpt-4.1-2025-04-14":               1.0,  // $2 / 1M tokens
 	"gpt-4.1-mini":                     0.2,  // $0.4 / 1M tokens
@@ -98,6 +101,7 @@ var defaultModelRatio = map[string]float64{
 	"gpt-5-mini-2025-08-07":            0.125,
 	"gpt-5-nano":                       0.025,
 	"gpt-5-nano-2025-08-07":            0.025,
+	"gpt-5-codex-mini":                 0.375,  // $0.75 / 1M tokens
 	//"gpt-3.5-turbo-0301":           0.75, //deprecated
 	"gpt-3.5-turbo":          0.25,
 	"gpt-3.5-turbo-0613":     0.75,
@@ -139,15 +143,18 @@ var defaultModelRatio = map[string]float64{
 	"claude-3-7-sonnet-20250219":                1.5,
 	"claude-3-7-sonnet-20250219-thinking":       1.5,
 	"claude-sonnet-4-20250514":                  1.5,
+	"claude-sonnet-4-20250514-thinking":         1.5,   // $3 / 1M tokens
 	"claude-sonnet-4-5-20250929":                1.5,
 	"claude-opus-4-5-20251101":                  2.5,
 	"claude-opus-4-6":                           2.5,
+	"claude-opus-4-6-thinking":                  2.5,   // $5 / 1M tokens
 	"claude-opus-4-6-max":                       2.5,
 	"claude-opus-4-6-high":                      2.5,
 	"claude-opus-4-6-medium":                    2.5,
 	"claude-opus-4-6-low":                       2.5,
 	"claude-3-opus-20240229":                    7.5, // $15 / 1M tokens
 	"claude-opus-4-20250514":                    7.5,
+	"claude-opus-4-20250514-thinking":           7.5,   // $15 / 1M tokens
 	"claude-opus-4-1-20250805":                  7.5,
 	"ERNIE-4.0-8K":                              0.120 * RMB,
 	"ERNIE-3.5-8K":                              0.012 * RMB,
@@ -182,6 +189,7 @@ var defaultModelRatio = map[string]float64{
 	"gemini-2.5-pro-thinking-*":                 0.625, // 用于为后续所有2.5 pro thinking budget 模型设置默认倍率
 	"gemini-2.5-flash-lite-preview-thinking-*":  0.05,
 	"gemini-2.5-flash-lite-preview-06-17":       0.05,
+	"gemini-3.1-flash-preview":                  0.125,  // $0.25 / 1M tokens
 	"gemini-2.5-flash":                          0.15,
 	"gemini-robotics-er-1.5-preview":            0.15,
 	"gemini-embedding-001":                      0.075,
@@ -251,12 +259,20 @@ var defaultModelRatio = map[string]float64{
 	// grok
 	"grok-3-beta":           1.5,
 	"grok-3-mini-beta":      0.15,
+	"grok-3-thinking":       1.5,  // $3 / 1M tokens
 	"grok-2":                1,
 	"grok-2-vision":         1,
 	"grok-beta":             2.5,
 	"grok-vision-beta":      2.5,
 	"grok-3-fast-beta":      2.5,
 	"grok-3-mini-fast-beta": 0.3,
+	"grok-4-heavy":          1.5,  // $3 / 1M tokens
+	"grok-4-thinking":       1.5,  // $3 / 1M tokens
+	"grok-4.1-expert":       1.5,  // $3 / 1M tokens
+	"grok-4.1-fast":         0.1,  // $0.20 / 1M tokens
+	"grok-4.1-mini":         0.1,  // $0.20 / 1M tokens
+	"grok-4.1-thinking":     1.5,  // $3 / 1M tokens
+	"grok-4.20-beta":        1.5,  // $3 / 1M tokens
 	// submodel
 	"NousResearch/Hermes-4-405B-FP8":          0.8,
 	"Qwen/Qwen3-235B-A22B-Thinking-2507":      0.6,
@@ -302,6 +318,10 @@ var defaultModelPrice = map[string]float64{
 	"veo-3.0-fast-generate-001":      0.15,
 	"veo-3.1-generate-preview":       0.4,
 	"veo-3.1-fast-generate-preview":  0.15,
+	"veo-3-preview":                  0.4,
+	"grok-imagine-1.0":               0.02,
+	"grok-imagine-1.0-fast":          0.02,
+	"grok-imagine-1.0-video":         0.1,
 }
 
 var defaultAudioRatio = map[string]float64{
@@ -574,6 +594,8 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 			return 2.5 / 0.3, false
 		} else if strings.HasPrefix(name, "gemini-robotics-er-1.5") {
 			return 2.5 / 0.3, false
+		} else if strings.HasPrefix(name, "gemini-3.1") {
+			return 6, false // $1.50/$0.25 = 6
 		} else if strings.HasPrefix(name, "gemini-3-pro") {
 			if strings.HasPrefix(name, "gemini-3-pro-image") {
 				return 60, false
@@ -605,6 +627,12 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 		return 2, true
 	} else if strings.HasPrefix(name, "ERNIE-Functions") {
 		return 2, true
+	}
+	if strings.HasPrefix(name, "grok-") {
+		if strings.HasPrefix(name, "grok-4.1-fast") || strings.HasPrefix(name, "grok-4.1-mini") || strings.HasPrefix(name, "grok-3-mini") {
+			return 2.5, false // $0.50/$0.20
+		}
+		return 5, false // $15/$3
 	}
 	switch name {
 	case "llama2-70b-4096":
