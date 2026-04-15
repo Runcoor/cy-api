@@ -927,9 +927,10 @@ export const useChannelsData = () => {
           );
         }
       } else {
-        const safeMsg = typeof message === 'string' && message.length > 200
-          ? message.substring(0, 200) + '...'
-          : message;
+        let safeMsg = typeof message === 'string'
+          ? message.replace(/<[^>]*>/g, '').trim()
+          : String(message || '');
+        if (safeMsg.length > 150) safeMsg = safeMsg.substring(0, 150) + '...';
         showError(`${t('模型')} ${model}: ${safeMsg}`);
       }
     } catch (error) {
