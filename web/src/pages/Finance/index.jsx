@@ -122,42 +122,68 @@ const TopUpRecordsTab = ({ t, formatMoney }) => {
     expired: { color: 'grey', label: t('已过期') },
   };
 
+  const paymentIconMap = {
+    wxpay: { emoji: '💚', label: t('微信') },
+    wechat: { emoji: '💚', label: t('微信') },
+    alipay: { emoji: '🔵', label: t('支付宝') },
+    stripe: { emoji: '💳', label: 'Stripe' },
+    waffo: { emoji: '💳', label: 'Waffo' },
+  };
+
+  const renderPaymentMethod = (v) => {
+    if (!v) return '-';
+    const key = v.toLowerCase();
+    const info = paymentIconMap[key];
+    if (info) {
+      return (
+        <span title={info.label} style={{ cursor: 'default' }}>
+          {info.emoji}
+        </span>
+      );
+    }
+    return v;
+  };
+
+  // 检查是否有任何记录有完成时间
+  const hasCompleteTime = records.some((r) => r.complete_time > 0);
+
   const columns = [
-    { title: 'ID', dataIndex: 'id', width: 60 },
+    { title: 'ID', dataIndex: 'id', width: 50 },
     {
       title: t('用户'),
       dataIndex: 'username',
-      width: 120,
+      width: 110,
       render: (v, record) => v || record.email || `#${record.user_id}`,
     },
     {
       title: t('金额'),
       dataIndex: 'money',
-      width: 100,
+      width: 80,
       render: (v) => formatMoney(v),
     },
     {
       title: t('额度'),
       dataIndex: 'amount',
-      width: 120,
+      width: 100,
       render: (v) => renderQuota(v, 2),
     },
     {
       title: t('订单号'),
       dataIndex: 'trade_no',
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
-      title: t('支付方式'),
+      title: t('支付'),
       dataIndex: 'payment_method',
-      width: 100,
-      render: (v) => v || '-',
+      width: 50,
+      align: 'center',
+      render: renderPaymentMethod,
     },
     {
       title: t('状态'),
       dataIndex: 'status',
-      width: 90,
+      width: 80,
       render: (v) => {
         const info = statusTagMap[v] || { color: 'grey', label: v };
         return <Tag color={info.color}>{info.label}</Tag>;
@@ -166,16 +192,16 @@ const TopUpRecordsTab = ({ t, formatMoney }) => {
     {
       title: t('创建时间'),
       dataIndex: 'create_time',
-      width: 170,
+      width: 160,
       render: (v) => (v ? new Date(v * 1000).toLocaleString() : '-'),
     },
-    {
+    hasCompleteTime && {
       title: t('完成时间'),
       dataIndex: 'complete_time',
-      width: 170,
+      width: 160,
       render: (v) => (v ? new Date(v * 1000).toLocaleString() : '-'),
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <div>
@@ -241,8 +267,8 @@ const Finance = () => {
   const kpi = data?.kpi;
 
   const formatMoney = (v) => {
-    if (v == null) return '¥0.00';
-    return '¥' + Number(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (v == null) return '$0.00';
+    return '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const formatPercent = (a, b) => {
@@ -273,7 +299,7 @@ const Finance = () => {
     legends: { visible: false },
     title: { visible: true, text: t('收入趋势') },
     tooltip: {
-      mark: { content: [{ key: () => t('收入'), value: (datum) => '¥' + Number(datum.revenue).toFixed(2) }] },
+      mark: { content: [{ key: () => t('收入'), value: (datum) => '$' + Number(datum.revenue).toFixed(2) }] },
     },
   };
 
@@ -289,7 +315,7 @@ const Finance = () => {
     title: { visible: true, text: t('支付方式分布') },
     legends: { visible: true, orient: 'left' },
     label: { visible: true },
-    tooltip: { mark: { content: [{ key: (datum) => datum.type, value: (datum) => '¥' + Number(datum.value).toFixed(2) }] } },
+    tooltip: { mark: { content: [{ key: (datum) => datum.type, value: (datum) => '$' + Number(datum.value).toFixed(2) }] } },
   };
 
   const badOrderColumns = [
