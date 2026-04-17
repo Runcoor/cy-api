@@ -164,7 +164,7 @@ const Dashboard = () => {
   const statQuota = allStats.find((s) => s.title === t('统计额度'));
   const statTimes = allStats.find((s) => s.title === t('统计次数'));
 
-  const userName = userState?.user?.display_name || userState?.user?.username || '';
+  const userName = userState?.user?.username || '';
   const systemName = statusState?.status?.system_name || 'Intelligence Systems';
   const endpointUrl = serverAddress + '/v1';
 

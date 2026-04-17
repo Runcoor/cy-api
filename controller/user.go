@@ -451,11 +451,19 @@ func calculateUserPermissions(userRole int) map[string]interface{} {
 func generateDefaultSidebarConfig(userRole int) string {
 	defaultConfig := map[string]interface{}{}
 
-	// 聊天区域 - 所有用户都可以访问
-	defaultConfig["chat"] = map[string]interface{}{
-		"enabled":    true,
-		"playground": true,
-		"chat":       true,
+	// 聊天区域 - 仅管理员和超管可见
+	if userRole == common.RoleAdminUser || userRole == common.RoleRootUser {
+		defaultConfig["chat"] = map[string]interface{}{
+			"enabled":    true,
+			"playground": true,
+			"chat":       true,
+		}
+	} else {
+		defaultConfig["chat"] = map[string]interface{}{
+			"enabled":    false,
+			"playground": false,
+			"chat":       false,
+		}
 	}
 
 	// 控制台区域 - 所有用户都可以访问

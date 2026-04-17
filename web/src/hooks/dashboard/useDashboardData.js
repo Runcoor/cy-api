@@ -133,9 +133,8 @@ export const useDashboardData = (userState, userDispatch, statusState) => {
       greeting = t('晚上好');
     }
 
-    const username = userState?.user?.username || '';
-    return `👋${greeting}，${username}`;
-  }, [t, userState?.user?.username]);
+    return `👋${greeting}`;
+  }, [t]);
 
   // ========== 回调函数 ==========
   const handleInputChange = useCallback((value, name) => {
