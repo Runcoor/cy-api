@@ -307,7 +307,6 @@ const LogsTable = (logsData) => {
         <Tooltip content={t('查看详情')} position='top'>
           <button
             type='button'
-            onClick={(e) => e.stopPropagation()}
             style={{
               width: 32,
               height: 32,

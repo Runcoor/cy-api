@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Tag, Tabs, TabPane } from '@douyinfe/semi-ui';
+import { Table, Tag, Tabs, TabPane, Input, Select, Pagination } from '@douyinfe/semi-ui';
 import { VChart } from '@visactor/react-vchart';
-import { DollarSign, CheckCircle, Ticket, Users, RefreshCw } from 'lucide-react';
+import { DollarSign, CheckCircle, Ticket, Users, RefreshCw, Search } from 'lucide-react';
 import { useFinanceData } from '../../hooks/dashboard/useFinanceData';
-import { renderQuota } from '../../helpers';
+import { renderQuota, API, showError } from '../../helpers';
 
 const CHART_CONFIG = { mode: 'desktop-browser' };
 
@@ -71,10 +71,167 @@ const KpiCard = ({ icon: Icon, iconColor, label, value, sub, trend }) => (
   </div>
 );
 
+const TopUpRecordsTab = ({ t, formatMoney }) => {
+  const [records, setRecords] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [keyword, setKeyword] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchRecords = useCallback(async () => {
+    setLoading(true);
+    try {
+      let url = `/api/user/topup?p=${page}&page_size=${pageSize}`;
+      if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+      if (statusFilter) url += `&status=${statusFilter}`;
+      const res = await API.get(url);
+      const { success, data, message } = res.data;
+      if (success) {
+        setRecords(data?.items || []);
+        setTotal(data?.total || 0);
+      } else {
+        showError(message);
+      }
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, pageSize, keyword, statusFilter]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
+
+  const handleSearch = (val) => {
+    setKeyword(val);
+    setPage(1);
+  };
+
+  const handleStatusChange = (val) => {
+    setStatusFilter(val || '');
+    setPage(1);
+  };
+
+  const statusTagMap = {
+    success: { color: 'green', label: t('成功') },
+    pending: { color: 'orange', label: t('待支付') },
+    failed: { color: 'red', label: t('失败') },
+    expired: { color: 'grey', label: t('已过期') },
+  };
+
+  const columns = [
+    { title: 'ID', dataIndex: 'id', width: 60 },
+    {
+      title: t('用户ID'),
+      dataIndex: 'user_id',
+      width: 80,
+    },
+    {
+      title: t('金额'),
+      dataIndex: 'money',
+      width: 100,
+      render: (v) => formatMoney(v),
+    },
+    {
+      title: t('额度'),
+      dataIndex: 'amount',
+      width: 120,
+      render: (v) => renderQuota(v, 2),
+    },
+    {
+      title: t('订单号'),
+      dataIndex: 'trade_no',
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: t('支付方式'),
+      dataIndex: 'payment_method',
+      width: 100,
+      render: (v) => v || '-',
+    },
+    {
+      title: t('状态'),
+      dataIndex: 'status',
+      width: 90,
+      render: (v) => {
+        const info = statusTagMap[v] || { color: 'grey', label: v };
+        return <Tag color={info.color}>{info.label}</Tag>;
+      },
+    },
+    {
+      title: t('创建时间'),
+      dataIndex: 'create_time',
+      width: 170,
+      render: (v) => (v ? new Date(v * 1000).toLocaleString() : '-'),
+    },
+    {
+      title: t('完成时间'),
+      dataIndex: 'complete_time',
+      width: 170,
+      render: (v) => (v ? new Date(v * 1000).toLocaleString() : '-'),
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <Input
+          prefix={<Search size={14} />}
+          placeholder={t('搜索订单号')}
+          style={{ width: 240 }}
+          showClear
+          onEnterPress={(e) => handleSearch(e.target.value)}
+          onChange={(val) => { if (!val) handleSearch(''); }}
+        />
+        <Select
+          placeholder={t('状态筛选')}
+          style={{ width: 140 }}
+          showClear
+          onChange={handleStatusChange}
+          optionList={[
+            { value: 'success', label: t('成功') },
+            { value: 'pending', label: t('待支付') },
+            { value: 'failed', label: t('失败') },
+            { value: 'expired', label: t('已过期') },
+          ]}
+        />
+      </div>
+      <Table
+        columns={columns}
+        dataSource={records}
+        pagination={false}
+        size='small'
+        empty={t('暂无数据')}
+        loading={loading}
+        rowKey='id'
+        scroll={{ x: 1100 }}
+      />
+      {total > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+          <Pagination
+            total={total}
+            currentPage={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => { setPageSize(size); setPage(1); }}
+            pageSizeOpts={[10, 20, 50, 100]}
+            showSizeChanger
+            showTotal
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Finance = () => {
   const { t } = useTranslation();
   const { loading, data, timeRange, fetchData, changeTimeRange } = useFinanceData();
-  const [activeTab, setActiveTab] = useState('bad_orders');
+  const [activeTab, setActiveTab] = useState('topup_records');
 
   useEffect(() => {
     fetchData();
@@ -83,8 +240,8 @@ const Finance = () => {
   const kpi = data?.kpi;
 
   const formatMoney = (v) => {
-    if (v == null) return '$0.00';
-    return '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (v == null) return '¥0.00';
+    return '¥' + Number(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const formatPercent = (a, b) => {
@@ -115,7 +272,7 @@ const Finance = () => {
     legends: { visible: false },
     title: { visible: true, text: t('收入趋势') },
     tooltip: {
-      mark: { content: [{ key: () => t('收入'), value: (datum) => '$' + Number(datum.revenue).toFixed(2) }] },
+      mark: { content: [{ key: () => t('收入'), value: (datum) => '¥' + Number(datum.revenue).toFixed(2) }] },
     },
   };
 
@@ -131,7 +288,7 @@ const Finance = () => {
     title: { visible: true, text: t('支付方式分布') },
     legends: { visible: true, orient: 'left' },
     label: { visible: true },
-    tooltip: { mark: { content: [{ key: (datum) => datum.type, value: (datum) => '$' + Number(datum.value).toFixed(2) }] } },
+    tooltip: { mark: { content: [{ key: (datum) => datum.type, value: (datum) => '¥' + Number(datum.value).toFixed(2) }] } },
   };
 
   const badOrderColumns = [
@@ -262,6 +419,9 @@ const Finance = () => {
 
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
         <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ padding: '16px 16px 0' }}>
+          <TabPane tab={t('充值记录')} itemKey='topup_records'>
+            <TopUpRecordsTab t={t} formatMoney={formatMoney} />
+          </TabPane>
           <TabPane tab={t('坏单列表')} itemKey='bad_orders'>
             <Table
               columns={badOrderColumns}
