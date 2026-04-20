@@ -872,7 +872,7 @@ const QuickStart = () => {
                         <Input
                           value={redemptionCode} onChange={setRedemptionCode}
                           placeholder={t('输入充值码')}
-                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)' }} />}
+                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4 }} />}
                           showClear style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
                           onEnterPress={handleRedeem}
                         />
