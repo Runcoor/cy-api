@@ -350,21 +350,21 @@ const SubscriptionPlansCard = ({
                         boxShadow: isActive ? '0 4px 16px rgba(52, 199, 89, 0.06)' : 'none',
                       }}
                     >
-                      <div className='flex items-center justify-between mb-3'>
-                        <span className='text-sm font-bold' style={{ color: 'var(--text-primary)' }}>
+                      <div className='flex items-center justify-between gap-2 mb-3'>
+                        <span className='text-sm font-bold truncate' style={{ color: 'var(--text-primary)', minWidth: 0 }}>
                           {planTitle || `${t('订阅')} #${subscription?.id}`}
                         </span>
                         {isActive ? (
-                          <span className='inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5' style={{ borderRadius: 9999, background: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)' }}>
-                            <span className='w-1.5 h-1.5 rounded-full' style={{ background: 'var(--success)' }} />
+                          <span className='inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)' }}>
+                            <span className='w-1.5 h-1.5 rounded-full flex-shrink-0' style={{ background: 'var(--success)' }} />
                             {t('生效')}
                           </span>
                         ) : isCancelled ? (
-                          <span className='text-[11px] font-semibold px-2 py-0.5' style={{ borderRadius: 9999, background: 'rgba(255, 59, 48, 0.1)', color: 'var(--error)' }}>
+                          <span className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'rgba(255, 59, 48, 0.1)', color: 'var(--error)' }}>
                             {t('已作废')}
                           </span>
                         ) : (
-                          <span className='text-[11px] font-semibold px-2 py-0.5' style={{ borderRadius: 9999, background: 'var(--surface-active)', color: 'var(--text-muted)' }}>
+                          <span className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'var(--surface-active)', color: 'var(--text-muted)' }}>
                             {t('已过期')}
                           </span>
                         )}

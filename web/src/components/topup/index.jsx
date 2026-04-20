@@ -34,9 +34,8 @@ import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 
-import { Wallet, BarChart2, Zap } from 'lucide-react';
+import { Wallet, BarChart2, Zap, Receipt, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Select } from '@douyinfe/semi-ui';
 import InvitationCard from './InvitationCard';
 import TransferModal from './modals/TransferModal';
 import PaymentConfirmModal from './modals/PaymentConfirmModal';
@@ -753,7 +752,7 @@ const TopUp = () => {
         t={t}
       />
 
-      {/* Section 1: Hero — 余额 + 充值 + 账户健康 */}
+      {/* Section 1: Hero — 余额 + 账户管理 */}
       <section>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
           {/* 主余额卡片 — 渐变 */}
@@ -763,7 +762,7 @@ const TopUp = () => {
               background: 'var(--accent-gradient)',
               borderRadius: 'var(--radius-lg)',
               padding: '32px 28px',
-              minHeight: 200,
+              minHeight: 220,
               boxShadow: '0 20px 40px rgba(0,114,255,0.12)',
             }}
           >
@@ -778,7 +777,7 @@ const TopUp = () => {
                 {renderQuota(userState?.user?.quota)}
               </div>
             </div>
-            <div className='relative z-10 flex flex-wrap items-center gap-4 mt-5'>
+            <div className='relative z-10 flex flex-wrap items-center gap-4 mt-4'>
               <div className='flex gap-8 sm:gap-10 flex-1'>
                 <div>
                   <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('历史消耗')}</p>
@@ -789,20 +788,38 @@ const TopUp = () => {
                   <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{userState?.user?.request_count || 0}</p>
                 </div>
               </div>
-              {/* 充值按钮 (带动效) */}
+            </div>
+            {/* 订阅状态摘要 + 操作按钮 */}
+            <div className='relative z-10 flex flex-wrap items-center gap-3 mt-4'>
+              {activeSubscriptions.length > 0 && (
+                <span className='inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5'
+                  style={{ borderRadius: 9999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
+                  <Crown size={12} />
+                  {activeSubscriptions.length} {t('个订阅生效中')}
+                </span>
+              )}
+              <div style={{ flex: 1 }} />
+              <button onClick={handleOpenHistory}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '8px 16px', borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', outline: 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Receipt size={14} />
+                {t('账单')}
+              </button>
               <button
                 className='wallet-recharge-btn'
                 onClick={() => navigate('/console/recharge')}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '10px 24px',
-                  borderRadius: 'var(--radius-lg)',
-                  background: 'rgba(255,255,255,0.2)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#fff',
-                  fontWeight: 700, fontSize: 14,
-                  cursor: 'pointer', outline: 'none',
+                  padding: '8px 20px', borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.3)', color: '#fff',
+                  fontWeight: 700, fontSize: 14, cursor: 'pointer', outline: 'none',
                 }}
               >
                 <Zap size={16} />
@@ -814,7 +831,7 @@ const TopUp = () => {
             <div style={{ position: 'absolute', left: -30, bottom: -30, width: 120, height: 120, background: 'rgba(0,0,0,0.08)', borderRadius: '50%', filter: 'blur(30px)' }} />
           </div>
 
-          {/* 账户健康卡 + 计费偏好 */}
+          {/* 账户管理卡 — 计费偏好 + 快捷操作 */}
           <div
             className='flex flex-col justify-between'
             style={{
@@ -844,23 +861,33 @@ const TopUp = () => {
                 <div style={{ height: '100%', width: '99.9%', background: 'var(--accent-gradient)', borderRadius: 9999 }} />
               </div>
             </div>
-            {/* 计费偏好 */}
+            {/* 计费偏好 — pill toggle buttons */}
             <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 12 }}>
-              <p className='text-xs font-semibold mb-2' style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <p className='text-[11px] font-semibold mb-2.5' style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {t('计费偏好')}
               </p>
-              <Select
-                value={billingPreference}
-                onChange={updateBillingPreference}
-                size='small'
-                style={{ width: '100%' }}
-                optionList={[
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                {[
                   { value: 'subscription_first', label: t('优先订阅') },
                   { value: 'wallet_first', label: t('优先钱包') },
                   { value: 'subscription_only', label: t('仅用订阅') },
                   { value: 'wallet_only', label: t('仅用钱包') },
-                ]}
-              />
+                ].map((opt) => (
+                  <button key={opt.value}
+                    onClick={() => updateBillingPreference(opt.value)}
+                    style={{
+                      padding: '6px 0', borderRadius: 'var(--radius-md)',
+                      border: billingPreference === opt.value ? '1px solid var(--accent)' : '1px solid var(--border-default)',
+                      background: billingPreference === opt.value ? 'var(--accent-light)' : 'var(--surface)',
+                      color: billingPreference === opt.value ? 'var(--accent)' : 'var(--text-secondary)',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer', outline: 'none',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
