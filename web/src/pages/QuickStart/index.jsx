@@ -55,7 +55,6 @@ import { SiAlipay, SiWechat, SiStripe } from 'react-icons/si';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API, showError, showSuccess, renderQuota } from '../../helpers';
-import { getCurrencyConfig } from '../../helpers/render';
 import { copy } from '../../helpers/utils';
 import { getServerAddress, fetchTokenKey } from '../../helpers/token';
 import { useIsMobile } from '../../hooks/common/useIsMobile';
@@ -458,10 +457,30 @@ const QuickStart = () => {
     })();
   }, []);
 
-  /* ─── Load topup info ─── */
+  /* ─── Load topup info + live exchange rate ─── */
   useEffect(() => {
     (async () => {
       setTopupLoading(true);
+      // Fetch live exchange rate first (updates backend setting)
+      try {
+        const rateRes = await API.get('/api/user/topup/exchange-rate');
+        if (rateRes.data?.success && rateRes.data?.data?.rate) {
+          const liveRate = Number(rateRes.data.data.rate);
+          if (liveRate > 0) {
+            // Update localStorage status with live rate
+            try {
+              const statusStr = localStorage.getItem('status');
+              if (statusStr) {
+                const s = JSON.parse(statusStr);
+                s.usd_exchange_rate = liveRate;
+                s.price = liveRate;
+                localStorage.setItem('status', JSON.stringify(s));
+              }
+            } catch {}
+          }
+        }
+      } catch {}
+      // Then load topup info (which now has the updated price)
       try {
         const res = await API.get('/api/user/topup/info');
         const { success, data } = res.data;
@@ -600,7 +619,6 @@ const QuickStart = () => {
   const handleCopyKey = () => { copy(displayKey); setKeyCopied(true); showSuccess(t('已复制')); setTimeout(() => setKeyCopied(false), 2000); };
   const handleCopyCode = () => { copy(getTutorialPlainText(tutorialTab, base, displayKey)); setCodeCopied(true); showSuccess(t('已复制')); setTimeout(() => setCodeCopied(false), 2000); };
 
-  const { symbol, rate: currencyRate } = getCurrencyConfig();
   const epayMethods = payMethods.filter((m) => m?.type && m.type !== 'stripe' && m.type !== 'creem');
   const hasAnyPayment = enableOnlineTopUp || enableStripeTopUp;
   const tutorial = getTutorial(tutorialTab, base, displayKey, t);
@@ -812,30 +830,11 @@ const QuickStart = () => {
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                             {presetAmounts.map((p) => {
                               const discount = p.discount || topupInfo?.discount?.[p.value] || 1.0;
-                              const originalPrice = p.value * priceRatio;
-                              const discountedPrice = originalPrice * discount;
+                              const originalPay = p.value * priceRatio;
+                              const actualPay = originalPay * discount;
                               const hasDiscount = discount < 1.0;
-                              const save = originalPrice - discountedPrice;
+                              const saved = originalPay - actualPay;
                               const isSelected = selectedPreset === p.value;
-
-                              // Currency conversion
-                              let statusStr = localStorage.getItem('status');
-                              let usdRate = 7;
-                              try { if (statusStr) { usdRate = JSON.parse(statusStr)?.usd_exchange_rate || 7; } } catch {}
-                              const { type: currType } = getCurrencyConfig();
-                              let displayValue = p.value;
-                              let displayActualPay = discountedPrice;
-                              let displaySave = save;
-                              if (currType === 'USD') {
-                                displayActualPay = discountedPrice / usdRate;
-                                displaySave = save / usdRate;
-                              } else if (currType === 'CNY') {
-                                displayValue = p.value * usdRate;
-                              } else if (currType === 'CUSTOM') {
-                                displayValue = p.value * currencyRate;
-                                displayActualPay = (discountedPrice / usdRate) * currencyRate;
-                                displaySave = (save / usdRate) * currencyRate;
-                              }
 
                               return (
                                 <button
@@ -845,7 +844,7 @@ const QuickStart = () => {
                                 >
                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
                                     <span style={{ fontSize: 15, fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                                      {displayValue} {symbol}
+                                      ${p.value}
                                     </span>
                                     {hasDiscount && (
                                       <span style={{
@@ -859,9 +858,9 @@ const QuickStart = () => {
                                       </span>
                                     )}
                                   </div>
-                                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                                    {t('实付')} {symbol}{displayActualPay.toFixed(2)}
-                                    {hasDiscount ? ` · ${t('节省')} ${symbol}${displaySave.toFixed(2)}` : ''}
+                                  <div style={{ fontSize: 11, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)' }}>
+                                    {t('实付')} ¥{actualPay.toFixed(2)}
+                                    {hasDiscount ? ` · ${t('节省')} ¥${saved.toFixed(2)}` : ''}
                                   </div>
                                 </button>
                               );
@@ -874,23 +873,16 @@ const QuickStart = () => {
                           <InputNumber
                             value={topUpCount} onChange={(v) => { setTopUpCount(v || 0); setSelectedPreset(null); }}
                             min={minTopUp} style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
-                            prefix={<CreditCard size={14} style={{ color: 'var(--text-muted)', marginLeft: 4 }} />}
+                            prefix={<CreditCard size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
                             placeholder={`${t('最低')} ${minTopUp}`}
                           />
                           {(() => {
                             const discount = topupInfo?.discount?.[topUpCount] || 1.0;
-                            const raw = topUpCount * priceRatio;
-                            const actual = raw * discount;
-                            let statusStr = localStorage.getItem('status');
-                            let usdRate = 7;
-                            try { if (statusStr) { usdRate = JSON.parse(statusStr)?.usd_exchange_rate || 7; } } catch {}
-                            const { type: currType } = getCurrencyConfig();
-                            let display = actual;
-                            if (currType === 'USD') display = actual / usdRate;
-                            else if (currType === 'CUSTOM') display = (actual / usdRate) * currencyRate;
+                            const actualPay = topUpCount * priceRatio * discount;
+                            const hasDiscount = discount < 1.0;
                             return (
-                              <Text style={{ fontSize: 12, color: discount < 1 ? 'var(--error)' : 'var(--text-muted)', whiteSpace: 'nowrap', fontWeight: discount < 1 ? 600 : 400 }}>
-                                {t('实付')} {symbol}{display.toFixed(2)}
+                              <Text style={{ fontSize: 12, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)', whiteSpace: 'nowrap', fontWeight: hasDiscount ? 600 : 400 }}>
+                                {t('实付')} ¥{actualPay.toFixed(2)}
                               </Text>
                             );
                           })()}
@@ -936,7 +928,7 @@ const QuickStart = () => {
                         <Input
                           value={redemptionCode} onChange={setRedemptionCode}
                           placeholder={t('输入充值码')}
-                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4 }} />}
+                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
                           showClear style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
                           onEnterPress={handleRedeem}
                         />

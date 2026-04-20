@@ -81,6 +81,9 @@ func GetTopUpInfo(c *gin.Context) {
 	userId := c.GetInt("id")
 	dynamicMinTopUp := getMinTopupForUser(userId)
 
+	// Refresh exchange rate in background (non-blocking, cached for 10min)
+	go service.RefreshUSDExchangeRate()
+
 	data := gin.H{
 		"enable_online_topup": operation_setting.PayAddress != "" && operation_setting.EpayId != "" && operation_setting.EpayKey != "",
 		"enable_stripe_topup": setting.StripeApiSecret != "" && setting.StripeWebhookSecret != "" && setting.StripePriceId != "",
@@ -97,10 +100,22 @@ func GetTopUpInfo(c *gin.Context) {
 		"min_topup":           dynamicMinTopUp,
 		"stripe_min_topup":    setting.StripeMinTopUp,
 		"waffo_min_topup":     setting.WaffoMinTopUp,
+		"price":               operation_setting.Price,
 		"amount_options":      operation_setting.GetPaymentSetting().AmountOptions,
 		"discount":            operation_setting.GetPaymentSetting().AmountDiscount,
 	}
 	common.ApiSuccess(c, data)
+}
+
+// GetExchangeRate returns the current USD→CNY exchange rate, refreshing from Frankfurter API if stale.
+func GetExchangeRate(c *gin.Context) {
+	rate, err := service.RefreshUSDExchangeRate()
+	if err != nil {
+		// Return fallback rate even on error
+		common.ApiSuccess(c, gin.H{"rate": rate, "source": "fallback"})
+		return
+	}
+	common.ApiSuccess(c, gin.H{"rate": rate, "source": "live"})
 }
 
 type EpayRequest struct {
