@@ -34,15 +34,33 @@ import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 
-import { Wallet, BarChart2 } from 'lucide-react';
-import RechargeCard from './RechargeCard';
+import { Wallet, BarChart2, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Select } from '@douyinfe/semi-ui';
 import InvitationCard from './InvitationCard';
 import TransferModal from './modals/TransferModal';
 import PaymentConfirmModal from './modals/PaymentConfirmModal';
 import TopupHistoryModal from './modals/TopupHistoryModal';
 
+const WALLET_STYLES = `
+@keyframes wallet-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,114,255,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(0,114,255,0); }
+}
+.wallet-recharge-btn {
+  animation: wallet-pulse-glow 2.5s ease-in-out infinite;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.wallet-recharge-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  animation: none;
+  box-shadow: 0 8px 24px rgba(0,114,255,0.3);
+}
+`;
+
 const TopUp = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState] = useContext(StatusContext);
@@ -714,6 +732,8 @@ const TopUp = () => {
   };
 
   return (
+    <>
+    <style>{WALLET_STYLES}</style>
     <div className='w-full max-w-5xl mx-auto relative px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-10'>
       {/* 模态框 */}
       <TransferModal
@@ -727,69 +747,13 @@ const TopUp = () => {
         transferAmount={transferAmount}
         setTransferAmount={setTransferAmount}
       />
-      <PaymentConfirmModal
-        t={t}
-        open={open}
-        onlineTopUp={onlineTopUp}
-        handleCancel={handleCancel}
-        confirmLoading={confirmLoading}
-        topUpCount={topUpCount}
-        renderQuotaWithAmount={renderQuotaWithAmount}
-        amountLoading={amountLoading}
-        renderAmount={renderAmount}
-        payWay={payWay}
-        payMethods={payMethods}
-        amountNumber={amount}
-        discountRate={topupInfo?.discount?.[topUpCount] || 1.0}
-      />
       <TopupHistoryModal
         visible={openHistory}
         onCancel={handleHistoryCancel}
         t={t}
       />
-      <Modal
-        title={
-          <div className='flex items-center gap-2'>
-            <span className='w-6 h-6 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}>
-              <span style={{ fontSize: 14, fontWeight: 700 }}>$</span>
-            </span>
-            <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)' }}>
-              {t('确定要充值 $')}
-            </span>
-          </div>
-        }
-        visible={creemOpen}
-        onOk={onlineCreemTopUp}
-        onCancel={handleCreemCancel}
-        maskClosable={false}
-        size='small'
-        centered
-        confirmLoading={confirmLoading}
-        okButtonProps={{ style: { background: 'var(--accent-gradient)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)' } }}
-        cancelButtonProps={{ style: { background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' } }}
-      >
-        {selectedCreemProduct && (
-          <div className='space-y-2'>
-            <div className='flex justify-between py-1.5' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>{t('产品名称')}</span>
-              <span className='font-medium' style={{ color: 'var(--text-primary)' }}>{selectedCreemProduct.name}</span>
-            </div>
-            <div className='flex justify-between py-1.5' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>{t('价格')}</span>
-              <span className='font-semibold' style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
-                {selectedCreemProduct.currency === 'EUR' ? '€' : '$'}{selectedCreemProduct.price}
-              </span>
-            </div>
-            <div className='flex justify-between py-1.5' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>{t('充值额度')}</span>
-              <span className='font-semibold' style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{selectedCreemProduct.quota}</span>
-            </div>
-            <p className='text-sm pt-2' style={{ color: 'var(--text-secondary)' }}>{t('是否确认充值？')}</p>
-          </div>
-        )}
-      </Modal>
 
-      {/* Section 1: Hero — 余额 + 账户健康 */}
+      {/* Section 1: Hero — 余额 + 充值 + 账户健康 */}
       <section>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
           {/* 主余额卡片 — 渐变 */}
@@ -814,24 +778,45 @@ const TopUp = () => {
                 {renderQuota(userState?.user?.quota)}
               </div>
             </div>
-            <div className='relative z-10 flex gap-8 sm:gap-10 mt-5'>
-              <div>
-                <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('历史消耗')}</p>
-                <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{renderQuota(userState?.user?.used_quota)}</p>
+            <div className='relative z-10 flex flex-wrap items-center gap-4 mt-5'>
+              <div className='flex gap-8 sm:gap-10 flex-1'>
+                <div>
+                  <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('历史消耗')}</p>
+                  <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{renderQuota(userState?.user?.used_quota)}</p>
+                </div>
+                <div>
+                  <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('请求次数')}</p>
+                  <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{userState?.user?.request_count || 0}</p>
+                </div>
               </div>
-              <div>
-                <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('请求次数')}</p>
-                <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{userState?.user?.request_count || 0}</p>
-              </div>
+              {/* 充值按钮 (带动效) */}
+              <button
+                className='wallet-recharge-btn'
+                onClick={() => navigate('/console/recharge')}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '10px 24px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(255,255,255,0.2)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#fff',
+                  fontWeight: 700, fontSize: 14,
+                  cursor: 'pointer', outline: 'none',
+                }}
+              >
+                <Zap size={16} />
+                {t('充值')}
+              </button>
             </div>
             {/* 装饰圆 */}
             <div style={{ position: 'absolute', right: -60, top: -60, width: 240, height: 240, background: 'rgba(255,255,255,0.08)', borderRadius: '50%', filter: 'blur(40px)' }} />
             <div style={{ position: 'absolute', left: -30, bottom: -30, width: 120, height: 120, background: 'rgba(0,0,0,0.08)', borderRadius: '50%', filter: 'blur(30px)' }} />
           </div>
 
-          {/* 账户健康卡 */}
+          {/* 账户健康卡 + 计费偏好 */}
           <div
-            className='flex flex-col justify-center'
+            className='flex flex-col justify-between'
             style={{
               background: 'var(--surface)',
               borderRadius: 'var(--radius-lg)',
@@ -840,7 +825,7 @@ const TopUp = () => {
               boxShadow: '0 8px 24px rgba(0,0,0,0.03)',
             }}
           >
-            <div className='mb-5'>
+            <div className='mb-4'>
               <span
                 className='inline-flex items-center justify-center mb-3'
                 style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--accent-light)' }}
@@ -850,7 +835,7 @@ const TopUp = () => {
               <h3 className='text-lg font-bold' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>{t('wallet.accountHealth')}</h3>
               <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>{t('wallet.statusMonitor')}</p>
             </div>
-            <div className='space-y-3'>
+            <div className='space-y-3 mb-4'>
               <div className='flex justify-between items-center'>
                 <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>{t('wallet.uptime')}</span>
                 <span className='text-sm font-bold' style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>99.9%</span>
@@ -859,59 +844,29 @@ const TopUp = () => {
                 <div style={{ height: '100%', width: '99.9%', background: 'var(--accent-gradient)', borderRadius: 9999 }} />
               </div>
             </div>
+            {/* 计费偏好 */}
+            <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 12 }}>
+              <p className='text-xs font-semibold mb-2' style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {t('计费偏好')}
+              </p>
+              <Select
+                value={billingPreference}
+                onChange={updateBillingPreference}
+                size='small'
+                style={{ width: '100%' }}
+                optionList={[
+                  { value: 'subscription_first', label: t('优先订阅') },
+                  { value: 'wallet_first', label: t('优先钱包') },
+                  { value: 'subscription_only', label: t('仅用订阅') },
+                  { value: 'wallet_only', label: t('仅用钱包') },
+                ]}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Section 2: 充值区域 */}
-      <RechargeCard
-        t={t}
-        enableOnlineTopUp={enableOnlineTopUp}
-        enableStripeTopUp={enableStripeTopUp}
-        enableCreemTopUp={enableCreemTopUp}
-        creemProducts={creemProducts}
-        creemPreTopUp={creemPreTopUp}
-        enableWaffoTopUp={enableWaffoTopUp}
-        waffoTopUp={waffoTopUp}
-        waffoPayMethods={waffoPayMethods}
-        presetAmounts={presetAmounts}
-        selectedPreset={selectedPreset}
-        selectPresetAmount={selectPresetAmount}
-        formatLargeNumber={formatLargeNumber}
-        priceRatio={priceRatio}
-        topUpCount={topUpCount}
-        minTopUp={minTopUp}
-        renderQuotaWithAmount={renderQuotaWithAmount}
-        getAmount={getAmount}
-        setTopUpCount={setTopUpCount}
-        setSelectedPreset={setSelectedPreset}
-        renderAmount={renderAmount}
-        amountLoading={amountLoading}
-        payMethods={payMethods}
-        preTopUp={preTopUp}
-        paymentLoading={paymentLoading}
-        payWay={payWay}
-        redemptionCode={redemptionCode}
-        setRedemptionCode={setRedemptionCode}
-        topUp={topUp}
-        isSubmitting={isSubmitting}
-        topUpLink={topUpLink}
-        openTopUpLink={openTopUpLink}
-        userState={userState}
-        renderQuota={renderQuota}
-        statusLoading={statusLoading}
-        topupInfo={topupInfo}
-        onOpenHistory={handleOpenHistory}
-        subscriptionLoading={subscriptionLoading}
-        subscriptionPlans={subscriptionPlans}
-        billingPreference={billingPreference}
-        onChangeBillingPreference={updateBillingPreference}
-        activeSubscriptions={activeSubscriptions}
-        allSubscriptions={allSubscriptions}
-        reloadSubscriptionSelf={getSubscriptionSelf}
-      />
-
-      {/* Section 3: 收益统计 & 邀请奖励 */}
+      {/* Section 2: 收益统计 & 邀请奖励 */}
       <InvitationCard
         t={t}
         userState={userState}
@@ -921,6 +876,7 @@ const TopUp = () => {
         handleAffLinkClick={handleAffLinkClick}
       />
     </div>
+    </>
   );
 };
 

@@ -71,6 +71,7 @@ const BalanceChecker = lazy(() => import('./pages/Tools/BalanceChecker'));
 const CacheCalculator = lazy(() => import('./pages/Tools/CacheCalculator'));
 const PlansPage = lazy(() => import('./pages/Plans'));
 const QuickStart = lazy(() => import('./pages/QuickStart'));
+const RechargePage = lazy(() => import('./pages/Recharge'));
 const GuideIndex = lazy(() => import('./pages/Guide'));
 const GuidePrerequisites = lazy(() => import('./pages/Guide/Prerequisites'));
 const GuideNodejsSetup = lazy(() => import('./pages/Guide/NodejsSetup'));
@@ -330,6 +331,16 @@ function App() {
             <PrivateRoute>
               <Suspense fallback={<Loading></Loading>} key={location.pathname}>
                 <TopUp />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path='/console/recharge'
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+                <RechargePage />
               </Suspense>
             </PrivateRoute>
           }
