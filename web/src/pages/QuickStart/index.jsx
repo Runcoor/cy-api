@@ -476,9 +476,21 @@ const QuickStart = () => {
           const min = Number(data.min_topup) || 1;
           setMinTopUp(min);
           setTopUpCount(min);
-          // Build presets
-          const multipliers = [1, 5, 10, 30, 50, 100];
-          setPresetAmounts(multipliers.map((m) => ({ value: min * m })));
+          // Build presets: use custom amount_options if available, otherwise generate from multipliers
+          const amountOptions = data.amount_options || [];
+          const discountMap = data.discount || {};
+          if (amountOptions.length > 0) {
+            setPresetAmounts(amountOptions.map((amount) => ({
+              value: amount,
+              discount: discountMap[amount] || 1.0,
+            })));
+          } else {
+            const multipliers = [1, 5, 10, 30, 50, 100, 300, 500];
+            setPresetAmounts(multipliers.map((m) => ({
+              value: min * m,
+              discount: discountMap[min * m] || 1.0,
+            })));
+          }
         }
       } catch {}
       setTopupLoading(false);
@@ -799,19 +811,57 @@ const QuickStart = () => {
                           </Text>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                             {presetAmounts.map((p) => {
-                              const price = (p.value * priceRatio * currencyRate).toFixed(Number.isInteger(p.value * priceRatio * currencyRate) ? 0 : 2);
+                              const discount = p.discount || topupInfo?.discount?.[p.value] || 1.0;
+                              const originalPrice = p.value * priceRatio;
+                              const discountedPrice = originalPrice * discount;
+                              const hasDiscount = discount < 1.0;
+                              const save = originalPrice - discountedPrice;
                               const isSelected = selectedPreset === p.value;
+
+                              // Currency conversion
+                              let statusStr = localStorage.getItem('status');
+                              let usdRate = 7;
+                              try { if (statusStr) { usdRate = JSON.parse(statusStr)?.usd_exchange_rate || 7; } } catch {}
+                              const { type: currType } = getCurrencyConfig();
+                              let displayValue = p.value;
+                              let displayActualPay = discountedPrice;
+                              let displaySave = save;
+                              if (currType === 'USD') {
+                                displayActualPay = discountedPrice / usdRate;
+                                displaySave = save / usdRate;
+                              } else if (currType === 'CNY') {
+                                displayValue = p.value * usdRate;
+                              } else if (currType === 'CUSTOM') {
+                                displayValue = p.value * currencyRate;
+                                displayActualPay = (discountedPrice / usdRate) * currencyRate;
+                                displaySave = (save / usdRate) * currencyRate;
+                              }
+
                               return (
                                 <button
                                   key={p.value}
                                   className={`qs-preset-btn${isSelected ? ' active' : ''}`}
                                   onClick={() => { setSelectedPreset(p.value); setTopUpCount(p.value); }}
                                 >
-                                  <div style={{ fontSize: 16, fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                                    {symbol}{price}
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+                                    <span style={{ fontSize: 15, fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
+                                      {displayValue} {symbol}
+                                    </span>
+                                    {hasDiscount && (
+                                      <span style={{
+                                        fontSize: 10, fontWeight: 600, padding: '1px 5px', lineHeight: '16px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        background: 'rgba(52, 199, 89, 0.15)', color: 'var(--success)',
+                                      }}>
+                                        {t('折').includes('off')
+                                          ? ((1 - parseFloat(discount)) * 100).toFixed(1)
+                                          : (discount * 10).toFixed(1)}{t('折')}
+                                      </span>
+                                    )}
                                   </div>
-                                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                                    {renderQuota(p.value * 500000)}
+                                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                                    {t('实付')} {symbol}{displayActualPay.toFixed(2)}
+                                    {hasDiscount ? ` · ${t('节省')} ${symbol}${displaySave.toFixed(2)}` : ''}
                                   </div>
                                 </button>
                               );
@@ -827,9 +877,23 @@ const QuickStart = () => {
                             prefix={<CreditCard size={14} style={{ color: 'var(--text-muted)', marginLeft: 4 }} />}
                             placeholder={`${t('最低')} ${minTopUp}`}
                           />
-                          <Text style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                            ≈ {symbol}{(topUpCount * priceRatio * currencyRate).toFixed(2)}
-                          </Text>
+                          {(() => {
+                            const discount = topupInfo?.discount?.[topUpCount] || 1.0;
+                            const raw = topUpCount * priceRatio;
+                            const actual = raw * discount;
+                            let statusStr = localStorage.getItem('status');
+                            let usdRate = 7;
+                            try { if (statusStr) { usdRate = JSON.parse(statusStr)?.usd_exchange_rate || 7; } } catch {}
+                            const { type: currType } = getCurrencyConfig();
+                            let display = actual;
+                            if (currType === 'USD') display = actual / usdRate;
+                            else if (currType === 'CUSTOM') display = (actual / usdRate) * currencyRate;
+                            return (
+                              <Text style={{ fontSize: 12, color: discount < 1 ? 'var(--error)' : 'var(--text-muted)', whiteSpace: 'nowrap', fontWeight: discount < 1 ? 600 : 400 }}>
+                                {t('实付')} {symbol}{display.toFixed(2)}
+                              </Text>
+                            );
+                          })()}
                         </div>
 
                         {/* Payment methods */}
