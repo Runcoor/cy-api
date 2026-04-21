@@ -714,6 +714,29 @@ func HasActiveSubscriptionForPlan(userId int, planId int) (bool, error) {
 	return count > 0, nil
 }
 
+// GetActiveSubscriptionRemainingQuota returns the total remaining quota across all active subscriptions for a user and plan.
+func GetActiveSubscriptionRemainingQuota(userId int, planId int) (int64, error) {
+	if userId <= 0 || planId <= 0 {
+		return 0, nil
+	}
+	now := common.GetTimestamp()
+	var subs []UserSubscription
+	err := DB.Where("user_id = ? AND plan_id = ? AND status = ? AND end_time > ?",
+		userId, planId, "active", now).
+		Find(&subs).Error
+	if err != nil {
+		return 0, err
+	}
+	var total int64
+	for _, sub := range subs {
+		remaining := sub.AmountTotal - sub.AmountUsed
+		if remaining > 0 {
+			total += remaining
+		}
+	}
+	return total, nil
+}
+
 func buildSubscriptionSummaries(subs []UserSubscription) []SubscriptionSummary {
 	if len(subs) == 0 {
 		return []SubscriptionSummary{}

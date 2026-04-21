@@ -19,6 +19,7 @@ import {
   Tooltip,
   Banner,
   Skeleton,
+  Select,
 } from '@douyinfe/semi-ui';
 import { IconCopy, IconDelete, IconPlus, IconRefresh } from '@douyinfe/semi-icons';
 import { Users, Crown, Shield, User, ArrowLeft, Zap, Key, Link2, Unlink } from 'lucide-react';
@@ -59,8 +60,10 @@ const TeamDetail = () => {
 
   // Link token
   const [linkTokenVisible, setLinkTokenVisible] = useState(false);
-  const [linkTokenId, setLinkTokenId] = useState('');
+  const [linkTokenId, setLinkTokenId] = useState(null);
   const [linkingToken, setLinkingToken] = useState(false);
+  const [availableTokens, setAvailableTokens] = useState([]);
+  const [loadingTokens, setLoadingTokens] = useState(false);
 
   const isOwner = myRole >= 100;
   const isAdmin = myRole >= 10;
@@ -98,6 +101,7 @@ const TeamDetail = () => {
     loadTeam();
     loadMembers();
     loadTokens();
+    loadAvailableTokens();
   }, [id]);
 
   const handleAddMember = async () => {
@@ -154,13 +158,21 @@ const TeamDetail = () => {
     } catch { showError(t('请求失败')); }
   };
 
+  const loadAvailableTokens = async () => {
+    setLoadingTokens(true);
+    try {
+      const res = await API.get(`/api/team/${id}/available-tokens`);
+      if (res.data?.success) setAvailableTokens(res.data.data || []);
+    } catch {}
+    setLoadingTokens(false);
+  };
+
   const handleLinkToken = async () => {
-    const tid = parseInt(linkTokenId);
-    if (!tid || tid <= 0) { showError(t('请输入有效的令牌ID')); return; }
+    if (!linkTokenId || linkTokenId <= 0) { showError(t('请选择令牌')); return; }
     setLinkingToken(true);
     try {
-      const res = await API.post(`/api/team/${id}/token/${tid}`);
-      if (res.data?.success) { showSuccess(t('令牌已关联')); setLinkTokenVisible(false); setLinkTokenId(''); loadTokens(); }
+      const res = await API.post(`/api/team/${id}/token/${linkTokenId}`);
+      if (res.data?.success) { showSuccess(t('令牌已关联')); setLinkTokenVisible(false); setLinkTokenId(null); loadTokens(); loadAvailableTokens(); }
       else showError(res.data?.message || t('关联失败'));
     } catch { showError(t('请求失败')); }
     setLinkingToken(false);
@@ -408,12 +420,42 @@ const TeamDetail = () => {
         </div>
       </Modal>
 
-      <Modal title={t('关联令牌')} visible={linkTokenVisible} onCancel={() => setLinkTokenVisible(false)} footer={null} centered size='small'>
+      <Modal title={t('关联令牌')} visible={linkTokenVisible} onCancel={() => { setLinkTokenVisible(false); setLinkTokenId(null); }} footer={null} centered size='small'>
         <div className='space-y-4 pb-2'>
-          <Banner type='info' closeIcon={null} description={t('输入你自己的令牌ID，关联后该令牌的请求将从团队额度扣费')} style={{ borderRadius: 'var(--radius-md)' }} />
-          <Input value={linkTokenId} onChange={setLinkTokenId} placeholder={t('令牌ID')} showClear
-            style={{ borderRadius: 'var(--radius-md)' }} onEnterPress={handleLinkToken} />
+          <Banner type='info' closeIcon={null} description={t('选择你的令牌关联到团队，关联后该令牌的请求将从团队额度扣费')} style={{ borderRadius: 'var(--radius-md)' }} />
+          <Select
+            value={linkTokenId}
+            onChange={setLinkTokenId}
+            placeholder={t('选择令牌')}
+            loading={loadingTokens}
+            style={{ width: '100%' }}
+            optionList={availableTokens.map((tk) => ({
+              value: tk.id,
+              label: tk.name || `Token #${tk.id}`,
+            }))}
+            renderSelectedItem={(option) => (
+              <span>{option.label}</span>
+            )}
+            renderOptionItem={(renderProps) => {
+              const tk = availableTokens.find((t) => t.id === renderProps.value);
+              return (
+                <div {...renderProps} style={{ ...renderProps.style, padding: '8px 12px' }}>
+                  <div className='flex items-center justify-between'>
+                    <span style={{ fontWeight: 500, fontSize: 13 }}>{renderProps.label}</span>
+                    <Tag size='small' color={tk?.status === 1 ? 'green' : 'grey'} style={{ marginLeft: 8 }}>
+                      {tk?.status === 1 ? t('启用') : t('禁用')}
+                    </Tag>
+                  </div>
+                  {tk?.group && (
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('分组')}: {tk.group}</span>
+                  )}
+                </div>
+              );
+            }}
+            emptyContent={<div style={{ padding: 12, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('暂无可用令牌')}</div>}
+          />
           <Button theme='solid' type='primary' block loading={linkingToken} onClick={handleLinkToken}
+            disabled={!linkTokenId}
             style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 40 }}>
             {t('关联')}
           </Button>

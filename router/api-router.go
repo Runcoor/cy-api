@@ -155,6 +155,7 @@ func SetApiRouter(router *gin.Engine) {
 
 			teamRoute.POST("/:id/quota", controller.TopUpTeamQuota)
 
+			teamRoute.GET("/:id/available-tokens", controller.GetAvailableTokensForTeam)
 			teamRoute.GET("/:id/token", controller.GetTeamTokens)
 			teamRoute.POST("/:id/token/:token_id", controller.LinkTokenToTeam)
 			teamRoute.DELETE("/:id/token/:token_id", controller.UnlinkTokenFromTeam)

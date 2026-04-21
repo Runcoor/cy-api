@@ -103,6 +103,15 @@ func CreateTeam(c *gin.Context) {
 		common.ApiError(c, err)
 		return
 	}
+	// Auto-sync subscription remaining quota to team
+	planId := operation_setting.TeamRequiredPlanId
+	if planId > 0 {
+		remaining, err := model.GetActiveSubscriptionRemainingQuota(userId, planId)
+		if err == nil && remaining > 0 {
+			_ = model.IncreaseTeamQuota(team.Id, int(remaining))
+			team.Quota = int(remaining)
+		}
+	}
 	common.ApiSuccess(c, team)
 }
 
@@ -329,6 +338,20 @@ func TopUpTeamQuota(c *gin.Context) {
 }
 
 // ─── Token linking ───
+
+func GetAvailableTokensForTeam(c *gin.Context) {
+	_, _, ok := getTeamAndVerifyRole(c, model.TeamRoleMember)
+	if !ok {
+		return
+	}
+	userId := c.GetInt("id")
+	tokens, err := model.GetUserAvailableTokensForTeam(userId)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	common.ApiSuccess(c, tokens)
+}
 
 func LinkTokenToTeam(c *gin.Context) {
 	team, _, ok := getTeamAndVerifyRole(c, model.TeamRoleMember)

@@ -398,3 +398,12 @@ func GetTeamTokens(teamId int) ([]map[string]interface{}, error) {
 	}
 	return result, nil
 }
+
+func GetUserAvailableTokensForTeam(userId int) ([]Token, error) {
+	var tokens []Token
+	err := DB.Select("id, name, status, "+commonGroupCol+", remain_quota, used_quota, unlimited_quota").
+		Where("user_id = ? AND id NOT IN (SELECT token_id FROM team_tokens)", userId).
+		Order("id desc").
+		Find(&tokens).Error
+	return tokens, err
+}
