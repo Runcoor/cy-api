@@ -316,6 +316,16 @@ func ManualCompleteTopUp(tradeNo string) error {
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("管理员补单成功，充值金额: %v，支付金额：%f", logger.FormatQuota(quotaToAdd), payMoney))
 	return nil
 }
+// GetTopUpByIdAndUserId returns a single topup record owned by the given user.
+func GetTopUpByIdAndUserId(id int, userId int) *TopUp {
+	var topUp *TopUp
+	err := DB.Where("id = ? AND user_id = ?", id, userId).First(&topUp).Error
+	if err != nil {
+		return nil
+	}
+	return topUp
+}
+
 func RechargeCreem(referenceId string, customerEmail string, customerName string) (err error) {
 	if referenceId == "" {
 		return errors.New("未提供支付单号")

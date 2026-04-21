@@ -25,11 +25,12 @@ import {
   Button,
   Input,
 } from '@douyinfe/semi-ui';
-import { Coins } from 'lucide-react';
+import { Coins, FileText } from 'lucide-react';
 import { IconSearch } from '@douyinfe/semi-icons';
 import { API, timestamp2string } from '../../../helpers';
 import { isAdmin } from '../../../helpers/utils';
 import { useIsMobile } from '../../../hooks/common/useIsMobile';
+import BillDetailModal from './BillDetailModal';
 // 状态映射配置
 const STATUS_CONFIG = {
   success: { color: 'var(--success)', bg: 'rgba(52, 199, 89, 0.12)', key: '成功' },
@@ -47,7 +48,7 @@ const PAYMENT_METHOD_MAP = {
   wxpay: '微信',
 };
 
-const TopupHistoryModal = ({ visible, onCancel, t }) => {
+const TopupHistoryModal = ({ visible, onCancel, t, userInfo }) => {
   const [loading, setLoading] = useState(false);
   const [topups, setTopups] = useState([]);
   const [total, setTotal] = useState(0);
@@ -55,6 +56,8 @@ const TopupHistoryModal = ({ visible, onCancel, t }) => {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const isMobile = useIsMobile();
+  const [billVisible, setBillVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   const loadTopups = async (currentPage, currentPageSize) => {
     setLoading(true);
@@ -233,6 +236,26 @@ const TopupHistoryModal = ({ visible, onCancel, t }) => {
       render: (time) => timestamp2string(time),
     });
 
+    baseColumns.push({
+      title: '',
+      key: 'detail',
+      width: 80,
+      render: (_, record) => (
+        <Button
+          size='small'
+          theme='borderless'
+          type='tertiary'
+          icon={<FileText size={14} />}
+          onClick={() => {
+            setSelectedRecord(record);
+            setBillVisible(true);
+          }}
+        >
+          {t('bill.detail')}
+        </Button>
+      ),
+    });
+
     return baseColumns;
   }, [t, userIsAdmin]);
 
@@ -287,6 +310,16 @@ const TopupHistoryModal = ({ visible, onCancel, t }) => {
             style={{ padding: 30 }}
           />
         }
+      />
+      <BillDetailModal
+        visible={billVisible}
+        onCancel={() => {
+          setBillVisible(false);
+          setSelectedRecord(null);
+        }}
+        record={selectedRecord}
+        userInfo={userInfo}
+        t={t}
       />
     </Modal>
   );

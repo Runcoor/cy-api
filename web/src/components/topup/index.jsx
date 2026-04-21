@@ -750,6 +750,7 @@ const TopUp = () => {
         visible={openHistory}
         onCancel={handleHistoryCancel}
         t={t}
+        userInfo={userState?.user}
       />
 
       {/* Section 1: Hero — 余额 + 账户管理 */}

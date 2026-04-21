@@ -428,6 +428,35 @@ func RequestAmount(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "success", "data": strconv.FormatFloat(payMoney, 'f', 2, 64)})
 }
 
+// GetUserTopUpDetail returns a single topup record with the user's info for bill rendering.
+func GetUserTopUpDetail(c *gin.Context) {
+	userId := c.GetInt("id")
+	topUpId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		common.ApiErrorMsg(c, "参数错误")
+		return
+	}
+	topUp := model.GetTopUpByIdAndUserId(topUpId, userId)
+	if topUp == nil {
+		common.ApiErrorMsg(c, "订单不存在")
+		return
+	}
+	user, err := model.GetUserById(userId, false)
+	if err != nil {
+		common.ApiErrorMsg(c, "获取用户信息失败")
+		return
+	}
+	common.ApiSuccess(c, gin.H{
+		"topup": topUp,
+		"user": gin.H{
+			"id":           user.Id,
+			"username":     user.Username,
+			"display_name": user.DisplayName,
+			"email":        user.Email,
+		},
+	})
+}
+
 func GetUserTopUps(c *gin.Context) {
 	userId := c.GetInt("id")
 	pageInfo := common.GetPageQuery(c)
