@@ -124,7 +124,7 @@ func HandleOAuth(c *gin.Context) {
 	}
 
 	// 9. Setup login
-	setupLogin(user, c)
+	setupLoginWithType(user, c, model.LoginTypeOAuth+":"+providerName)
 }
 
 // handleOAuthBind handles binding OAuth account to existing user

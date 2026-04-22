@@ -483,7 +483,7 @@ func Verify2FALogin(c *gin.Context) {
 	session.Delete("pending_user_id")
 	session.Save()
 
-	setupLogin(user, c)
+	setupLoginWithType(user, c, model.LoginType2FA)
 }
 
 // Admin2FAStats 管理员获取2FA统计信息

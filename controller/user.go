@@ -52,6 +52,15 @@ func Login(c *gin.Context) {
 	}
 	err = user.ValidateAndFill()
 	if err != nil {
+		// Record failed login attempt
+		go model.RecordLoginLog(&model.LoginLog{
+			Username:   username,
+			LoginType:  model.LoginTypePassword,
+			LoginIp:    c.ClientIP(),
+			UserAgent:  c.Request.UserAgent(),
+			Status:     model.LoginStatusFailed,
+			FailReason: err.Error(),
+		})
 		c.JSON(http.StatusOK, gin.H{
 			"message": err.Error(),
 			"success": false,
@@ -86,6 +95,10 @@ func Login(c *gin.Context) {
 
 // setup session & cookies and then return user info
 func setupLogin(user *model.User, c *gin.Context) {
+	setupLoginWithType(user, c, model.LoginTypePassword)
+}
+
+func setupLoginWithType(user *model.User, c *gin.Context, loginType string) {
 	session := sessions.Default(c)
 	session.Set("id", user.Id)
 	session.Set("username", user.Username)
@@ -97,6 +110,17 @@ func setupLogin(user *model.User, c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgUserSessionSaveFailed)
 		return
 	}
+
+	// Record login log asynchronously
+	go model.RecordLoginLog(&model.LoginLog{
+		UserId:    user.Id,
+		Username:  user.Username,
+		LoginType: loginType,
+		LoginIp:   c.ClientIP(),
+		UserAgent: c.Request.UserAgent(),
+		Status:    model.LoginStatusSuccess,
+	})
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
 		"success": true,

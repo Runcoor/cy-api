@@ -283,6 +283,7 @@ func migrateDB() error {
 		&Team{},
 		&TeamMember{},
 		&TeamToken{},
+		&LoginLog{},
 	)
 	if err != nil {
 		return err

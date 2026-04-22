@@ -34,6 +34,7 @@ const routerMap = {
   token: '/console/token',
   redemption: '/console/redemption',
   topup: '/console/topup',
+  'login-log': '/console/login-log',
   user: '/console/user',
   subscription: '/console/subscription',
   log: '/console/log',
@@ -122,6 +123,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
             { text: t('模型管理'), itemKey: 'models' },
             { text: t('模型部署'), itemKey: 'deployment' },
             { text: t('兑换码管理'), itemKey: 'redemption' },
+            { text: t('登录日志'), itemKey: 'login-log' },
             { text: t('用户管理'), itemKey: 'user' },
             { text: t('系统设置'), itemKey: 'setting', requireRoot: true },
           ]
