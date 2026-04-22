@@ -450,7 +450,12 @@ const RegisterForm = () => {
 
       {turnstileEnabled && (
         <div className='flex justify-center mt-6'>
-          <Turnstile sitekey={turnstileSiteKey} onVerify={(token) => setTurnstileToken(token)} />
+          <Turnstile
+            sitekey={turnstileSiteKey}
+            onVerify={(token) => setTurnstileToken(token)}
+            onExpire={() => setTurnstileToken('')}
+            refreshExpired='auto'
+          />
         </div>
       )}
     </AuthLayout>
