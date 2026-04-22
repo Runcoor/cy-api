@@ -365,11 +365,15 @@ func NewBillingSession(c *gin.Context, relayInfo *relaycommon.RelayInfo, preCons
 			return nil, types.NewError(subCheckErr, types.ErrorCodeQueryDataError, types.ErrOptionWithSkipRetry())
 		}
 		if !hasSub {
+			logger.LogInfo(c, fmt.Sprintf("[billing] user %d pref=subscription_first but no active subscription found, falling back to wallet (group=%s, model=%s)",
+				relayInfo.UserId, relayInfo.TokenGroup, relayInfo.OriginModelName))
 			return tryWallet()
 		}
 		session, apiErr := trySubscription()
 		if apiErr != nil {
 			if apiErr.GetErrorCode() == types.ErrorCodeInsufficientUserQuota {
+				logger.LogWarn(c, fmt.Sprintf("[billing] user %d pref=subscription_first but subscription failed (%s), falling back to wallet (group=%s, model=%s)",
+					relayInfo.UserId, apiErr.Error(), relayInfo.TokenGroup, relayInfo.OriginModelName))
 				return tryWallet()
 			}
 			return nil, apiErr

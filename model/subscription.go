@@ -1034,11 +1034,14 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 			Where("user_id = ? AND status = ? AND end_time > ?", userId, "active", now).
 			Order("end_time asc, id asc").
 			Find(&subs).Error; err != nil {
+			common.SysLog(fmt.Sprintf("[subscription-billing] user %d: query error: %s (now=%d)", userId, err.Error(), now))
 			return errors.New("no active subscription")
 		}
 		if len(subs) == 0 {
+			common.SysLog(fmt.Sprintf("[subscription-billing] user %d: no active subscriptions found (now=%d)", userId, now))
 			return errors.New("no active subscription")
 		}
+		common.SysLog(fmt.Sprintf("[subscription-billing] user %d: found %d active subscription(s), need amount=%d", userId, len(subs), amount))
 		for _, candidate := range subs {
 			sub := candidate
 			plan, err := getSubscriptionPlanByIdTx(tx, sub.PlanId)
@@ -1052,9 +1055,13 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 			if sub.AmountTotal > 0 {
 				remain := sub.AmountTotal - usedBefore
 				if remain < amount {
+					common.SysLog(fmt.Sprintf("[subscription-billing] user %d: sub %d (plan=%d, group=%s) skipped — quota insufficient (total=%d, used=%d, remain=%d, need=%d)",
+						userId, sub.Id, sub.PlanId, sub.UpgradeGroup, sub.AmountTotal, usedBefore, remain, amount))
 					continue
 				}
 			}
+			common.SysLog(fmt.Sprintf("[subscription-billing] user %d: sub %d (plan=%d, group=%s) selected — quota ok (total=%d, used=%d)",
+				userId, sub.Id, sub.PlanId, sub.UpgradeGroup, sub.AmountTotal, usedBefore))
 			record := &SubscriptionPreConsumeRecord{
 				RequestId:          requestId,
 				UserId:             userId,
@@ -1088,6 +1095,7 @@ func PreConsumeUserSubscription(requestId string, userId int, modelName string, 
 			returnValue.AmountUsedAfter = sub.AmountUsed
 			return nil
 		}
+		common.SysLog(fmt.Sprintf("[subscription-billing] user %d: all %d subscription(s) exhausted, none had sufficient quota (need=%d)", userId, len(subs), amount))
 		return fmt.Errorf("subscription quota insufficient, need=%d", amount)
 	})
 	if err != nil {

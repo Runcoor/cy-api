@@ -24,16 +24,11 @@ import {
   InputNumber,
   Typography,
   Banner,
-  Tag,
-  Radio,
-  RadioGroup,
   Skeleton,
-  Tooltip,
 } from '@douyinfe/semi-ui';
 import {
   IconCopy,
   IconTick,
-  IconChevronDown,
   IconEyeOpened,
   IconEyeClosed,
   IconBookStroked,
@@ -44,8 +39,9 @@ import {
   Wallet,
   BookOpen,
   Check,
-  Zap,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   TicketCheck,
   CreditCard,
 } from 'lucide-react';
@@ -216,14 +212,7 @@ html.dark .qs-root {
   --qs-syn-env: #7ee787;
 }
 
-@keyframes qs-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes qs-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
-}
+/* ── Check mark animations ── */
 @keyframes qs-check-draw {
   from { stroke-dashoffset: 60; }
   to   { stroke-dashoffset: 0; }
@@ -237,22 +226,6 @@ html.dark .qs-root {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-@keyframes qs-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
-}
-
-.qs-step-card {
-  animation: qs-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.qs-step-card:nth-child(1) { animation-delay: 0ms; }
-.qs-step-card:nth-child(2) { animation-delay: 100ms; }
-.qs-step-card:nth-child(3) { animation-delay: 200ms; }
-
-.qs-content-enter {
-  animation: qs-scale-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 .qs-check-path {
   stroke-dasharray: 60;
   stroke-dashoffset: 60;
@@ -262,7 +235,6 @@ html.dark .qs-root {
   transform-origin: center;
   animation: qs-check-pulse 1.2s 0.25s ease-out forwards;
 }
-
 .qs-shimmer-text {
   background: linear-gradient(90deg, var(--accent) 0%, var(--accent-hover) 40%, var(--accent) 80%);
   background-size: 200% auto;
@@ -271,8 +243,238 @@ html.dark .qs-root {
   animation: qs-shimmer 3s linear infinite;
 }
 
-.qs-float { animation: qs-float 3s ease-in-out infinite; }
+/* ── Book layout ── */
+.qs-book {
+  perspective: 2000px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.qs-book-spread {
+  position: relative;
+  display: flex;
+  min-height: max(520px, 55vh);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 0 0 1px var(--border-subtle);
+}
+.qs-page-left {
+  flex: 0 0 35%;
+  background: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.qs-page-left::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0; width: 20px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.03));
+  pointer-events: none;
+}
+.qs-spine {
+  width: 2px;
+  flex-shrink: 0;
+  background: linear-gradient(to bottom, transparent 5%, var(--border-default) 20%, var(--border-default) 80%, transparent 95%);
+}
+.qs-page-right {
+  flex: 1;
+  background: var(--surface);
+  padding: 32px 28px;
+  overflow-y: auto;
+  position: relative;
+}
+.qs-page-right::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0; width: 20px;
+  background: linear-gradient(to left, transparent, rgba(0,0,0,0.02));
+  pointer-events: none;
+  z-index: 1;
+}
 
+/* ── 3D Flip animations ── */
+@keyframes qs-flip-forward {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(-180deg); }
+}
+@keyframes qs-flip-backward {
+  0%   { transform: rotateY(-180deg); }
+  100% { transform: rotateY(0deg); }
+}
+@keyframes qs-flip-shadow {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.qs-flip-overlay {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 65%;
+  right: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  z-index: 10;
+  pointer-events: none;
+}
+.qs-flip-overlay.forward {
+  animation: qs-flip-forward 600ms cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards;
+}
+.qs-flip-overlay.backward {
+  animation: qs-flip-backward 600ms cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards;
+}
+.qs-flip-front, .qs-flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  overflow: hidden;
+}
+.qs-flip-front {
+  background: var(--surface);
+}
+.qs-flip-back {
+  background: var(--surface);
+  transform: rotateY(180deg);
+}
+.qs-flip-shadow-overlay {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 35%;
+  width: 65%;
+  background: rgba(0,0,0,0.06);
+  z-index: 9;
+  pointer-events: none;
+  animation: qs-flip-shadow 600ms cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards;
+}
+
+/* ── Page content transitions ── */
+@keyframes qs-page-enter {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.qs-page-content-enter {
+  animation: qs-page-enter 0.35s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Left page progress indicator ── */
+.qs-progress-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  background: transparent;
+  transition: all 0.4s;
+  flex-shrink: 0;
+}
+.qs-progress-dot.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.qs-progress-dot.completed {
+  border-color: var(--success);
+  background: var(--success);
+}
+.qs-progress-line {
+  width: 2px; height: 24px;
+  background: var(--border-default);
+  transition: background 0.4s;
+  flex-shrink: 0;
+}
+.qs-progress-line.completed {
+  background: var(--success);
+}
+
+/* ── Navigation bar ── */
+.qs-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+.qs-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+.qs-nav-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+.qs-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.qs-nav-btn.primary {
+  background: var(--accent-gradient);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+.qs-nav-btn.primary:hover:not(:disabled) {
+  background: var(--accent-gradient);
+  color: #fff;
+  opacity: 0.9;
+}
+.qs-nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border-default);
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s;
+  padding: 0;
+}
+.qs-nav-dot.active {
+  background: var(--accent);
+  width: 24px;
+  border-radius: 4px;
+}
+.qs-nav-dot.completed {
+  background: var(--success);
+}
+
+/* ── Mobile overrides ── */
+@media (max-width: 767px) {
+  .qs-book-spread {
+    flex-direction: column;
+    min-height: auto;
+  }
+  .qs-page-left {
+    flex: none;
+    padding: 24px 20px;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+  }
+  .qs-page-left::after { display: none; }
+  .qs-spine { width: auto; height: 1px; }
+  .qs-page-right {
+    padding: 24px 20px;
+    min-height: 400px;
+  }
+  .qs-page-right::before { display: none; }
+  .qs-flip-overlay, .qs-flip-shadow-overlay { display: none; }
+  .qs-page-content-enter { animation: none; }
+}
+
+/* ── Shared UI styles (unchanged) ── */
 .qs-code-block {
   font-family: var(--font-mono);
   font-size: 13px;
@@ -334,70 +536,114 @@ const SuccessCheck = ({ size = 40 }) => (
   </svg>
 );
 
-/* ─────── Step indicator ─────── */
-const StepIndicator = ({ step, current, completed, onClick }) => {
-  const isActive = step === current;
+/* ─────── Left page content — step overview ─────── */
+const LeftPageContent = ({ step, icon, title, subtitle, steps, completedSteps, isMobile }) => {
+  if (isMobile) {
+    return (
+      <>
+        <span style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+          background: 'var(--accent-light)', color: 'var(--accent)',
+        }}>
+          {icon}
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
+            Step {step} / {steps.length}
+          </Text>
+          <Text strong style={{ fontSize: 16, color: 'var(--text-primary)', display: 'block', fontFamily: 'var(--font-serif)' }}>
+            {title}
+          </Text>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <button onClick={onClick} style={{
-      width: 32, height: 32, borderRadius: '50%',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      border: isActive ? '2px solid var(--accent)' : completed ? '2px solid var(--success)' : '2px solid var(--border-default)',
-      background: completed ? 'rgba(52, 199, 89, 0.12)' : isActive ? 'var(--accent-light)' : 'var(--surface)',
-      color: completed ? 'var(--success)' : isActive ? 'var(--accent)' : 'var(--text-muted)',
-      fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.3s', outline: 'none', flexShrink: 0,
-    }}>
-      {completed ? <Check size={16} /> : step}
-    </button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, textAlign: 'center', width: '100%' }}>
+      {/* Large icon */}
+      <span style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: 64, height: 64, borderRadius: 20,
+        background: 'var(--accent-light)', color: 'var(--accent)',
+        transition: 'all 0.4s',
+      }}>
+        {React.cloneElement(icon, { size: 28 })}
+      </span>
+
+      {/* Step label */}
+      <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+        Step {step} / {steps.length}
+      </Text>
+
+      {/* Title & subtitle */}
+      <div>
+        <Text strong style={{ fontSize: 20, color: 'var(--text-primary)', display: 'block', fontFamily: 'var(--font-serif)', lineHeight: 1.3 }}>
+          {title}
+        </Text>
+        <Text style={{ fontSize: 13, color: 'var(--text-muted)', display: 'block', marginTop: 6 }}>
+          {subtitle}
+        </Text>
+      </div>
+
+      {/* Vertical progress indicator */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, marginTop: 8 }}>
+        {steps.map((s, i) => (
+          <React.Fragment key={s.step}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className={`qs-progress-dot${s.step === step ? ' active' : ''}${completedSteps.has(s.step) ? ' completed' : ''}`}>
+                {completedSteps.has(s.step) && (
+                  <Check size={8} style={{ color: '#fff', display: 'block', margin: '-1px' }} />
+                )}
+              </div>
+              <Text style={{
+                fontSize: 12, fontWeight: s.step === step ? 600 : 400,
+                color: s.step === step ? 'var(--accent)' : completedSteps.has(s.step) ? 'var(--success)' : 'var(--text-muted)',
+                transition: 'all 0.3s', whiteSpace: 'nowrap',
+              }}>
+                {s.title}
+              </Text>
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`qs-progress-line${completedSteps.has(s.step) ? ' completed' : ''}`} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
   );
 };
 
-/* ─────── Collapsible step card ─────── */
-const StepCard = ({ icon, title, subtitle, active, completed, onToggle, children, t }) => (
-  <div style={{
-    borderRadius: 'var(--radius-lg)',
-    border: active ? '1px solid var(--accent)' : completed ? '1px solid rgba(52, 199, 89, 0.3)' : '1px solid var(--border-default)',
-    background: 'var(--surface)',
-    overflow: 'hidden',
-    transition: 'border-color 0.3s, box-shadow 0.3s',
-    boxShadow: active ? '0 0 0 3px var(--accent-light)' : 'none',
-  }}>
-    <button onClick={onToggle} style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      width: '100%', padding: '16px 20px',
-      background: 'transparent', border: 'none', cursor: 'pointer', outline: 'none', textAlign: 'left',
-    }}>
-      <span style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-        background: completed ? 'rgba(52, 199, 89, 0.12)' : active ? 'var(--accent-light)' : 'var(--surface-active)',
-        color: completed ? 'var(--success)' : active ? 'var(--accent)' : 'var(--text-muted)',
-        transition: 'all 0.3s',
-      }}>
-        {completed ? <Check size={18} /> : icon}
-      </span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Text strong style={{ fontSize: 15, color: active ? 'var(--text-primary)' : 'var(--text-secondary)', transition: 'color 0.3s' }}>
-            {title}
-          </Text>
-          {completed && <Tag size='small' color='green' style={{ borderRadius: 'var(--radius-sm)' }}>{t('已完成')}</Tag>}
-        </div>
-        <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{subtitle}</Text>
-      </div>
-      <span style={{ color: 'var(--text-muted)', transition: 'transform 0.3s', transform: active ? 'rotate(180deg)' : 'rotate(0)' }}>
-        <IconChevronDown />
-      </span>
+/* ─────── Book navigation bar ─────── */
+const BookNavigation = ({ current, total, onPrev, onNext, onDotClick, completedSteps, isFlipping, t, isLastStep }) => (
+  <div className='qs-nav'>
+    <button className='qs-nav-btn' onClick={onPrev} disabled={current <= 1 || isFlipping}>
+      <ChevronLeft size={16} />
+      {t('上一步')}
     </button>
-    <div style={{
-      maxHeight: active ? 1200 : 0,
-      opacity: active ? 1 : 0,
-      overflow: 'hidden',
-      transition: 'max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s',
-    }}>
-      <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--border-subtle)', paddingTop: 16 }}>
-        {children}
-      </div>
+
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      {Array.from({ length: total }, (_, i) => (
+        <button
+          key={i}
+          className={`qs-nav-dot${i + 1 === current ? ' active' : ''}${completedSteps.has(i + 1) ? ' completed' : ''}`}
+          onClick={() => onDotClick(i + 1)}
+        />
+      ))}
     </div>
+
+    {isLastStep ? (
+      <button className='qs-nav-btn primary' onClick={onNext} disabled={isFlipping}>
+        {t('进入控制台')}
+        <ArrowRight size={16} />
+      </button>
+    ) : (
+      <button className='qs-nav-btn primary' onClick={onNext} disabled={current >= total || isFlipping}>
+        {t('下一步')}
+        <ChevronRight size={16} />
+      </button>
+    )}
   </div>
 );
 
@@ -473,19 +719,38 @@ const QuickStart = () => {
     ? `sk-${selectedKey.slice(0, 4)}${'●'.repeat(16)}${selectedKey.slice(-4)}`
     : '';
 
-  const stepRefs = useRef({});
-  const scrollToStep = (step) => {
-    setTimeout(() => {
-      stepRefs.current[step]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 150);
+  /* ─── Flip animation state ─── */
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [flipDirection, setFlipDirection] = useState('forward');
+  const flipTimeoutRef = useRef(null);
+
+  const goToStep = (target) => {
+    if (target === activeStep || isFlipping || target < 1 || target > 3) return;
+    setFlipDirection(target > activeStep ? 'forward' : 'backward');
+    setIsFlipping(true);
+    if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
+    flipTimeoutRef.current = setTimeout(() => {
+      setActiveStep(target);
+      setIsFlipping(false);
+    }, 600);
   };
+
   const completeStep = (step) => {
     setCompletedSteps((prev) => new Set([...prev, step]));
     if (step < 3) {
-      setActiveStep(step + 1);
-      scrollToStep(step + 1);
+      setTimeout(() => goToStep(step + 1), 400);
     }
   };
+
+  /* ─── Keyboard navigation ─── */
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'ArrowRight' && activeStep < 3) goToStep(activeStep + 1);
+      if (e.key === 'ArrowLeft' && activeStep > 1) goToStep(activeStep - 1);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [activeStep, isFlipping]);
 
   /* ─── Load existing tokens ─── */
   useEffect(() => {
@@ -697,6 +962,416 @@ const QuickStart = () => {
     { step: 3, icon: <BookOpen size={20} />, title: t('开始使用'), subtitle: t('在你喜欢的工具中配置') },
   ];
 
+  const currentStep = steps.find((s) => s.step === activeStep) || steps[0];
+
+  /* ─── Step content renderers ─── */
+  const renderStep1 = () => (
+    <div className='qs-page-content-enter' key={`step1-${activeStep}`} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Selected key display */}
+      {selectedKey && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px', borderRadius: 'var(--radius-md)',
+          background: 'rgba(52, 199, 89, 0.06)', border: '1px solid rgba(52, 199, 89, 0.2)',
+          fontFamily: 'var(--font-mono)', fontSize: 13,
+        }}>
+          <Check size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+            {keyRevealed ? displayKey : maskedKey}
+          </span>
+          <Button icon={keyRevealed ? <IconEyeClosed /> : <IconEyeOpened />} theme='borderless' type='tertiary' size='small' onClick={() => setKeyRevealed(!keyRevealed)} />
+          <Button icon={keyCopied ? <IconTick /> : <IconCopy />} theme='borderless' type='tertiary' size='small' onClick={handleCopyKey} />
+        </div>
+      )}
+
+      {/* Existing tokens list */}
+      {tokensLoading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton.Paragraph active rows={2} />
+        </div>
+      ) : existingTokens.length > 0 && (
+        <div>
+          <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>
+            {t('选择已有的 Key')}
+          </Text>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
+            {existingTokens.map((token) => (
+              <div
+                key={token.id}
+                className={`qs-key-item${selectedTokenId === token.id ? ' selected' : ''}`}
+                onClick={() => handleSelectToken(token)}
+              >
+                <Key size={14} style={{ color: selectedTokenId === token.id ? 'var(--accent)' : 'var(--text-muted)', flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={{ fontSize: 13, fontWeight: 500, display: 'block', color: 'var(--text-primary)' }} ellipsis>
+                    {token.name}
+                  </Text>
+                  <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    {token.key}
+                  </Text>
+                </div>
+                {selectedTokenId === token.id && <Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Create new */}
+      {showCreateForm ? (
+        <div style={{
+          padding: 14, borderRadius: 'var(--radius-md)',
+          background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)',
+          display: 'flex', flexDirection: 'column', gap: 10,
+        }}>
+          <Text style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>
+            {t('创建新的 API Key')}
+          </Text>
+          <Input
+            value={tokenName} onChange={setTokenName}
+            placeholder={t('例如：my-first-key')} showClear
+            style={{ borderRadius: 'var(--radius-md)' }}
+          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button theme='solid' type='primary' loading={creatingKey} onClick={handleCreateKey}
+              icon={<Key size={14} />}
+              style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, flex: 1 }}
+            >
+              {t('立即创建')}
+            </Button>
+            <Button theme='light' type='tertiary' onClick={() => setShowCreateForm(false)}
+              style={{ borderRadius: 'var(--radius-md)' }}
+            >
+              {t('取消')}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button theme='light' type='primary' icon={<IconPlus />}
+          onClick={() => setShowCreateForm(true)}
+          style={{ borderRadius: 'var(--radius-md)' }} block
+        >
+          {t('创建新的 API Key')}
+        </Button>
+      )}
+
+      {/* Confirm button */}
+      {selectedKey && !completedSteps.has(1) && (
+        <Button theme='solid' type='primary' onClick={handleConfirmKey}
+          icon={<ArrowRight size={14} />}
+          style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 40 }} block
+        >
+          {t('使用此 Key，下一步')}
+        </Button>
+      )}
+    </div>
+  );
+
+  const renderStep2 = () => {
+    if (completedSteps.has(2)) {
+      return (
+        <div className='qs-page-content-enter' key='step2-done' style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: 16, borderRadius: 'var(--radius-md)',
+          background: 'rgba(52, 199, 89, 0.06)', border: '1px solid rgba(52, 199, 89, 0.2)',
+        }}>
+          <SuccessCheck size={40} />
+          <div>
+            <Text strong style={{ color: 'var(--success)', display: 'block' }}>{t('充值成功')}</Text>
+            <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('额度已到账，可以开始使用了')}</Text>
+          </div>
+        </div>
+      );
+    }
+    if (paymentPending) {
+      return (
+        <div className='qs-page-content-enter' key='step2-pending' style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: 16, borderRadius: 'var(--radius-md)',
+            background: 'rgba(var(--semi-amber-0), 0.08)', border: '1px solid rgba(var(--semi-amber-5), 0.3)',
+          }}>
+            <span style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+              background: 'rgba(var(--semi-amber-5), 0.12)',
+            }}>
+              <Wallet size={20} style={{ color: 'var(--warning, #f59e0b)' }} />
+            </span>
+            <div>
+              <Text strong style={{ display: 'block', color: 'var(--text-primary)' }}>{t('支付已发起')}</Text>
+              <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('请在打开的页面中完成支付，完成后点击下方按钮确认')}</Text>
+            </div>
+          </div>
+          <Button theme='solid' type='primary' loading={verifyingPayment} onClick={handleVerifyPayment}
+            icon={<Check size={14} />}
+            style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 40 }} block
+          >
+            {t('我已完成支付')}
+          </Button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button theme='borderless' type='tertiary' onClick={() => setPaymentPending(false)}
+              style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
+            >
+              {t('重新选择')}
+            </Button>
+            <Button theme='borderless' type='tertiary' onClick={() => { setPaymentPending(false); completeStep(2); }}
+              style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
+            >
+              {t('跳过，稍后充值')}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    if (topupLoading) return <Skeleton.Paragraph active rows={4} />;
+
+    return (
+      <div className='qs-page-content-enter' key='step2-form' style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Preset amounts grid */}
+        {hasAnyPayment && (
+          <>
+            <div>
+              <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, display: 'block' }}>
+                {t('选择充值金额')}
+              </Text>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {presetAmounts.map((p) => {
+                  const discount = p.discount || topupInfo?.discount?.[p.value] || 1.0;
+                  const originalPay = p.value * priceRatio;
+                  const actualPay = originalPay * discount;
+                  const hasDiscount = discount < 1.0;
+                  const saved = originalPay - actualPay;
+                  const isSelected = selectedPreset === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      className={`qs-preset-btn${isSelected ? ' active' : ''}`}
+                      onClick={() => { setSelectedPreset(p.value); setTopUpCount(p.value); }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
+                          ${p.value}
+                        </span>
+                        {hasDiscount && (
+                          <span style={{
+                            fontSize: 10, fontWeight: 600, padding: '1px 5px', lineHeight: '16px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: 'rgba(52, 199, 89, 0.15)', color: 'var(--success)',
+                          }}>
+                            {t('折').includes('off')
+                              ? ((1 - parseFloat(discount)) * 100).toFixed(1)
+                              : (discount * 10).toFixed(1)}{t('折')}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 11, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)' }}>
+                        {t('实付')} ¥{actualPay.toFixed(2)}
+                        {hasDiscount ? ` · ${t('节省')} ¥${saved.toFixed(2)}` : ''}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom amount input */}
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <InputNumber
+                value={topUpCount} onChange={(v) => { setTopUpCount(v || 0); setSelectedPreset(null); }}
+                min={minTopUp} style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
+                prefix={<CreditCard size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
+                placeholder={`${t('最低')} ${minTopUp}`}
+              />
+              {(() => {
+                const discount = topupInfo?.discount?.[topUpCount] || 1.0;
+                const actualPay = topUpCount * priceRatio * discount;
+                const hasDiscount = discount < 1.0;
+                return (
+                  <Text style={{ fontSize: 12, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)', whiteSpace: 'nowrap', fontWeight: hasDiscount ? 600 : 400 }}>
+                    {t('实付')} ¥{actualPay.toFixed(2)}
+                  </Text>
+                );
+              })()}
+            </div>
+
+            {/* Payment methods */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {enableStripeTopUp && (
+                <Button theme='light' loading={paymentLoading && payWay === 'stripe'}
+                  onClick={() => handleOnlinePay('stripe')}
+                  icon={<SiStripe size={14} color='#635BFF' />}
+                  style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
+                >
+                  Stripe
+                </Button>
+              )}
+              {enableOnlineTopUp && epayMethods.map((m) => (
+                <Button key={m.type} theme='light'
+                  loading={paymentLoading && payWay === m.type}
+                  onClick={() => handleOnlinePay(m.type)}
+                  icon={m.type === 'wxpay' ? <SiWechat size={14} color='#07C160' /> : m.type === 'alipay' ? <SiAlipay size={14} color='#1677FF' /> : <CreditCard size={14} />}
+                  style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
+                >
+                  {m.name || m.type}
+                </Button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
+              <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('或')}</Text>
+              <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
+            </div>
+          </>
+        )}
+
+        {/* Redemption code */}
+        <div>
+          <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>
+            {t('输入充值码兑换额度')}
+          </Text>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Input
+              value={redemptionCode} onChange={setRedemptionCode}
+              placeholder={t('输入充值码')}
+              prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
+              showClear style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
+              onEnterPress={handleRedeem}
+            />
+            <Button theme='solid' type='primary' loading={isSubmitting} onClick={handleRedeem}
+              style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600 }}
+            >
+              {t('兑换')}
+            </Button>
+          </div>
+        </div>
+
+        {/* Skip */}
+        <Button theme='borderless' type='tertiary' onClick={() => completeStep(2)}
+          style={{ borderRadius: 'var(--radius-md)' }}
+        >
+          {t('跳过，稍后充值')}
+        </Button>
+      </div>
+    );
+  };
+
+  const renderStep3 = () => (
+    <div className='qs-page-content-enter' key={`step3-${activeStep}`} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Text style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+        {t('选择你使用的工具，将以下配置添加到对应位置即可。')}
+      </Text>
+
+      {/* Tool tabs + OS toggle */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {[
+            { key: 'claude', label: 'Claude Code', icon: <Claude size={14} /> },
+            { key: 'cursor', label: 'Cursor', icon: <Cursor size={14} /> },
+            { key: 'cline', label: 'Cline', icon: <Cline size={14} /> },
+            { key: 'codex', label: 'Codex CLI', icon: <OpenAI size={14} /> },
+            { key: 'code', label: 'Code', icon: <VscVscode size={14} /> },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setTutorialTab(item.key)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 'var(--radius-sm)',
+                border: tutorialTab === item.key ? '1px solid var(--accent)' : '1px solid var(--border-default)',
+                background: tutorialTab === item.key ? 'var(--accent-light)' : 'var(--surface)',
+                color: tutorialTab === item.key ? 'var(--accent)' : 'var(--text-secondary)',
+                fontSize: 13, fontWeight: 500, cursor: 'pointer', outline: 'none', transition: 'all 0.2s',
+              }}
+            >
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {/* OS toggle — only show for tools with shell commands */}
+        {(tutorialTab === 'claude' || tutorialTab === 'codex') && (
+          <div style={{
+            display: 'inline-flex', borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-default)', overflow: 'hidden',
+          }}>
+            {[
+              { key: 'mac', label: 'macOS / Linux' },
+              { key: 'windows', label: 'Windows' },
+            ].map((os) => (
+              <button
+                key={os.key}
+                onClick={() => setTutorialOS(os.key)}
+                style={{
+                  padding: '4px 10px', fontSize: 11, fontWeight: 500,
+                  border: 'none', cursor: 'pointer', outline: 'none',
+                  background: tutorialOS === os.key ? 'var(--accent-light)' : 'var(--surface)',
+                  color: tutorialOS === os.key ? 'var(--accent)' : 'var(--text-muted)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {os.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Code block */}
+      <div>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '6px 12px', background: 'var(--surface-active)',
+          borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
+          border: '1px solid var(--border-subtle)', borderBottom: 'none',
+        }}>
+          <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+            {tutorial.filename}
+          </Text>
+          <Button size='small' theme='borderless' type='tertiary'
+            icon={codeCopied ? <IconTick /> : <IconCopy />}
+            onClick={handleCopyCode} style={{ fontSize: 11 }}
+          >
+            {codeCopied ? t('已复制') : t('复制')}
+          </Button>
+        </div>
+        <div className='qs-code-block' style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, margin: 0 }}>
+          {tutorial.lines.map((line, i) => (
+            <div key={i} style={{ minHeight: '1.65em' }}>
+              {line.length === 0 ? '\u00A0' : line}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {!selectedKey && (
+        <Banner type='warning' closeIcon={null}
+          description={t('请先完成第 1 步创建 API Key，代码中的密钥将自动替换。')}
+          style={{ borderRadius: 'var(--radius-md)' }}
+        />
+      )}
+
+      {/* Action buttons */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <Button theme='light' type='primary' icon={<IconBookStroked />}
+          onClick={() => navigate('/guide')}
+          style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
+        >
+          {t('查看完整教程')}
+        </Button>
+        <Button theme='solid' type='primary' icon={<ArrowRight size={14} />}
+          onClick={() => navigate('/console')}
+          style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, flex: 1 }}
+        >
+          {t('进入控制台')}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const stepRenderers = { 1: renderStep1, 2: renderStep2, 3: renderStep3 };
+
   return (
     <>
       <style>{STYLES}</style>
@@ -705,479 +1380,71 @@ const QuickStart = () => {
         background: 'var(--bg-base)',
         padding: isMobile ? '24px 16px 48px' : '48px 24px 80px',
       }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
           {/* ─── Header ─── */}
-          <div style={{ textAlign: 'center', marginBottom: 48 }} className='qs-step-card'>
-            <div className='qs-float' style={{ marginBottom: 16 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 56, height: 56, borderRadius: 16,
-                background: 'var(--accent-light)', color: 'var(--accent)',
-              }}>
-                <Zap size={28} />
-              </span>
-            </div>
+          <div style={{ textAlign: 'center', marginBottom: isMobile ? 24 : 36 }}>
             <h1 className='qs-shimmer-text' style={{
-              fontSize: isMobile ? 28 : 36, fontWeight: 700,
-              fontFamily: 'var(--font-serif)', margin: '0 0 8px', lineHeight: 1.2,
+              fontSize: isMobile ? 24 : 32, fontWeight: 700,
+              fontFamily: 'var(--font-serif)', margin: '0 0 6px', lineHeight: 1.2,
             }}>
               {t('快速开始')}
             </h1>
-            <Text style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
+            <Text style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
               {t('只需三步，即可开始使用 API 服务')}
             </Text>
           </div>
 
-          {/* ─── Progress bar ─── */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 40 }}>
-            {steps.map((s, i) => (
-              <React.Fragment key={s.step}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                  <StepIndicator step={s.step} current={activeStep} completed={completedSteps.has(s.step)} onClick={() => setActiveStep(s.step)} />
-                  {!isMobile && (
-                    <Text style={{ fontSize: 12, fontWeight: 500, color: activeStep === s.step ? 'var(--accent)' : 'var(--text-muted)', transition: 'color 0.3s' }}>
-                      {s.title}
-                    </Text>
-                  )}
-                </div>
-                {i < steps.length - 1 && (
-                  <div style={{
-                    width: isMobile ? 40 : 80, height: 2,
-                    background: completedSteps.has(s.step) ? 'var(--success)' : 'var(--border-default)',
-                    borderRadius: 1, transition: 'background 0.4s', marginBottom: isMobile ? 0 : 22,
-                  }} />
-                )}
-              </React.Fragment>
-            ))}
+          {/* ─── Book ─── */}
+          <div className='qs-book'>
+            <div className='qs-book-spread'>
+              {/* Left page — step overview */}
+              <div className='qs-page-left'>
+                <LeftPageContent
+                  step={activeStep}
+                  icon={currentStep.icon}
+                  title={currentStep.title}
+                  subtitle={currentStep.subtitle}
+                  steps={steps}
+                  completedSteps={completedSteps}
+                  isMobile={isMobile}
+                />
+              </div>
+
+              {/* Spine */}
+              {!isMobile && <div className='qs-spine' />}
+
+              {/* Right page — interactive content */}
+              <div className='qs-page-right'>
+                {stepRenderers[activeStep]?.()}
+              </div>
+
+              {/* Flip overlay during animation */}
+              {isFlipping && !isMobile && (
+                <>
+                  <div className={`qs-flip-overlay ${flipDirection}`}>
+                    <div className='qs-flip-front' style={{ padding: '32px 28px', overflow: 'hidden' }} />
+                    <div className='qs-flip-back' style={{ padding: '32px 28px', overflow: 'hidden' }} />
+                  </div>
+                  <div className='qs-flip-shadow-overlay' />
+                </>
+              )}
+            </div>
           </div>
 
-          {/* ─── Step cards ─── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* ─── Navigation ─── */}
+          <BookNavigation
+            current={activeStep}
+            total={3}
+            onPrev={() => goToStep(activeStep - 1)}
+            onNext={() => activeStep === 3 ? navigate('/console') : goToStep(activeStep + 1)}
+            onDotClick={goToStep}
+            completedSteps={completedSteps}
+            isFlipping={isFlipping}
+            t={t}
+            isLastStep={activeStep === 3}
+          />
 
-            {/* ═══ Step 1: API Key ═══ */}
-            <div ref={(el) => (stepRefs.current[1] = el)} className='qs-step-card'>
-              <StepCard
-                icon={steps[0].icon} title={steps[0].title} subtitle={steps[0].subtitle}
-                active={activeStep === 1} completed={completedSteps.has(1)}
-                onToggle={() => setActiveStep(activeStep === 1 ? 0 : 1)} t={t}
-              >
-                <div className='qs-content-enter' style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {/* Selected key display */}
-                  {selectedKey && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                      background: 'rgba(52, 199, 89, 0.06)', border: '1px solid rgba(52, 199, 89, 0.2)',
-                      fontFamily: 'var(--font-mono)', fontSize: 13,
-                    }}>
-                      <Check size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />
-                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
-                        {keyRevealed ? displayKey : maskedKey}
-                      </span>
-                      <Button icon={keyRevealed ? <IconEyeClosed /> : <IconEyeOpened />} theme='borderless' type='tertiary' size='small' onClick={() => setKeyRevealed(!keyRevealed)} />
-                      <Button icon={keyCopied ? <IconTick /> : <IconCopy />} theme='borderless' type='tertiary' size='small' onClick={handleCopyKey} />
-                    </div>
-                  )}
-
-                  {/* Existing tokens list */}
-                  {tokensLoading ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <Skeleton.Paragraph active rows={2} />
-                    </div>
-                  ) : existingTokens.length > 0 && (
-                    <div>
-                      <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>
-                        {t('选择已有的 Key')}
-                      </Text>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 180, overflowY: 'auto' }}>
-                        {existingTokens.map((token) => (
-                          <div
-                            key={token.id}
-                            className={`qs-key-item${selectedTokenId === token.id ? ' selected' : ''}`}
-                            onClick={() => handleSelectToken(token)}
-                          >
-                            <Key size={14} style={{ color: selectedTokenId === token.id ? 'var(--accent)' : 'var(--text-muted)', flexShrink: 0 }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <Text style={{ fontSize: 13, fontWeight: 500, display: 'block', color: 'var(--text-primary)' }} ellipsis>
-                                {token.name}
-                              </Text>
-                              <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                                {token.key}
-                              </Text>
-                            </div>
-                            {selectedTokenId === token.id && <Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Create new */}
-                  {showCreateForm ? (
-                    <div style={{
-                      padding: 14, borderRadius: 'var(--radius-md)',
-                      background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)',
-                      display: 'flex', flexDirection: 'column', gap: 10,
-                    }}>
-                      <Text style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>
-                        {t('创建新的 API Key')}
-                      </Text>
-                      <Input
-                        value={tokenName} onChange={setTokenName}
-                        placeholder={t('例如：my-first-key')} showClear
-                        style={{ borderRadius: 'var(--radius-md)' }}
-                      />
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <Button theme='solid' type='primary' loading={creatingKey} onClick={handleCreateKey}
-                          icon={<Key size={14} />}
-                          style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, flex: 1 }}
-                        >
-                          {t('立即创建')}
-                        </Button>
-                        <Button theme='light' type='tertiary' onClick={() => setShowCreateForm(false)}
-                          style={{ borderRadius: 'var(--radius-md)' }}
-                        >
-                          {t('取消')}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <Button theme='light' type='primary' icon={<IconPlus />}
-                      onClick={() => setShowCreateForm(true)}
-                      style={{ borderRadius: 'var(--radius-md)' }} block
-                    >
-                      {t('创建新的 API Key')}
-                    </Button>
-                  )}
-
-                  {/* Confirm button */}
-                  {selectedKey && !completedSteps.has(1) && (
-                    <Button theme='solid' type='primary' onClick={handleConfirmKey}
-                      icon={<ArrowRight size={14} />}
-                      style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 40 }} block
-                    >
-                      {t('使用此 Key，下一步')}
-                    </Button>
-                  )}
-                </div>
-              </StepCard>
-            </div>
-
-            {/* ═══ Step 2: Top Up ═══ */}
-            <div ref={(el) => (stepRefs.current[2] = el)} className='qs-step-card'>
-              <StepCard
-                icon={steps[1].icon} title={steps[1].title} subtitle={steps[1].subtitle}
-                active={activeStep === 2} completed={completedSteps.has(2)}
-                onToggle={() => setActiveStep(activeStep === 2 ? 0 : 2)} t={t}
-              >
-                {completedSteps.has(2) ? (
-                  <div className='qs-content-enter' style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: 16, borderRadius: 'var(--radius-md)',
-                    background: 'rgba(52, 199, 89, 0.06)', border: '1px solid rgba(52, 199, 89, 0.2)',
-                  }}>
-                    <SuccessCheck size={40} />
-                    <div>
-                      <Text strong style={{ color: 'var(--success)', display: 'block' }}>{t('充值成功')}</Text>
-                      <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('额度已到账，可以开始使用了')}</Text>
-                    </div>
-                  </div>
-                ) : paymentPending ? (
-                  <div className='qs-content-enter' style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: 16, borderRadius: 'var(--radius-md)',
-                      background: 'rgba(var(--semi-amber-0), 0.08)', border: '1px solid rgba(var(--semi-amber-5), 0.3)',
-                    }}>
-                      <span style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                        background: 'rgba(var(--semi-amber-5), 0.12)',
-                      }}>
-                        <Wallet size={20} style={{ color: 'var(--warning, #f59e0b)' }} />
-                      </span>
-                      <div>
-                        <Text strong style={{ display: 'block', color: 'var(--text-primary)' }}>{t('支付已发起')}</Text>
-                        <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('请在打开的页面中完成支付，完成后点击下方按钮确认')}</Text>
-                      </div>
-                    </div>
-                    <Button theme='solid' type='primary' loading={verifyingPayment} onClick={handleVerifyPayment}
-                      icon={<Check size={14} />}
-                      style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 40 }} block
-                    >
-                      {t('我已完成支付')}
-                    </Button>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <Button theme='borderless' type='tertiary' onClick={() => setPaymentPending(false)}
-                        style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
-                      >
-                        {t('重新选择')}
-                      </Button>
-                      <Button theme='borderless' type='tertiary' onClick={() => { setPaymentPending(false); completeStep(2); }}
-                        style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
-                      >
-                        {t('跳过，稍后充值')}
-                      </Button>
-                    </div>
-                  </div>
-                ) : topupLoading ? (
-                  <Skeleton.Paragraph active rows={4} />
-                ) : (
-                  <div className='qs-content-enter' style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-                    {/* Preset amounts grid */}
-                    {hasAnyPayment && (
-                      <>
-                        <div>
-                          <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, display: 'block' }}>
-                            {t('选择充值金额')}
-                          </Text>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                            {presetAmounts.map((p) => {
-                              const discount = p.discount || topupInfo?.discount?.[p.value] || 1.0;
-                              const originalPay = p.value * priceRatio;
-                              const actualPay = originalPay * discount;
-                              const hasDiscount = discount < 1.0;
-                              const saved = originalPay - actualPay;
-                              const isSelected = selectedPreset === p.value;
-
-                              return (
-                                <button
-                                  key={p.value}
-                                  className={`qs-preset-btn${isSelected ? ' active' : ''}`}
-                                  onClick={() => { setSelectedPreset(p.value); setTopUpCount(p.value); }}
-                                >
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
-                                    <span style={{ fontSize: 15, fontWeight: 600, color: isSelected ? 'var(--accent)' : 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                                      ${p.value}
-                                    </span>
-                                    {hasDiscount && (
-                                      <span style={{
-                                        fontSize: 10, fontWeight: 600, padding: '1px 5px', lineHeight: '16px',
-                                        borderRadius: 'var(--radius-sm)',
-                                        background: 'rgba(52, 199, 89, 0.15)', color: 'var(--success)',
-                                      }}>
-                                        {t('折').includes('off')
-                                          ? ((1 - parseFloat(discount)) * 100).toFixed(1)
-                                          : (discount * 10).toFixed(1)}{t('折')}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div style={{ fontSize: 11, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)' }}>
-                                    {t('实付')} ¥{actualPay.toFixed(2)}
-                                    {hasDiscount ? ` · ${t('节省')} ¥${saved.toFixed(2)}` : ''}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Custom amount input */}
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <InputNumber
-                            value={topUpCount} onChange={(v) => { setTopUpCount(v || 0); setSelectedPreset(null); }}
-                            min={minTopUp} style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
-                            prefix={<CreditCard size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
-                            placeholder={`${t('最低')} ${minTopUp}`}
-                          />
-                          {(() => {
-                            const discount = topupInfo?.discount?.[topUpCount] || 1.0;
-                            const actualPay = topUpCount * priceRatio * discount;
-                            const hasDiscount = discount < 1.0;
-                            return (
-                              <Text style={{ fontSize: 12, color: hasDiscount ? 'var(--error)' : 'var(--text-muted)', whiteSpace: 'nowrap', fontWeight: hasDiscount ? 600 : 400 }}>
-                                {t('实付')} ¥{actualPay.toFixed(2)}
-                              </Text>
-                            );
-                          })()}
-                        </div>
-
-                        {/* Payment methods */}
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                          {enableStripeTopUp && (
-                            <Button theme='light' loading={paymentLoading && payWay === 'stripe'}
-                              onClick={() => handleOnlinePay('stripe')}
-                              icon={<SiStripe size={14} color='#635BFF' />}
-                              style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
-                            >
-                              Stripe
-                            </Button>
-                          )}
-                          {enableOnlineTopUp && epayMethods.map((m) => (
-                            <Button key={m.type} theme='light'
-                              loading={paymentLoading && payWay === m.type}
-                              onClick={() => handleOnlinePay(m.type)}
-                              icon={m.type === 'wxpay' ? <SiWechat size={14} color='#07C160' /> : m.type === 'alipay' ? <SiAlipay size={14} color='#1677FF' /> : <CreditCard size={14} />}
-                              style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
-                            >
-                              {m.name || m.type}
-                            </Button>
-                          ))}
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
-                          <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('或')}</Text>
-                          <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }} />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Redemption code */}
-                    <div>
-                      <Text style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, display: 'block' }}>
-                        {t('输入充值码兑换额度')}
-                      </Text>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <Input
-                          value={redemptionCode} onChange={setRedemptionCode}
-                          placeholder={t('输入充值码')}
-                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
-                          showClear style={{ flex: 1, borderRadius: 'var(--radius-md)' }}
-                          onEnterPress={handleRedeem}
-                        />
-                        <Button theme='solid' type='primary' loading={isSubmitting} onClick={handleRedeem}
-                          style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600 }}
-                        >
-                          {t('兑换')}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Skip */}
-                    <Button theme='borderless' type='tertiary' onClick={() => completeStep(2)}
-                      style={{ borderRadius: 'var(--radius-md)' }}
-                    >
-                      {t('跳过，稍后充值')}
-                    </Button>
-                  </div>
-                )}
-              </StepCard>
-            </div>
-
-            {/* ═══ Step 3: Usage Guide ═══ */}
-            <div ref={(el) => (stepRefs.current[3] = el)} className='qs-step-card'>
-              <StepCard
-                icon={steps[2].icon} title={steps[2].title} subtitle={steps[2].subtitle}
-                active={activeStep === 3} completed={completedSteps.has(3)}
-                onToggle={() => setActiveStep(activeStep === 3 ? 0 : 3)} t={t}
-              >
-                <div className='qs-content-enter' style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <Text style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                    {t('选择你使用的工具，将以下配置添加到对应位置即可。')}
-                  </Text>
-
-                  {/* Tool tabs + OS toggle */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {[
-                        { key: 'claude', label: 'Claude Code', icon: <Claude size={14} /> },
-                        { key: 'cursor', label: 'Cursor', icon: <Cursor size={14} /> },
-                        { key: 'cline', label: 'Cline', icon: <Cline size={14} /> },
-                        { key: 'codex', label: 'Codex CLI', icon: <OpenAI size={14} /> },
-                        { key: 'code', label: 'Code', icon: <VscVscode size={14} /> },
-                      ].map((item) => (
-                        <button
-                          key={item.key}
-                          onClick={() => setTutorialTab(item.key)}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
-                            padding: '6px 12px', borderRadius: 'var(--radius-sm)',
-                            border: tutorialTab === item.key ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-                            background: tutorialTab === item.key ? 'var(--accent-light)' : 'var(--surface)',
-                            color: tutorialTab === item.key ? 'var(--accent)' : 'var(--text-secondary)',
-                            fontSize: 13, fontWeight: 500, cursor: 'pointer', outline: 'none', transition: 'all 0.2s',
-                          }}
-                        >
-                          {item.icon}
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* OS toggle — only show for tools with shell commands */}
-                    {(tutorialTab === 'claude' || tutorialTab === 'codex') && (
-                      <div style={{
-                        display: 'inline-flex', borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--border-default)', overflow: 'hidden',
-                      }}>
-                        {[
-                          { key: 'mac', label: 'macOS / Linux' },
-                          { key: 'windows', label: 'Windows' },
-                        ].map((os) => (
-                          <button
-                            key={os.key}
-                            onClick={() => setTutorialOS(os.key)}
-                            style={{
-                              padding: '4px 10px', fontSize: 11, fontWeight: 500,
-                              border: 'none', cursor: 'pointer', outline: 'none',
-                              background: tutorialOS === os.key ? 'var(--accent-light)' : 'var(--surface)',
-                              color: tutorialOS === os.key ? 'var(--accent)' : 'var(--text-muted)',
-                              transition: 'all 0.2s',
-                            }}
-                          >
-                            {os.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Code block */}
-                  <div>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '6px 12px', background: 'var(--surface-active)',
-                      borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-                      border: '1px solid var(--border-subtle)', borderBottom: 'none',
-                    }}>
-                      <Text style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {tutorial.filename}
-                      </Text>
-                      <Button size='small' theme='borderless' type='tertiary'
-                        icon={codeCopied ? <IconTick /> : <IconCopy />}
-                        onClick={handleCopyCode} style={{ fontSize: 11 }}
-                      >
-                        {codeCopied ? t('已复制') : t('复制')}
-                      </Button>
-                    </div>
-                    <div className='qs-code-block' style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, margin: 0 }}>
-                      {tutorial.lines.map((line, i) => (
-                        <div key={i} style={{ minHeight: '1.65em' }}>
-                          {line.length === 0 ? '\u00A0' : line}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {!selectedKey && (
-                    <Banner type='warning' closeIcon={null}
-                      description={t('请先完成第 1 步创建 API Key，代码中的密钥将自动替换。')}
-                      style={{ borderRadius: 'var(--radius-md)' }}
-                    />
-                  )}
-
-                  {/* Action buttons */}
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <Button theme='light' type='primary' icon={<IconBookStroked />}
-                      onClick={() => navigate('/guide')}
-                      style={{ borderRadius: 'var(--radius-md)', flex: 1 }}
-                    >
-                      {t('查看完整教程')}
-                    </Button>
-                    <Button theme='solid' type='primary' icon={<ArrowRight size={14} />}
-                      onClick={() => navigate('/console')}
-                      style={{ borderRadius: 'var(--radius-md)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, flex: 1 }}
-                    >
-                      {t('进入控制台')}
-                    </Button>
-                  </div>
-                </div>
-              </StepCard>
-            </div>
-
-          </div>
         </div>
       </div>
     </>
