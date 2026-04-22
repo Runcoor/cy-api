@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useRef, useEffect, useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -29,8 +28,7 @@ import {
   Col,
 } from '@douyinfe/semi-ui';
 import { IconMail, IconBell } from '@douyinfe/semi-icons';
-import { ShieldCheck, Bell, DollarSign, Settings, Globe, Check } from 'lucide-react';
-import { normalizeLanguage } from '../../../../i18n/language';
+import { ShieldCheck, Bell, DollarSign, Settings } from 'lucide-react';
 import {
   renderQuotaWithPrompt,
   API,
@@ -53,65 +51,9 @@ const NotificationSettings = ({
   saveNotificationSettings,
 }) => {
   const formApiRef = useRef(null);
-  const { i18n } = useTranslation();
   const [statusState] = useContext(StatusContext);
   const [userState, userDispatch] = useContext(UserContext);
   const isAdminOrRoot = (userState?.user?.role || 0) >= 10;
-
-  // Language settings
-  const languageOptions = [
-    { value: 'zh-CN', label: '简体中文', shortCode: '中' },
-    { value: 'zh-TW', label: '繁體中文', shortCode: '繁' },
-    { value: 'en',    label: 'English',  shortCode: 'EN' },
-    { value: 'fr',    label: 'Français', shortCode: 'FR' },
-    { value: 'ru',    label: 'Русский',  shortCode: 'RU' },
-    { value: 'ja',    label: '日本語',   shortCode: '日' },
-    { value: 'vi',    label: 'Tiếng Việt', shortCode: 'VI' },
-  ];
-  const [currentLanguage, setCurrentLanguage] = useState(normalizeLanguage(i18n.language) || 'zh-CN');
-  const [langLoading, setLangLoading] = useState(false);
-
-  useEffect(() => {
-    if (userState?.user?.setting) {
-      try {
-        const settings = JSON.parse(userState.user.setting);
-        if (settings.language) {
-          const lang = normalizeLanguage(settings.language);
-          setCurrentLanguage(lang);
-          if (i18n.language !== lang) i18n.changeLanguage(lang);
-        }
-      } catch (e) { /* ignore */ }
-    }
-  }, [userState?.user?.setting, i18n]);
-
-  const handleLanguageChange = async (lang) => {
-    if (lang === currentLanguage) return;
-    setLangLoading(true);
-    const prev = currentLanguage;
-    try {
-      setCurrentLanguage(lang);
-      i18n.changeLanguage(lang);
-      localStorage.setItem('i18nextLng', lang);
-      const res = await API.put('/api/user/self', { language: lang });
-      if (res.data.success) {
-        showSuccess(t('语言偏好已保存'));
-        let settings = {};
-        if (userState?.user?.setting) {
-          try { settings = JSON.parse(userState.user.setting) || {}; } catch (e) { settings = {}; }
-        }
-        settings.language = lang;
-        const nextUser = { ...userState.user, setting: JSON.stringify(settings) };
-        userDispatch({ type: 'login', payload: nextUser });
-        localStorage.setItem('user', JSON.stringify(nextUser));
-      } else {
-        showError(res.data.message || t('保存失败'));
-        setCurrentLanguage(prev); i18n.changeLanguage(prev); localStorage.setItem('i18nextLng', prev);
-      }
-    } catch (error) {
-      showError(t('保存失败，请重试'));
-      setCurrentLanguage(prev); i18n.changeLanguage(prev); localStorage.setItem('i18nextLng', prev);
-    } finally { setLangLoading(false); }
-  };
 
   // 左侧边栏设置相关状态
   const [sidebarLoading, setSidebarLoading] = useState(false);
@@ -655,69 +597,6 @@ const NotificationSettings = ({
                   onChange={(value) => handleFormChange('recordIpLog', value)}
                   size='large'
                 />
-              </div>
-            </div>
-
-            {/* ====== 语言设置 Card ====== */}
-            <div style={sectionCardStyle}>
-              <div className='flex items-center gap-3 mb-6'>
-                <div
-                  className='flex items-center justify-center'
-                  style={{
-                    width: 40, height: 40,
-                    borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'var(--surface-hover)',
-                  }}
-                >
-                  <Globe size={18} style={{ color: 'var(--accent)' }} />
-                </div>
-                <div>
-                  <div className='font-bold text-base' style={{ color: 'var(--text-primary)' }}>
-                    {t('语言偏好')}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    {t('选择界面显示语言')}
-                  </div>
-                </div>
-              </div>
-
-              <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3'>
-                {languageOptions.map((lang) => {
-                  const isActive = currentLanguage === lang.value;
-                  return (
-                    <div
-                      key={lang.value}
-                      onClick={() => !langLoading && handleLanguageChange(lang.value)}
-                      style={{
-                        ...toggleItemStyle,
-                        cursor: langLoading ? 'not-allowed' : 'pointer',
-                        border: isActive ? '2px solid var(--accent)' : '1px solid transparent',
-                        backgroundColor: isActive ? 'var(--accent-light)' : 'var(--surface-hover)',
-                        opacity: langLoading ? 0.6 : 1,
-                        justifyContent: 'center',
-                        gap: 8,
-                      }}
-                    >
-                      <span
-                        className='font-bold text-xs'
-                        style={{
-                          color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
-                          width: 20,
-                          textAlign: 'center',
-                        }}
-                      >
-                        {lang.shortCode}
-                      </span>
-                      <span
-                        className='font-medium text-sm'
-                        style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}
-                      >
-                        {lang.label}
-                      </span>
-                      {isActive && <Check size={14} style={{ color: 'var(--accent)' }} />}
-                    </div>
-                  );
-                })}
               </div>
             </div>
 
