@@ -121,7 +121,11 @@ const SubscriptionsTab = ({ userId, onChanged }) => {
     try {
       const res = await API.get('/api/subscription/admin/plans');
       if (res?.data?.success) {
-        setPlans(res.data.data || []);
+        // Backend returns []SubscriptionPlanDTO => [{plan: {...}}]
+        const list = (res.data.data || [])
+          .map((item) => item?.plan)
+          .filter(Boolean);
+        setPlans(list);
       }
     } catch (e) {
       // non-fatal: plan titles will fall back to plan_id
@@ -159,7 +163,10 @@ const SubscriptionsTab = ({ userId, onChanged }) => {
     try {
       const res = await API.get('/api/subscription/admin/plans');
       if (res?.data?.success) {
-        setPlans(res.data.data || []);
+        const list = (res.data.data || [])
+          .map((item) => item?.plan)
+          .filter(Boolean);
+        setPlans(list);
         setGiftOpen(true);
       } else {
         showError(res?.data?.message || 'failed');
