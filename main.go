@@ -22,6 +22,7 @@ import (
 	"github.com/runcoor/aggre-api/relay"
 	"github.com/runcoor/aggre-api/router"
 	"github.com/runcoor/aggre-api/service"
+	"github.com/runcoor/aggre-api/service/ai_news"
 	_ "github.com/runcoor/aggre-api/setting/performance_setting"
 	"github.com/runcoor/aggre-api/setting/ratio_setting"
 
@@ -111,6 +112,9 @@ func main() {
 
 	// Subscription quota reset task (daily/weekly/monthly/custom)
 	service.StartSubscriptionQuotaResetTask()
+
+	// AI news daily agent (no-op until enabled in admin settings)
+	ai_news.StartCron()
 
 	// Wire task polling adaptor factory (breaks service -> relay import cycle)
 	service.GetTaskAdaptorFunc = func(platform constant.TaskPlatform) service.TaskPollingAdaptor {
