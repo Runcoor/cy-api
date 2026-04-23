@@ -323,3 +323,73 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(originTask *model.Task) ([]byte, erro
 
 	return common.Marshal(openAIVideo)
 }
+
+// ConvertToDoubaoNativeResponse converts an internal Task record back into the
+// Doubao-native API response format. Used when a downstream instance configured
+// with the "doubao-video" channel type polls our /api/v3/contents/generations/tasks/:task_id
+// endpoint — its own ParseTaskResult expects this exact format.
+func (a *TaskAdaptor) ConvertToDoubaoNativeResponse(originTask *model.Task) ([]byte, error) {
+	// Try to reconstruct from stored upstream response first.
+	var dResp responseTask
+	if len(originTask.Data) > 0 {
+		_ = common.Unmarshal(originTask.Data, &dResp)
+	}
+
+	upstreamID := originTask.GetUpstreamTaskID()
+	if upstreamID == "" {
+		upstreamID = originTask.TaskID
+	}
+
+	doubaoStatus := internalStatusToDoubaoStatus(originTask.Status)
+
+	native := map[string]interface{}{
+		"id":     upstreamID,
+		"model":  originTask.Properties.OriginModelName,
+		"status": doubaoStatus,
+	}
+
+	if doubaoStatus == "succeeded" {
+		videoURL := originTask.GetResultURL()
+		if videoURL == "" {
+			videoURL = dResp.Content.VideoURL
+		}
+		native["content"] = map[string]interface{}{
+			"video_url": videoURL,
+		}
+	}
+
+	if doubaoStatus == "failed" {
+		native["error"] = map[string]interface{}{
+			"code":    dResp.Error.Code,
+			"message": dResp.Error.Message,
+		}
+	}
+
+	if dResp.Usage.TotalTokens > 0 {
+		native["usage"] = dResp.Usage
+	}
+	if originTask.CreatedAt > 0 {
+		native["created_at"] = originTask.CreatedAt
+	}
+	if originTask.UpdatedAt > 0 {
+		native["updated_at"] = originTask.UpdatedAt
+	}
+
+	return common.Marshal(native)
+}
+
+// internalStatusToDoubaoStatus maps internal task status to Doubao native strings.
+func internalStatusToDoubaoStatus(status model.TaskStatus) string {
+	switch status {
+	case model.TaskStatusQueued, model.TaskStatusSubmitted, model.TaskStatusNotStart:
+		return "pending"
+	case model.TaskStatusInProgress:
+		return "processing"
+	case model.TaskStatusSuccess:
+		return "succeeded"
+	case model.TaskStatusFailure:
+		return "failed"
+	default:
+		return "pending"
+	}
+}
