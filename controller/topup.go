@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/runcoor/aggre-api/common"
+	"github.com/runcoor/aggre-api/i18n"
 	"github.com/runcoor/aggre-api/logger"
 	"github.com/runcoor/aggre-api/model"
 	"github.com/runcoor/aggre-api/service"
@@ -500,6 +501,43 @@ func GetUserTopUps(c *gin.Context) {
 		return
 	}
 
+	pageInfo.SetTotal(int(total))
+	pageInfo.SetItems(topups)
+	common.ApiSuccess(c, pageInfo)
+}
+
+// GetUserTopUpsByAdmin 管理员查询指定用户的充值记录
+func GetUserTopUpsByAdmin(c *gin.Context) {
+	targetUserId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		common.ApiErrorMsg(c, "invalid user id")
+		return
+	}
+	target, err := model.GetUserById(targetUserId, false)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	myRole := c.GetInt("role")
+	if myRole <= target.Role && myRole != common.RoleRootUser {
+		common.ApiErrorI18n(c, i18n.MsgUserNoPermissionSameLevel)
+		return
+	}
+	pageInfo := common.GetPageQuery(c)
+	keyword := c.Query("keyword")
+	var (
+		topups []*model.TopUp
+		total  int64
+	)
+	if keyword != "" {
+		topups, total, err = model.SearchUserTopUps(targetUserId, keyword, pageInfo)
+	} else {
+		topups, total, err = model.GetUserTopUps(targetUserId, pageInfo)
+	}
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
 	pageInfo.SetTotal(int(total))
 	pageInfo.SetItems(topups)
 	common.ApiSuccess(c, pageInfo)
