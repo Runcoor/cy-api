@@ -75,6 +75,7 @@ const QuickStart = lazy(() => import('./pages/QuickStart'));
 const RechargePage = lazy(() => import('./pages/Recharge'));
 const TeamPage = lazy(() => import('./pages/Team'));
 const TeamDetail = lazy(() => import('./pages/Team/TeamDetail'));
+const UserDetail = lazy(() => import('./pages/User/UserDetail'));
 const JoinTeam = lazy(() => import('./pages/Team/JoinTeam'));
 const GuideIndex = lazy(() => import('./pages/Guide'));
 const GuidePrerequisites = lazy(() => import('./pages/Guide/Prerequisites'));
@@ -230,6 +231,16 @@ function App() {
           element={
             <AdminRoute>
               <User />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path='/console/user/:id'
+          element={
+            <AdminRoute>
+              <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+                <UserDetail />
+              </Suspense>
             </AdminRoute>
           }
         />
