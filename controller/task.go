@@ -24,6 +24,7 @@ func GetAllTask(c *gin.Context) {
 
 	startTimestamp, _ := strconv.ParseInt(c.Query("start_timestamp"), 10, 64)
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
+	userIdQuery, _ := strconv.Atoi(c.Query("user_id"))
 	// 解析其他查询参数
 	queryParams := model.SyncTaskQueryParams{
 		Platform:       constant.TaskPlatform(c.Query("platform")),
@@ -34,6 +35,7 @@ func GetAllTask(c *gin.Context) {
 		EndTimestamp:   endTimestamp,
 		ChannelID:      c.Query("channel_id"),
 		Keyword:        c.Query("keyword"),
+		UserId:         userIdQuery,
 	}
 
 	items := model.TaskGetAllTasks(pageInfo.GetStartIdx(), pageInfo.GetPageSize(), queryParams)

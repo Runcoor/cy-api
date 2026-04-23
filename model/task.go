@@ -202,6 +202,7 @@ type SyncTaskQueryParams struct {
 	UserIDs        []int
 	// Keyword — unified OR search used by the card-layout page.
 	Keyword string
+	UserId  int // 0 = no filter; >0 = filter to this user only
 }
 
 func InitTask(platform constant.TaskPlatform, relayInfo *commonRelay.RelayInfo) *Task {
@@ -296,6 +297,9 @@ func TaskGetAllTasks(startIdx int, num int, queryParams SyncTaskQueryParams) []*
 	}
 	if queryParams.UserID != "" {
 		query = query.Where("user_id = ?", queryParams.UserID)
+	}
+	if queryParams.UserId > 0 {
+		query = query.Where("user_id = ?", queryParams.UserId)
 	}
 	if len(queryParams.UserIDs) != 0 {
 		query = query.Where("user_id in (?)", queryParams.UserIDs)
@@ -484,6 +488,9 @@ func TaskCountAllTasks(queryParams SyncTaskQueryParams) int64 {
 	}
 	if queryParams.UserID != "" {
 		query = query.Where("user_id = ?", queryParams.UserID)
+	}
+	if queryParams.UserId > 0 {
+		query = query.Where("user_id = ?", queryParams.UserId)
 	}
 	if len(queryParams.UserIDs) != 0 {
 		query = query.Where("user_id in (?)", queryParams.UserIDs)
