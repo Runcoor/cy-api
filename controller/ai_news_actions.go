@@ -232,6 +232,56 @@ func DownloadAINewsSocialPostZIP(c *gin.Context) {
 	c.Data(200, "application/zip", data)
 }
 
+// ListAINewsSocialPublishes returns the per-platform publish status row for
+// a briefing (one row per registered platform, with status='pending' for
+// platforms that have never been attempted).
+func ListAINewsSocialPublishes(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	rows, err := ai_news.ListPublishStatus(id)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	common.ApiSuccess(c, gin.H{"items": rows})
+}
+
+// PublishAINewsSocialPostOne publishes the post for a briefing to a single
+// platform (path :platform). Returns the resulting status row.
+func PublishAINewsSocialPostOne(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	platform := c.Param("platform")
+	if id <= 0 || platform == "" {
+		common.ApiErrorMsg(c, "invalid id or platform")
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	row, err := ai_news.PublishToPlatform(ctx, id, platform)
+	if err != nil {
+		common.ApiErrorMsg(c, err.Error())
+		return
+	}
+	common.ApiSuccess(c, row)
+}
+
+// PublishAINewsSocialPostAll runs the one-click "publish to every platform"
+// flow. Returns the per-platform outcome list.
+func PublishAINewsSocialPostAll(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+	results := ai_news.PublishToAllPlatforms(ctx, id)
+	common.ApiSuccess(c, gin.H{"results": results})
+}
+
 // ServeAINewsSocialImage serves one stored image for the admin preview UI.
 // Path is the rel_path stored in DB. Path-traversal is blocked by
 // ai_news.ResolveStoredImagePath.

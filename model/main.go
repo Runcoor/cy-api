@@ -288,6 +288,7 @@ func migrateDB() error {
 		&AINewsBriefing{},
 		&AINewsSendLog{},
 		&AINewsSocialPost{},
+		&AINewsSocialPublish{},
 	)
 	if err != nil {
 		return err

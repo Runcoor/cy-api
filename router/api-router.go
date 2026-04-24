@@ -237,6 +237,9 @@ func SetApiRouter(router *gin.Engine) {
 			// Social-publish (xiaohongshu) — generate copy + images for one briefing
 			aiNewsAdminRoute.GET("/briefings/:id/social", controller.GetAINewsSocialPost)
 			aiNewsAdminRoute.POST("/briefings/:id/social", controller.GenerateAINewsSocialPost)
+			aiNewsAdminRoute.GET("/briefings/:id/publishes", controller.ListAINewsSocialPublishes)
+			aiNewsAdminRoute.POST("/briefings/:id/publishes", controller.PublishAINewsSocialPostAll)
+			aiNewsAdminRoute.POST("/briefings/:id/publishes/:platform", controller.PublishAINewsSocialPostOne)
 		}
 
 		// Routes invoked by browser-native navigation (<img>, window.open) —

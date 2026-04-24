@@ -457,8 +457,194 @@ const ReadyPane = ({ post, t }) => (
         ))}
       </div>
     </div>
+
+    {/* publishing */}
+    <PublishPane briefingId={post.briefing_id} t={t} />
   </div>
 );
+
+const PLATFORM_LABELS = {
+  xiaohongshu: '小红书',
+  douyin: '抖音',
+  bilibili: 'B 站',
+  weibo: '微博',
+};
+
+const PUBLISH_STATUS_COLORS = {
+  pending: 'grey',
+  publishing: 'blue',
+  published: 'green',
+  failed: 'red',
+  unsupported: 'orange',
+};
+
+const PUBLISH_STATUS_LABELS = {
+  pending: '未发布',
+  publishing: '发布中',
+  published: '已发布',
+  failed: '发布失败',
+  unsupported: '暂不支持',
+};
+
+const PublishPane = ({ briefingId, t }) => {
+  const [rows, setRows] = useState([]);
+  const [busyOne, setBusyOne] = useState(null);
+  const [busyAll, setBusyAll] = useState(false);
+
+  const load = async () => {
+    if (!briefingId) return;
+    try {
+      const res = await API.get(`/api/ai-news/admin/briefings/${briefingId}/publishes`);
+      if (res?.data?.success) setRows(res.data.data?.items || []);
+    } catch (e) {
+      // transient
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [briefingId]);
+
+  const publishOne = async (platform) => {
+    setBusyOne(platform);
+    try {
+      const res = await API.post(
+        `/api/ai-news/admin/briefings/${briefingId}/publishes/${platform}`,
+      );
+      if (res?.data?.success) {
+        const updated = res.data.data;
+        setRows((prev) => prev.map((r) => (r.platform === platform ? updated : r)));
+        if (updated.status === 'published') showSuccess(t('已发布'));
+        else if (updated.status === 'unsupported') showError(updated.notes || t('暂不支持'));
+        else showError(updated.error_msg || t('发布失败'));
+      } else {
+        showError(res?.data?.message || t('发布失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setBusyOne(null);
+    }
+  };
+
+  const publishAll = async () => {
+    setBusyAll(true);
+    try {
+      const res = await API.post(`/api/ai-news/admin/briefings/${briefingId}/publishes`);
+      if (res?.data?.success) {
+        const summary = res.data.data?.results || [];
+        const ok = summary.filter((s) => s.success).length;
+        const total = summary.length;
+        if (ok === total) showSuccess(t('全部发布成功'));
+        else showError(t('已发布 {{ok}} / {{total}}', { ok, total }));
+        await load();
+      } else {
+        showError(res?.data?.message || t('发布失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setBusyAll(false);
+    }
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: 8,
+          gap: 8,
+        }}
+      >
+        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+          {t('发布到平台')}
+        </div>
+        <div style={{ flex: 1 }} />
+        <Button
+          size='small'
+          theme='solid'
+          type='primary'
+          loading={busyAll}
+          onClick={publishAll}
+        >
+          {t('一键发布全部')}
+        </Button>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {rows.map((r) => (
+          <PublishRowCard
+            key={r.platform}
+            row={r}
+            busy={busyOne === r.platform || busyAll}
+            onPublish={() => publishOne(r.platform)}
+            t={t}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const PublishRowCard = ({ row, busy, onPublish, t }) => {
+  const label = PLATFORM_LABELS[row.platform] || row.platform;
+  const statusLabel = PUBLISH_STATUS_LABELS[row.status] || row.status;
+  const statusColor = PUBLISH_STATUS_COLORS[row.status] || 'grey';
+  return (
+    <div
+      style={{
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 8,
+        padding: '10px 12px',
+        background: 'var(--surface, #fff)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+          {t(label)}
+        </span>
+        <Tag color={statusColor} size='small'>
+          {t(statusLabel)}
+        </Tag>
+        <div style={{ flex: 1 }} />
+        <Button size='small' loading={busy} onClick={onPublish}>
+          {row.status === 'published' ? t('重新发布') : t('发布')}
+        </Button>
+      </div>
+      {row.external_url ? (
+        <a
+          href={row.external_url}
+          target='_blank'
+          rel='noreferrer'
+          style={{ fontSize: 11, color: 'var(--accent)', wordBreak: 'break-all' }}
+        >
+          {row.external_url}
+        </a>
+      ) : null}
+      {row.notes && row.status === 'unsupported' ? (
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+          {row.notes}
+        </div>
+      ) : null}
+      {row.error_msg && row.status === 'failed' ? (
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--semi-color-danger)',
+            wordBreak: 'break-word',
+            lineHeight: 1.5,
+          }}
+        >
+          {row.error_msg}
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 const ImageCard = ({ img, t }) => {
   const src = `/api/ai-news/admin/social/images/${img.rel_path}`;
