@@ -223,22 +223,23 @@ func parseSocialAnalysis(raw string) (*socialAnalysis, error) {
 }
 
 // =====================================================================
-// Main entry point — generate (or regenerate) the social post for a briefing
+// Main entry point — async generate (or regenerate) the social post
 // =====================================================================
 
-// GenerateSocialPost runs the full pipeline:
-//  1. preflight settings
-//  2. LLM rewrite + image-prompt design
-//  3. for each image prompt → call image gen → download to disk
-//  4. upsert ai_news_social_posts row
-//
-// Synchronous (the caller is an admin click; total time ~30s-3min depending on
-// model + N images). Caller should set a generous request timeout.
-func GenerateSocialPost(ctx context.Context, briefingId int) (*SocialPost, error) {
+// generationLockTTL is the window during which we treat an existing
+// status='generating' row as a live job and refuse to start a duplicate.
+// Generous because the worker has its own 8-min budget and we don't want
+// concurrent admin clicks racing on the same briefing's image dir.
+const generationLockTTL = 10 * time.Minute
+
+// EnqueueSocialPostGeneration validates inputs, creates a placeholder row
+// with status='generating', and kicks off the slow LLM + image pipeline
+// in a background goroutine. Returns the placeholder so the caller can
+// respond immediately and the UI can start polling.
+func EnqueueSocialPostGeneration(briefingId int) (*SocialPost, error) {
 	if err := PreflightCheckImageGen(); err != nil {
 		return nil, err
 	}
-	settings := system_setting.GetAINewsSettings()
 	br, err := model.GetAINewsBriefing(briefingId)
 	if err != nil {
 		return nil, err
@@ -247,26 +248,85 @@ func GenerateSocialPost(ctx context.Context, briefingId int) (*SocialPost, error
 		return nil, fmt.Errorf("社交发布只支持深度分析类型的简报")
 	}
 
-	// Step 1: LLM analysis
-	common.SysLog(fmt.Sprintf("[ai-news/social] briefing #%d: requesting LLM rewrite", briefingId))
-	rawJSON, err := ChatComplete(ctx, settings.LLMDeepModel, buildSocialAnalysisMessages(br), 4096)
-	if err != nil {
-		return nil, fmt.Errorf("LLM rewrite: %w", err)
-	}
-	analysis, err := parseSocialAnalysis(rawJSON)
-	if err != nil {
-		return nil, err
+	// If a job is already in flight for this briefing (same admin double-clicked,
+	// or two admins clicked together), return the existing placeholder rather
+	// than spawning a second worker that races on the same image dir.
+	if existing, err := model.GetAINewsSocialPostByBriefing(briefingId); err == nil {
+		if existing.Status == model.AINewsSocialStatusGenerating &&
+			time.Since(time.Unix(existing.UpdatedAt, 0)) < generationLockTTL {
+			return socialPostFromRow(existing), nil
+		}
 	}
 
-	// Step 2: clear any prior images for this briefing (regenerate semantics)
+	// Clear prior state so the worker starts clean. Failures here are
+	// non-fatal — worst case we leave a stale image dir to be cleaned by cron.
 	if err := DeleteBriefingImageDir(briefingId); err != nil {
 		common.SysLog(fmt.Sprintf("[ai-news/social] briefing #%d: clear old image dir: %v", briefingId, err))
 	}
 	_ = model.DeleteAINewsSocialPostByBriefing(briefingId)
 
-	// Step 3: generate + download each image, sequentially (parallelism is
-	// usually not worth it because the upstream is rate-limited per IP and
-	// failures are easier to attribute when serialized).
+	row := &model.AINewsSocialPost{
+		BriefingId: briefingId,
+		Kind:       model.AINewsSocialKindTextImage, // placeholder; real kind set by worker
+		Status:     model.AINewsSocialStatusGenerating,
+	}
+	if err := model.CreateAINewsSocialPost(row); err != nil {
+		return nil, fmt.Errorf("create placeholder: %w", err)
+	}
+
+	go runSocialPostGeneration(row.Id, briefingId)
+	return socialPostFromRow(row), nil
+}
+
+// runSocialPostGeneration is the goroutine body. It owns its own context
+// (request context died as soon as the HTTP handler returned) and writes
+// the final ready/failed status back to the placeholder row.
+func runSocialPostGeneration(postId, briefingId int) {
+	defer func() {
+		if r := recover(); r != nil {
+			msg := fmt.Sprintf("panic: %v", r)
+			common.SysError(fmt.Sprintf("[ai-news/social] briefing #%d worker panic: %v", briefingId, r))
+			_ = model.UpdateAINewsSocialPost(postId, map[string]any{
+				"status":    model.AINewsSocialStatusFailed,
+				"error_msg": truncate(msg, 1000),
+			})
+		}
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Minute)
+	defer cancel()
+
+	if err := generateSocialPostInto(ctx, postId, briefingId); err != nil {
+		common.SysLog(fmt.Sprintf("[ai-news/social] briefing #%d: failed: %v", briefingId, err))
+		_ = model.UpdateAINewsSocialPost(postId, map[string]any{
+			"status":    model.AINewsSocialStatusFailed,
+			"error_msg": truncate(err.Error(), 1000),
+		})
+	}
+}
+
+// generateSocialPostInto runs the actual pipeline and writes results into
+// the existing placeholder row. Returns error on any failure; caller marks
+// the row failed.
+func generateSocialPostInto(ctx context.Context, postId, briefingId int) error {
+	settings := system_setting.GetAINewsSettings()
+	br, err := model.GetAINewsBriefing(briefingId)
+	if err != nil {
+		return err
+	}
+
+	// Step 1: LLM analysis
+	common.SysLog(fmt.Sprintf("[ai-news/social] briefing #%d: requesting LLM rewrite", briefingId))
+	rawJSON, err := ChatComplete(ctx, settings.LLMDeepModel, buildSocialAnalysisMessages(br), 4096)
+	if err != nil {
+		return fmt.Errorf("LLM rewrite: %w", err)
+	}
+	analysis, err := parseSocialAnalysis(rawJSON)
+	if err != nil {
+		return err
+	}
+
+	// Step 2: generate + download each image, sequentially.
 	stored := make([]StoredImage, 0, len(analysis.ImagePrompts))
 	for i, p := range analysis.ImagePrompts {
 		caption := strings.TrimSpace(p.Caption)
@@ -277,41 +337,40 @@ func GenerateSocialPost(ctx context.Context, briefingId int) (*SocialPost, error
 		}
 		results, err := GenerateImage(ctx, GenImageOptions{Prompt: prompt, N: 1, Size: "1024x1024"})
 		if err != nil {
-			return nil, fmt.Errorf("image %d gen: %w", i+1, err)
+			return fmt.Errorf("image %d gen: %w", i+1, err)
 		}
 		if len(results) == 0 {
-			return nil, fmt.Errorf("image %d gen: empty result", i+1)
+			return fmt.Errorf("image %d gen: empty result", i+1)
 		}
 		img, err := DownloadAndStoreImage(ctx, briefingId, i+1, results[0].URL, results[0].B64)
 		if err != nil {
-			return nil, fmt.Errorf("image %d download: %w", i+1, err)
+			return fmt.Errorf("image %d download: %w", i+1, err)
 		}
 		img.Prompt = prompt
 		img.Caption = caption
 		stored = append(stored, img)
 	}
 	if len(stored) < 2 {
-		return nil, fmt.Errorf("生成图片数量不足 (%d), 至少需要 2 张", len(stored))
+		return fmt.Errorf("生成图片数量不足 (%d), 至少需要 2 张", len(stored))
 	}
 
-	// Step 4: persist
+	// Step 3: write final state into the placeholder row.
 	tagsJSON, _ := common.Marshal(analysis.Tags)
 	imagesJSON, _ := common.Marshal(stored)
-	row := &model.AINewsSocialPost{
-		BriefingId: briefingId,
-		Kind:       analysis.Kind,
-		Title:      analysis.Title,
-		Body:       analysis.Body,
-		TagsJSON:   string(tagsJSON),
-		ImagesJSON: string(imagesJSON),
-		Status:     model.AINewsSocialStatusReady,
-	}
-	if err := model.CreateAINewsSocialPost(row); err != nil {
-		return nil, fmt.Errorf("persist social post: %w", err)
+	if err := model.UpdateAINewsSocialPost(postId, map[string]any{
+		"kind":        analysis.Kind,
+		"title":       analysis.Title,
+		"body":        analysis.Body,
+		"tags_json":   string(tagsJSON),
+		"images_json": string(imagesJSON),
+		"status":      model.AINewsSocialStatusReady,
+		"error_msg":   "",
+	}); err != nil {
+		return fmt.Errorf("persist social post: %w", err)
 	}
 
 	common.SysLog(fmt.Sprintf("[ai-news/social] briefing #%d: generated %d images, kind=%s", briefingId, len(stored), analysis.Kind))
-	return socialPostFromRow(row), nil
+	return nil
 }
 
 // =====================================================================

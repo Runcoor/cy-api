@@ -1359,6 +1359,8 @@
     "点击下方按钮:LLM 会判断这条简报适合\"图文笔记\"还是\"纯图卡片\",改写为小红书风格文案,并通过你配置的图像生成接口生成至少 2 张配图。": "Click below — the LLM will decide whether this briefing is better as a text+image note or an image-only card deck, rewrite it in Xiaohongshu style, and generate at least 2 images via your configured image endpoint.",
     "未配置图像生成接口?去 设置 tab 填写 Base URL / API Key / 模型": "Image endpoint not configured? Go to Settings → Image generation to fill in Base URL / API Key / Model",
     "正在调用 LLM 改写 + 生成配图,大约 30 秒到 3 分钟...": "Rewriting with LLM and generating images — about 30 seconds to 3 minutes...",
+    "后台正在生成,大约 1 到 3 分钟,你可以关闭此窗口稍后回来查看...": "Generating in the background, about 1–3 minutes. You can close this window and come back later...",
+    "生成失败": "Generation failed",
     "完成后可在此预览,并下载 ZIP 包(包含图片 + 文案 + 元信息),手动上传至小红书。": "Once done you can preview here and download a ZIP (images + copy + metadata) to upload manually to Xiaohongshu.",
     "每条最多 3 张图。完成后可在此预览,并下载 ZIP 包(包含图片 + 文案 + 元信息),手动上传至小红书。": "Up to 3 images per post. Once done you can preview here and download a ZIP (images + copy + metadata) to upload manually to Xiaohongshu.",
     "重新生成会替换现有图片,是否继续?": "Regenerating will replace the existing images. Continue?",

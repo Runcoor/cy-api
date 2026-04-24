@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
   Empty,
@@ -401,16 +401,66 @@ const BriefingsTab = () => {
     }
   };
 
+  // Poll handle for the social-post status while generation is in flight.
+  // Cleared on modal close, on terminal status, and on briefing change.
+  const socialPollRef = useRef(null);
+
+  const stopSocialPoll = () => {
+    if (socialPollRef.current) {
+      clearInterval(socialPollRef.current);
+      socialPollRef.current = null;
+    }
+  };
+
+  // Mark generating=true iff the post is in flight. Drives the spinner.
+  const applySocialPost = (post) => {
+    setSocialPost(post);
+    setSocialGenerating(post?.status === 'generating');
+  };
+
+  const fetchSocialPost = async (briefingId) => {
+    const res = await API.get(`/api/ai-news/admin/briefings/${briefingId}/social`);
+    if (!res?.data?.success) return null;
+    return res.data.data?.exists ? res.data.data.post : null;
+  };
+
+  const startSocialPoll = (briefingId) => {
+    stopSocialPoll();
+    socialPollRef.current = setInterval(async () => {
+      try {
+        const post = await fetchSocialPost(briefingId);
+        if (!post) return;
+        applySocialPost(post);
+        if (post.status === 'ready') {
+          stopSocialPoll();
+          showSuccess(t('生成完成'));
+        } else if (post.status === 'failed') {
+          stopSocialPoll();
+          showError(post.error_msg || t('生成失败'));
+        }
+      } catch (e) {
+        // transient — keep polling
+      }
+    }, 4000);
+  };
+
+  // Stop polling when the modal closes or the component unmounts.
+  useEffect(() => {
+    if (!socialVisible) stopSocialPoll();
+    return stopSocialPoll;
+  }, [socialVisible]);
+
   const openSocial = async (record) => {
+    stopSocialPoll();
     setSocialBriefing(record);
     setSocialPost(null);
+    setSocialGenerating(false);
     setSocialVisible(true);
     setSocialLoading(true);
     try {
-      const res = await API.get(`/api/ai-news/admin/briefings/${record.id}/social`);
-      if (res?.data?.success) {
-        setSocialPost(res.data.data?.exists ? res.data.data.post : null);
-      }
+      const post = await fetchSocialPost(record.id);
+      applySocialPost(post);
+      if (post?.status === 'generating') startSocialPoll(record.id);
     } catch (e) {
       // first-time open: no row yet — fine
     } finally {
@@ -426,15 +476,15 @@ const BriefingsTab = () => {
         `/api/ai-news/admin/briefings/${socialBriefing.id}/social`,
       );
       if (res?.data?.success) {
-        setSocialPost(res.data.data);
-        showSuccess(t('生成完成'));
+        applySocialPost(res.data.data);
+        startSocialPoll(socialBriefing.id);
       } else {
+        setSocialGenerating(false);
         showError(res?.data?.message || t('生成失败'));
       }
     } catch (e) {
-      showError(e);
-    } finally {
       setSocialGenerating(false);
+      showError(e);
     }
   };
 
@@ -1410,8 +1460,11 @@ const SocialPostModal = ({
   onDownload,
   t,
 }) => {
-  const hasPost = !!post;
-  const isBusy = loading || generating;
+  const status = post?.status || null;
+  const isReady = status === 'ready';
+  const isFailed = status === 'failed';
+  const isGenerating = status === 'generating' || generating;
+  const isBusy = loading || isGenerating;
   return (
     <Modal
       visible={visible}
@@ -1465,7 +1518,7 @@ const SocialPostModal = ({
               {briefing.title}
             </span>
             <div style={{ flex: 1 }} />
-            {hasPost ? (
+            {isReady ? (
               <>
                 <Button
                   icon={<IconDownload />}
@@ -1479,11 +1532,22 @@ const SocialPostModal = ({
                   title={t('重新生成会替换现有图片,是否继续?')}
                   onConfirm={onGenerate}
                 >
-                  <Button icon={<IconRefresh />} loading={generating}>
+                  <Button icon={<IconRefresh />} loading={isGenerating}>
                     {t('重新生成')}
                   </Button>
                 </Popconfirm>
               </>
+            ) : null}
+            {isFailed ? (
+              <Button
+                icon={<IconRefresh />}
+                theme='solid'
+                type='primary'
+                onClick={onGenerate}
+                loading={isGenerating}
+              >
+                {t('重新生成')}
+              </Button>
             ) : null}
             <Button
               icon={<IconClose />}
@@ -1495,11 +1559,13 @@ const SocialPostModal = ({
           {/* Body */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
             {isBusy ? (
-              <SocialLoadingPane generating={generating} t={t} />
-            ) : !hasPost ? (
-              <SocialEmptyPane onGenerate={onGenerate} t={t} />
-            ) : (
+              <SocialLoadingPane generating={isGenerating} t={t} />
+            ) : isFailed ? (
+              <SocialFailedPane post={post} onGenerate={onGenerate} t={t} />
+            ) : isReady ? (
               <SocialReadyPane post={post} t={t} />
+            ) : (
+              <SocialEmptyPane onGenerate={onGenerate} t={t} />
             )}
           </div>
         </div>
@@ -1523,7 +1589,7 @@ const SocialLoadingPane = ({ generating, t }) => (
     <Spin size='large' />
     <div style={{ fontSize: 14 }}>
       {generating
-        ? t('正在调用 LLM 改写 + 生成配图,大约 30 秒到 3 分钟...')
+        ? t('后台正在生成,大约 1 到 3 分钟,你可以关闭此窗口稍后回来查看...')
         : t('加载中...')}
     </div>
     {generating ? (
@@ -1531,6 +1597,49 @@ const SocialLoadingPane = ({ generating, t }) => (
         {t('每条最多 3 张图。完成后可在此预览,并下载 ZIP 包(包含图片 + 文案 + 元信息),手动上传至小红书。')}
       </div>
     ) : null}
+  </div>
+);
+
+const SocialFailedPane = ({ post, onGenerate, t }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
+      padding: 60,
+      maxWidth: 640,
+      margin: '0 auto',
+    }}
+  >
+    <div style={{ fontSize: 15, color: 'var(--semi-color-danger)', fontWeight: 600 }}>
+      {t('生成失败')}
+    </div>
+    <div
+      style={{
+        fontSize: 12,
+        color: 'var(--text-primary)',
+        background: 'var(--semi-color-danger-light-default, #fef2f2)',
+        border: '1px solid var(--semi-color-danger-light-active, #fecaca)',
+        borderRadius: 8,
+        padding: '10px 14px',
+        width: '100%',
+        wordBreak: 'break-word',
+        lineHeight: 1.6,
+      }}
+    >
+      {post?.error_msg || t('未知错误')}
+    </div>
+    <Button
+      theme='solid'
+      type='primary'
+      icon={<IconRefresh />}
+      onClick={onGenerate}
+      size='large'
+    >
+      {t('重新生成')}
+    </Button>
   </div>
 );
 

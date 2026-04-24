@@ -184,21 +184,17 @@ func GetAINewsSocialPost(c *gin.Context) {
 	common.ApiSuccess(c, gin.H{"exists": true, "post": post})
 }
 
-// GenerateAINewsSocialPost runs the LLM rewrite + image generation pipeline
-// synchronously. Slow (~30s-3min). UI should show a spinner.
+// GenerateAINewsSocialPost enqueues a background generation job and returns
+// the placeholder row immediately (status='generating'). The frontend should
+// poll GET /briefings/:id/social until status becomes 'ready' or 'failed'.
+// Returning fast keeps us under Cloudflare's 100s proxy timeout.
 func GenerateAINewsSocialPost(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id <= 0 {
 		common.ApiErrorMsg(c, "invalid id")
 		return
 	}
-	if err := ai_news.PreflightCheckImageGen(); err != nil {
-		common.ApiErrorMsg(c, err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Minute)
-	defer cancel()
-	post, err := ai_news.GenerateSocialPost(ctx, id)
+	post, err := ai_news.EnqueueSocialPostGeneration(id)
 	if err != nil {
 		common.ApiErrorMsg(c, err.Error())
 		return
