@@ -1,6 +1,7 @@
 package ai_news
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -13,6 +14,14 @@ import (
 	"github.com/runcoor/aggre-api/model"
 	"github.com/runcoor/aggre-api/setting/system_setting"
 )
+
+// newSSEScanner returns a bufio.Scanner with a buffer large enough to hold
+// long SSE lines (default 64KB is too small for big chunks).
+func newSSEScanner(r io.Reader) *bufio.Scanner {
+	s := bufio.NewScanner(r)
+	s.Buffer(make([]byte, 64*1024), 4*1024*1024)
+	return s
+}
 
 // ChatMessage is one OpenAI-format chat message.
 type ChatMessage struct {
@@ -29,6 +38,7 @@ type chatRequest struct {
 	// the API surface (avoids hitting the claude-opus-4-7 deprecation issue).
 	Temperature *float64 `json:"temperature,omitempty"`
 	MaxTokens   *int     `json:"max_tokens,omitempty"`
+	Stream      *bool    `json:"stream,omitempty"`
 }
 
 type chatResponse struct {
@@ -58,6 +68,7 @@ type responsesRequest struct {
 	Input           []responsesInputMsg `json:"input"`
 	MaxOutputTokens *int                `json:"max_output_tokens,omitempty"`
 	Reasoning       *responsesReasoning `json:"reasoning,omitempty"`
+	Stream          *bool               `json:"stream,omitempty"`
 }
 
 type responsesReasoning struct {
@@ -160,9 +171,11 @@ func callOne(ctx context.Context, mode, baseURL, apiKey, modelName string, messa
 }
 
 func chatViaChatCompletions(ctx context.Context, baseURL, apiKey, modelName string, messages []ChatMessage, maxTokens int) (string, error) {
+	stream := true
 	reqStruct := chatRequest{
 		Model:    modelName,
 		Messages: messages,
+		Stream:   &stream,
 	}
 	if maxTokens > 0 {
 		reqStruct.MaxTokens = &maxTokens
@@ -173,32 +186,36 @@ func chatViaChatCompletions(ctx context.Context, baseURL, apiKey, modelName stri
 	}
 
 	endpoint := strings.TrimRight(baseURL, "/") + "/v1/chat/completions"
-	resp, body, err := doLLMHTTP(ctx, endpoint, apiKey, reqBody)
+	text, raw, status, err := streamLLMHTTP(ctx, endpoint, apiKey, reqBody, parseChatStreamChunk)
 	if err != nil {
 		return "", err
 	}
-	if resp.StatusCode/100 != 2 {
-		return "", fmt.Errorf("LLM HTTP %d: %s", resp.StatusCode, truncate(string(body), 512))
+	if status/100 != 2 {
+		return "", fmt.Errorf("LLM HTTP %d: %s", status, truncate(raw, 1500))
+	}
+	if strings.TrimSpace(text) != "" {
+		return text, nil
+	}
+	// Stream produced nothing visible — try parsing the accumulated body as a
+	// non-stream response (some proxies return a single non-SSE JSON when
+	// stream=true is unsupported) and fall back to the alt-shape parser.
+	if alt := extractAltContent([]byte(raw)); strings.TrimSpace(alt) != "" {
+		return alt, nil
 	}
 	var parsed chatResponse
-	if err := common.Unmarshal(body, &parsed); err != nil {
-		return "", fmt.Errorf("parse LLM response: %w (body=%s)", err, truncate(string(body), 256))
-	}
-	if parsed.Error != nil {
-		return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
-	}
-	if len(parsed.Choices) == 0 {
-		return "", fmt.Errorf("LLM returned no choices (body=%s)", truncate(string(body), 512))
-	}
-	content := parsed.Choices[0].Message.Content
-	if strings.TrimSpace(content) == "" {
-		// Try alternate shapes first.
-		if alt := extractAltContent(body); strings.TrimSpace(alt) != "" {
-			return alt, nil
+	if jerr := common.Unmarshal([]byte(raw), &parsed); jerr == nil {
+		if parsed.Error != nil {
+			return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
 		}
-		return "", emptyContentError(resp.StatusCode, parsed, body, modelName)
+		if len(parsed.Choices) > 0 {
+			c := parsed.Choices[0].Message.Content
+			if strings.TrimSpace(c) != "" {
+				return c, nil
+			}
+			return "", emptyContentError(status, parsed, []byte(raw), modelName)
+		}
 	}
-	return content, nil
+	return "", fmt.Errorf("LLM /v1/chat/completions stream returned no text (body=%s)", truncate(raw, 1500))
 }
 
 func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string, messages []ChatMessage, maxTokens int) (string, error) {
@@ -206,13 +223,12 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 	for _, m := range messages {
 		input = append(input, responsesInputMsg{Role: m.Role, Content: m.Content})
 	}
+	stream := true
 	reqStruct := responsesRequest{
-		Model: modelName,
-		Input: input,
+		Model:  modelName,
+		Input:  input,
+		Stream: &stream,
 	}
-	// Bump max_output_tokens to leave room for both reasoning AND text output.
-	// Reasoning models can spend most of the budget thinking; if we cap too
-	// low the model "completes" with output: [].
 	effective := maxTokens
 	if isReasoningModel(modelName) && effective > 0 {
 		effective = effective * 4
@@ -221,9 +237,6 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 		reqStruct.MaxOutputTokens = &effective
 	}
 	if isReasoningModel(modelName) {
-		// "low" lets the model spend most of the budget on actual output text
-		// instead of internal reasoning, which is what we want for summarizing
-		// already-curated content.
 		reqStruct.Reasoning = &responsesReasoning{Effort: "low"}
 	}
 	reqBody, err := common.Marshal(reqStruct)
@@ -232,36 +245,27 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 	}
 
 	endpoint := strings.TrimRight(baseURL, "/") + "/v1/responses"
-	resp, body, err := doLLMHTTP(ctx, endpoint, apiKey, reqBody)
+	text, raw, status, err := streamLLMHTTP(ctx, endpoint, apiKey, reqBody, parseResponsesStreamChunk)
 	if err != nil {
 		return "", err
 	}
-	if resp.StatusCode/100 != 2 {
-		return "", fmt.Errorf("LLM /v1/responses HTTP %d: %s", resp.StatusCode, truncate(string(body), 1500))
+	if status/100 != 2 {
+		return "", fmt.Errorf("LLM /v1/responses HTTP %d: %s", status, truncate(raw, 1500))
+	}
+	if strings.TrimSpace(text) != "" {
+		return text, nil
+	}
+	// Stream produced nothing visible. Try parsing accumulated body as a
+	// non-stream Responses-API response and walk output[] one more time.
+	if alt := extractAltContent([]byte(raw)); strings.TrimSpace(alt) != "" {
+		return alt, nil
 	}
 	var parsed responsesResponse
-	if err := common.Unmarshal(body, &parsed); err != nil {
-		return "", fmt.Errorf("parse /v1/responses body: %w (body=%s)", err, truncate(string(body), 512))
-	}
-	if parsed.Error != nil {
-		return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
-	}
-	var sb strings.Builder
-	for _, out := range parsed.Output {
-		if out.Type != "message" {
-			continue
+	if jerr := common.Unmarshal([]byte(raw), &parsed); jerr == nil {
+		if parsed.Error != nil {
+			return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
 		}
-		if out.Role != "" && out.Role != "assistant" {
-			continue
-		}
-		for _, c := range out.Content {
-			if c.Type == "output_text" && c.Text != "" {
-				sb.WriteString(c.Text)
-			}
-		}
-	}
-	if sb.Len() == 0 {
-		// Fallback: concatenate any text found anywhere in output[].
+		var sb strings.Builder
 		for _, out := range parsed.Output {
 			for _, c := range out.Content {
 				if c.Text != "" {
@@ -269,12 +273,12 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 				}
 			}
 		}
+		if t := strings.TrimSpace(sb.String()); t != "" {
+			return t, nil
+		}
+		return "", responsesEmptyError(parsed, []byte(raw), modelName)
 	}
-	text := strings.TrimSpace(sb.String())
-	if text == "" {
-		return "", responsesEmptyError(parsed, body, modelName)
-	}
-	return text, nil
+	return "", fmt.Errorf("LLM /v1/responses stream returned no text (body=%s)", truncate(raw, 1500))
 }
 
 // responsesEmptyError builds a clear error when /v1/responses returns
@@ -310,6 +314,143 @@ func responsesEmptyError(parsed responsesResponse, body []byte, modelName string
 		}
 	}
 	return fmt.Errorf("LLM /v1/responses returned no output_text%s (body=%s)", hint, bodyTail)
+}
+
+// streamLLMHTTP POSTs reqBody to endpoint with SSE Accept and walks the
+// response body line by line, calling extract on each `data: ` payload.
+// extract returns the text snippet (or "") to accumulate.
+//
+// Returns:
+//   - text:   the accumulated text from all chunks
+//   - rawLog: a truncated copy of the raw stream (for error messages)
+//   - status: HTTP status code
+//   - err:    transport / read error (NOT empty-content; that's caller's job)
+func streamLLMHTTP(ctx context.Context, endpoint, apiKey string, reqBody []byte, extract func(payload []byte) string) (string, string, int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(reqBody))
+	if err != nil {
+		return "", "", 0, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	resp, err := llmHTTPClient.Do(req)
+	if err != nil {
+		return "", "", 0, err
+	}
+	defer resp.Body.Close()
+
+	var (
+		text   strings.Builder
+		rawLog strings.Builder
+	)
+	const rawCap = 8 * 1024 // keep enough raw to surface in errors
+
+	// SSE frames are line-delimited; payload follows `data: ` prefix and ends
+	// at a blank line. Some proxies omit the blank line — treat each `data: `
+	// line as one event.
+	scanner := newSSEScanner(io.LimitReader(resp.Body, 8*1024*1024))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if rawLog.Len() < rawCap {
+			rawLog.WriteString(line)
+			rawLog.WriteByte('\n')
+		}
+		if !strings.HasPrefix(line, "data:") {
+			continue
+		}
+		payload := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+		if payload == "" || payload == "[DONE]" {
+			continue
+		}
+		snippet := extract([]byte(payload))
+		if snippet != "" {
+			text.WriteString(snippet)
+		}
+	}
+	if serr := scanner.Err(); serr != nil {
+		return text.String(), rawLog.String(), resp.StatusCode, serr
+	}
+	return text.String(), rawLog.String(), resp.StatusCode, nil
+}
+
+// parseChatStreamChunk extracts content from a single SSE payload of a
+// /v1/chat/completions stream. Returns "" if no usable text is present.
+func parseChatStreamChunk(payload []byte) string {
+	type chunkChoice struct {
+		Delta struct {
+			Content *string `json:"content"`
+		} `json:"delta"`
+	}
+	var chunk struct {
+		Choices []chunkChoice `json:"choices"`
+		Error   *struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+	if err := common.Unmarshal(payload, &chunk); err != nil {
+		return ""
+	}
+	if chunk.Error != nil {
+		// Errors are returned in raw log; we don't accumulate them here.
+		return ""
+	}
+	var sb strings.Builder
+	for _, c := range chunk.Choices {
+		if c.Delta.Content != nil {
+			sb.WriteString(*c.Delta.Content)
+		}
+	}
+	return sb.String()
+}
+
+// parseResponsesStreamChunk extracts text from a /v1/responses SSE payload.
+// The OpenAI Responses streaming protocol emits typed events; we care about
+// `response.output_text.delta` (incremental text tokens) and the final
+// `response.completed` (which carries the full output[] for safety net).
+func parseResponsesStreamChunk(payload []byte) string {
+	var typed struct {
+		Type     string `json:"type"`
+		Delta    string `json:"delta"`
+		Response *struct {
+			Output []struct {
+				Type    string `json:"type"`
+				Role    string `json:"role"`
+				Content []struct {
+					Type string `json:"type"`
+					Text string `json:"text"`
+				} `json:"content"`
+			} `json:"output"`
+		} `json:"response"`
+	}
+	if err := common.Unmarshal(payload, &typed); err != nil {
+		return ""
+	}
+	switch typed.Type {
+	case "response.output_text.delta":
+		return typed.Delta
+	case "response.completed":
+		if typed.Response == nil {
+			return ""
+		}
+		var sb strings.Builder
+		for _, out := range typed.Response.Output {
+			if out.Type != "message" || (out.Role != "" && out.Role != "assistant") {
+				continue
+			}
+			for _, c := range out.Content {
+				if c.Type == "output_text" && c.Text != "" {
+					sb.WriteString(c.Text)
+				}
+			}
+		}
+		// Don't return this if we already streamed deltas; the caller's
+		// accumulator would double-count. For now return only when no deltas
+		// were streamed — but we don't track that here, so leave empty and
+		// rely on output_text.delta events being authoritative.
+		_ = sb
+		return ""
+	}
+	return ""
 }
 
 func doLLMHTTP(ctx context.Context, endpoint, apiKey string, reqBody []byte) (*http.Response, []byte, error) {
