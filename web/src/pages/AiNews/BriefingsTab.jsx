@@ -48,7 +48,37 @@ const TYPE_LABELS = {
   simple: '简单总结',
 };
 
+const PHASE_LABELS = {
+  idle: '空闲',
+  discovering: '正在收集候选',
+  dedup: '正在去重',
+  fetching: '正在抓取正文',
+  generating: '正在生成简报',
+  preview: '正在发送预览邮件',
+  done: '已完成',
+  failed: '失败',
+};
+
+const PHASE_COLORS = {
+  discovering: 'blue',
+  dedup: 'blue',
+  fetching: 'blue',
+  generating: 'blue',
+  preview: 'cyan',
+  done: 'green',
+  failed: 'red',
+  idle: 'grey',
+};
+
 const fmtTs = (ts) => (ts ? new Date(ts * 1000).toLocaleString() : '-');
+
+const fmtDuration = (start, end) => {
+  if (!start) return '-';
+  const finish = end || Math.floor(Date.now() / 1000);
+  const sec = Math.max(0, finish - start);
+  if (sec < 60) return `${sec}s`;
+  return `${Math.floor(sec / 60)}m ${sec % 60}s`;
+};
 
 const BriefingsTab = () => {
   const { t } = useTranslation();
@@ -60,12 +90,25 @@ const BriefingsTab = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [triggering, setTriggering] = useState(false);
+  const [runStatus, setRunStatus] = useState(null);
+  const [showNotes, setShowNotes] = useState(false);
 
   const [editing, setEditing] = useState(null); // briefing object
   const [editForm, setEditForm] = useState({});
   const [sheetVisible, setSheetVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+
+  const loadRunStatus = async () => {
+    try {
+      const res = await API.get('/api/ai-news/admin/run-status');
+      if (res?.data?.success) {
+        setRunStatus(res.data.data);
+      }
+    } catch (e) {
+      // silent — status panel is best-effort
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -92,12 +135,30 @@ const BriefingsTab = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filterType, filterStatus]);
 
+  useEffect(() => {
+    loadRunStatus();
+    const id = setInterval(loadRunStatus, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Refresh briefings list once a run finishes (so newly created drafts show up)
+  const prevRunningRef = React.useRef(false);
+  useEffect(() => {
+    const isRunning = !!runStatus?.running;
+    if (prevRunningRef.current && !isRunning) {
+      load();
+    }
+    prevRunningRef.current = isRunning;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runStatus?.running]);
+
   const onTrigger = async () => {
     setTriggering(true);
     try {
       const res = await API.post('/api/ai-news/admin/trigger');
       if (res?.data?.success) {
         showSuccess(t('已触发,Agent 在后台运行,请稍后刷新'));
+        loadRunStatus();
       } else {
         showError(res?.data?.message || t('触发失败'));
       }
@@ -259,6 +320,12 @@ const BriefingsTab = () => {
 
   return (
     <div style={{ padding: 12 }}>
+      <RunStatusPanel
+        data={runStatus}
+        onToggleNotes={() => setShowNotes((v) => !v)}
+        showNotes={showNotes}
+        t={t}
+      />
       <div
         style={{
           display: 'flex',
@@ -313,7 +380,17 @@ const BriefingsTab = () => {
           <Spin />
         </div>
       ) : briefings.length === 0 ? (
-        <Empty title={t('暂无简报')} />
+        <Empty
+          image={
+            <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+          }
+          darkModeImage={
+            <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+          }
+          title={t('暂无简报')}
+          description={t('点击右上角“立即触发 Agent”生成第一份简报')}
+          style={{ padding: 30 }}
+        />
       ) : (
         <>
           <Table
@@ -424,6 +501,103 @@ const BriefingsTab = () => {
           </div>
         ) : null}
       </SideSheet>
+    </div>
+  );
+};
+
+const RunStatusPanel = ({ data, onToggleNotes, showNotes, t }) => {
+  const status = data?.status;
+  if (!status || !status.phase) {
+    return null;
+  }
+  const running = !!data?.running;
+  const phase = status.phase;
+  const phaseLabel = t(PHASE_LABELS[phase] || phase);
+  const color = PHASE_COLORS[phase] || 'grey';
+  const stats = [];
+  if (status.sources_enabled) stats.push(`${t('启用源')} ${status.sources_enabled}`);
+  if (status.candidates_found) stats.push(`${t('候选')} ${status.candidates_found}`);
+  if (status.candidates_after_dedup) stats.push(`${t('去重后')} ${status.candidates_after_dedup}`);
+  if (status.bodies_fetched) stats.push(`${t('已抓取')} ${status.bodies_fetched}`);
+  if (status.deep_briefing_id) stats.push(`${t('深度')} #${status.deep_briefing_id}`);
+  if (status.simple_briefing_id) stats.push(`${t('简单')} #${status.simple_briefing_id}`);
+
+  return (
+    <div
+      style={{
+        marginBottom: 16,
+        padding: '12px 16px',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 8,
+        background: 'var(--bg-subtle, #fafafa)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
+          {t('上次运行')}:
+        </span>
+        <Tag color={color} size='small'>
+          {phaseLabel}
+          {running ? ' …' : ''}
+        </Tag>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          {t('开始')} {fmtTs(status.started_at)} · {t('耗时')} {fmtDuration(status.started_at, status.finished_at)}
+        </span>
+        {status.triggered_by ? (
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            · {t('管理员触发')} #{status.triggered_by}
+          </span>
+        ) : status.started_at ? (
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>· {t('定时任务')}</span>
+        ) : null}
+        <div style={{ flex: 1 }} />
+        {status.notes && status.notes.length > 0 ? (
+          <Button size='small' onClick={onToggleNotes}>
+            {showNotes ? t('隐藏日志') : t('查看日志')} ({status.notes.length})
+          </Button>
+        ) : null}
+      </div>
+      {stats.length > 0 ? (
+        <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {stats.map((s, i) => (
+            <span key={i}>{s}</span>
+          ))}
+        </div>
+      ) : null}
+      {status.error_msg ? (
+        <div
+          style={{
+            marginTop: 8,
+            padding: '8px 10px',
+            border: '1px solid var(--semi-color-danger-light-default, #fecaca)',
+            background: 'var(--semi-color-danger-light-default, #fef2f2)',
+            color: 'var(--semi-color-danger, #dc2626)',
+            borderRadius: 6,
+            fontSize: 12,
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          <strong>{t('错误')}:</strong> {status.error_msg}
+        </div>
+      ) : null}
+      {showNotes && status.notes && status.notes.length > 0 ? (
+        <pre
+          style={{
+            marginTop: 8,
+            padding: 10,
+            background: 'var(--surface-secondary, #f5f5f7)',
+            borderRadius: 6,
+            fontSize: 12,
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-secondary)',
+            maxHeight: 240,
+            overflowY: 'auto',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {status.notes.join('\n')}
+        </pre>
+      ) : null}
     </div>
   );
 };

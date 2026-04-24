@@ -192,7 +192,17 @@ const SourcesTab = () => {
           <Spin />
         </div>
       ) : sources.length === 0 ? (
-        <Empty title={t('暂无源,点击右上角添加')} />
+        <Empty
+          image={
+            <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+          }
+          darkModeImage={
+            <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+          }
+          title={t('暂无源')}
+          description={t('点击右上角“添加源”创建第一个 RSS 或搜索关键词')}
+          style={{ padding: 30 }}
+        />
       ) : (
         <Table columns={columns} dataSource={sources} rowKey='id' pagination={false} />
       )}
