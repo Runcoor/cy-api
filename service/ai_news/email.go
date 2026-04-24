@@ -51,21 +51,20 @@ func briefingPreviewBlock(label string, b *model.AINewsBriefing) string {
 		return fmt.Sprintf(`<div style="margin:16px 0;padding:16px;border:1px solid #ffcccc;border-radius:8px;background:#fff5f5;">
 <strong>%s — 生成失败</strong><br>请查看后端日志。</div>`, html.EscapeString(label))
 	}
+	var srcs []SourceItem
+	_ = common.UnmarshalJsonStr(b.SourcesJSON, &srcs)
+
 	var sb strings.Builder
 	fmt.Fprintf(&sb, `<div style="margin:16px 0;padding:16px;border:1px solid #e5e5ea;border-radius:8px;">`)
 	fmt.Fprintf(&sb, `<div style="font-size:12px;color:#86868b;margin-bottom:6px;">%s · briefing #%d · status: %s</div>`,
 		html.EscapeString(label), b.Id, html.EscapeString(b.Status))
-	fmt.Fprintf(&sb, `<h3 style="margin:6px 0 12px;">%s</h3>`, html.EscapeString(b.Title))
+	fmt.Fprintf(&sb, `<h3 style="margin:6px 0 12px;font-size:18px;">%s</h3>`, html.EscapeString(b.Title))
 	if b.Summary != "" {
-		fmt.Fprintf(&sb, `<p style="color:#1d1d1f;font-size:14px;">%s</p>`, html.EscapeString(b.Summary))
+		fmt.Fprintf(&sb, `<p style="color:#3a3a3c;font-size:14px;font-style:italic;margin:8px 0 12px;">%s</p>`, html.EscapeString(b.Summary))
 	}
-	// Show first ~600 chars of content as a teaser
-	teaser := b.Content
-	if len(teaser) > 600 {
-		teaser = teaser[:600] + "…"
-	}
-	fmt.Fprintf(&sb, `<pre style="white-space:pre-wrap;font-family:-apple-system,sans-serif;color:#3a3a3c;font-size:13px;line-height:1.6;background:#f5f5f7;padding:12px;border-radius:6px;margin-top:12px;">%s</pre>`,
-		html.EscapeString(teaser))
+	sb.WriteString(`<div style="background:#f5f5f7;padding:12px;border-radius:6px;margin-top:8px;">`)
+	sb.WriteString(RenderMarkdownEmail(b.Content, srcs))
+	sb.WriteString(`</div>`)
 	sb.WriteString(`</div>`)
 	return sb.String()
 }

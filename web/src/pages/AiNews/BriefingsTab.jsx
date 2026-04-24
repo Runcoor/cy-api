@@ -506,16 +506,21 @@ const BriefingsTab = () => {
             </div>
             <div>
               <label style={{ fontSize: 13, fontWeight: 500 }}>
-                {t('Plan IDs JSON')}
+                {t('推送范围 (Plan IDs)')}
               </label>
               <Input
                 value={editForm.plan_ids_json}
                 onChange={(v) =>
                   setEditForm({ ...editForm, plan_ids_json: v })
                 }
-                placeholder='[] (空 = 所有有活跃订阅的用户)'
+                placeholder='[] 或 [1,2,3]'
                 style={{ marginTop: 6, fontFamily: 'var(--font-mono)' }}
               />
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
+                {t(
+                  '决定这份简报发给谁。空 [] = 所有有活跃订阅的用户都能收到;[1,2,3] = 只发给订阅了 plan_id ∈ {1,2,3} 的用户。订阅管理页能看到每个套餐的 ID。',
+                )}
+              </div>
             </div>
             <div>
               <label style={{ fontSize: 13, fontWeight: 500 }}>{t('状态')}</label>
@@ -524,10 +529,15 @@ const BriefingsTab = () => {
                 onChange={(v) => setEditForm({ ...editForm, status: v })}
                 style={{ width: '100%', marginTop: 6 }}
               >
-                <Select.Option value='draft'>draft</Select.Option>
-                <Select.Option value='approved'>approved</Select.Option>
-                <Select.Option value='archived'>archived</Select.Option>
+                <Select.Option value='draft'>draft · {t('草稿(待审核)')}</Select.Option>
+                <Select.Option value='approved'>approved · {t('已审核(可发送)')}</Select.Option>
+                <Select.Option value='archived'>archived · {t('归档(URL 可重新抓取)')}</Select.Option>
               </Select>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
+                {t(
+                  'draft / approved 都能点“发送给用户”;sent 状态会自动写入(发送成功后)。archived 用来废弃一份草稿——dedup 不会拦同一批 URL,可以重跑。',
+                )}
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <Button onClick={onSave} loading={saving}>

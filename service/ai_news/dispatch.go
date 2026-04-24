@@ -128,26 +128,32 @@ func emailSubjectFor(b *model.AINewsBriefing) string {
 }
 
 func buildUserEmailHTML(b *model.AINewsBriefing) string {
+	var srcs []SourceItem
+	_ = common.UnmarshalJsonStr(b.SourcesJSON, &srcs)
+
 	var sb strings.Builder
 	sb.WriteString(`<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;padding:24px;color:#1d1d1f;">`)
-	fmt.Fprintf(&sb, `<h2 style="margin-top:0;">%s</h2>`, html.EscapeString(b.Title))
+	fmt.Fprintf(&sb, `<h2 style="margin-top:0;font-size:22px;">%s</h2>`, html.EscapeString(b.Title))
 	if b.Summary != "" {
-		fmt.Fprintf(&sb, `<p style="font-size:15px;color:#3a3a3c;font-style:italic;">%s</p>`, html.EscapeString(b.Summary))
+		fmt.Fprintf(&sb, `<p style="font-size:15px;color:#3a3a3c;font-style:italic;margin:8px 0 16px;">%s</p>`, html.EscapeString(b.Summary))
 	}
 	sb.WriteString(`<hr style="border:none;border-top:1px solid #e5e5ea;margin:16px 0;">`)
-	// Render content as preformatted text (briefings are markdown-ish; we keep
-	// it simple — a Markdown→HTML pass can be added later if desired).
-	fmt.Fprintf(&sb, `<pre style="white-space:pre-wrap;font-family:-apple-system,sans-serif;color:#1d1d1f;font-size:14px;line-height:1.65;">%s</pre>`,
-		html.EscapeString(b.Content))
+	sb.WriteString(RenderMarkdownEmail(b.Content, srcs))
 
-	// Sources block
-	var srcs []SourceItem
-	if err := common.UnmarshalJsonStr(b.SourcesJSON, &srcs); err == nil && len(srcs) > 0 {
-		sb.WriteString(`<hr style="border:none;border-top:1px solid #e5e5ea;margin:16px 0;">`)
-		sb.WriteString(`<h4 style="margin:0 0 8px;color:#86868b;font-size:13px;">来源</h4><ol style="font-size:13px;color:#3a3a3c;padding-left:20px;">`)
-		for _, s := range srcs {
-			fmt.Fprintf(&sb, `<li><a href="%s" style="color:#0066cc;">%s</a></li>`,
-				html.EscapeString(s.URL), html.EscapeString(s.Title))
+	// Sources block — anchored so [n] superscripts can jump here.
+	if len(srcs) > 0 {
+		sb.WriteString(`<hr style="border:none;border-top:1px solid #e5e5ea;margin:24px 0 12px;">`)
+		sb.WriteString(`<h4 style="margin:0 0 8px;color:#86868b;font-size:13px;font-weight:600;">来源</h4>`)
+		sb.WriteString(`<ol style="font-size:13px;color:#3a3a3c;padding-left:20px;margin:0;line-height:1.7;">`)
+		for i, s := range srcs {
+			title := s.Title
+			if strings.TrimSpace(title) == "" {
+				title = s.URL
+			}
+			fmt.Fprintf(&sb,
+				`<li id="ai-news-source-%d" style="margin-bottom:4px;"><a href="%s" style="color:#0066cc;text-decoration:none;">%s</a></li>`,
+				i+1, html.EscapeString(s.URL), html.EscapeString(title),
+			)
 		}
 		sb.WriteString(`</ol>`)
 	}
