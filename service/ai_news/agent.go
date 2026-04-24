@@ -213,6 +213,7 @@ func dedupAgainstRecentBriefings(candidates []candidate) []candidate {
 	cutoff := time.Now().Add(-dedupWindow).Unix()
 	var recent []model.AINewsBriefing
 	if err := model.DB.Where("generated_at >= ?", cutoff).
+		Where("status <> ?", model.AINewsBriefingStatusArchived).
 		Select("id", "sources_json").
 		Find(&recent).Error; err != nil {
 		// Fail open — better to over-process than to skip on db errors.

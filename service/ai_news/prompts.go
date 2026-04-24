@@ -22,14 +22,24 @@ func generateBriefing(ctx context.Context, candidates []candidate, briefingType,
 		return nil, err
 	}
 
+	maxTokens := 8000
+	if briefingType == model.AINewsBriefingTypeSimple {
+		maxTokens = 2000
+	}
 	out, err := ChatComplete(ctx, modelName, []ChatMessage{
 		{Role: "system", Content: systemPrompt},
 		{Role: "user", Content: userPrompt},
-	})
+	}, maxTokens)
 	if err != nil {
 		return nil, err
 	}
+	if strings.TrimSpace(out) == "" {
+		return nil, fmt.Errorf("LLM returned empty content for %s briefing", briefingType)
+	}
 	title, summary, content := splitLLMOutput(out, briefingType)
+	if strings.TrimSpace(content) == "" {
+		return nil, fmt.Errorf("parsed content is empty after splitting %s briefing output", briefingType)
+	}
 
 	sourceItems := make([]SourceItem, 0, len(candidates))
 	for _, c := range candidates {

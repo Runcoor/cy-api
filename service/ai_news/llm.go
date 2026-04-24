@@ -45,7 +45,10 @@ type chatResponse struct {
 //   - settings.LLMSource == "custom":  POST {LLMCustomBaseURL}/v1/chat/completions
 //   - settings.LLMSource == "channel": resolve the channel by id and use its
 //     base URL + key the same way.
-func ChatComplete(ctx context.Context, model string, messages []ChatMessage) (string, error) {
+//
+// maxTokens controls the upstream response cap. Pass 0 to omit (some providers
+// like Anthropic require a non-zero value, so callers should always supply one).
+func ChatComplete(ctx context.Context, model string, messages []ChatMessage, maxTokens int) (string, error) {
 	settings := system_setting.GetAINewsSettings()
 	baseURL, apiKey, err := resolveLLMEndpoint(settings)
 	if err != nil {
@@ -55,10 +58,14 @@ func ChatComplete(ctx context.Context, model string, messages []ChatMessage) (st
 		return "", fmt.Errorf("model is required")
 	}
 
-	reqBody, err := common.Marshal(chatRequest{
+	reqStruct := chatRequest{
 		Model:    model,
 		Messages: messages,
-	})
+	}
+	if maxTokens > 0 {
+		reqStruct.MaxTokens = &maxTokens
+	}
+	reqBody, err := common.Marshal(reqStruct)
 	if err != nil {
 		return "", err
 	}
@@ -91,9 +98,66 @@ func ChatComplete(ctx context.Context, model string, messages []ChatMessage) (st
 		return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
 	}
 	if len(parsed.Choices) == 0 {
-		return "", fmt.Errorf("LLM returned no choices")
+		return "", fmt.Errorf("LLM returned no choices (body=%s)", truncate(string(body), 512))
 	}
-	return parsed.Choices[0].Message.Content, nil
+	content := parsed.Choices[0].Message.Content
+	if strings.TrimSpace(content) == "" {
+		// Some providers/adaptors return only thinking blocks or stop early
+		// when max_tokens is missing. Fall back to scanning for an alternate
+		// shape (Claude-native content blocks).
+		alt := extractAltContent(body)
+		if strings.TrimSpace(alt) != "" {
+			return alt, nil
+		}
+		return "", fmt.Errorf("LLM returned empty content (status %d, body=%s)", resp.StatusCode, truncate(string(body), 512))
+	}
+	return content, nil
+}
+
+// extractAltContent looks for Claude-native content blocks in the raw response
+// body in case the upstream returned native shape instead of OpenAI shape.
+func extractAltContent(body []byte) string {
+	type block struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	}
+	// Try Claude native shape first.
+	var native struct {
+		Content []block `json:"content"`
+	}
+	if err := common.Unmarshal(body, &native); err == nil && len(native.Content) > 0 {
+		var sb strings.Builder
+		for _, b := range native.Content {
+			if b.Type == "text" && b.Text != "" {
+				sb.WriteString(b.Text)
+				sb.WriteString("\n")
+			}
+		}
+		if sb.Len() > 0 {
+			return strings.TrimSpace(sb.String())
+		}
+	}
+	// Try OpenAI shape with content as array of blocks (some adaptors do this).
+	var openaiBlocks struct {
+		Choices []struct {
+			Message struct {
+				Content []block `json:"content"`
+			} `json:"message"`
+		} `json:"choices"`
+	}
+	if err := common.Unmarshal(body, &openaiBlocks); err == nil && len(openaiBlocks.Choices) > 0 {
+		var sb strings.Builder
+		for _, b := range openaiBlocks.Choices[0].Message.Content {
+			if b.Type == "text" && b.Text != "" {
+				sb.WriteString(b.Text)
+				sb.WriteString("\n")
+			}
+		}
+		if sb.Len() > 0 {
+			return strings.TrimSpace(sb.String())
+		}
+	}
+	return ""
 }
 
 func resolveLLMEndpoint(s system_setting.AINewsSettings) (baseURL, apiKey string, err error) {
