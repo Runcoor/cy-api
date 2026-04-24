@@ -12,8 +12,36 @@ import {
   IconImage,
   IconRefresh,
   IconDownload,
+  IconCopy,
 } from '@douyinfe/semi-icons';
-import { API, showError, showSuccess } from '../../../helpers';
+import { API, copy, showError, showSuccess } from '../../../helpers';
+
+const stripMarkdown = (s) => {
+  if (!s) return '';
+  let out = s;
+  out = out.replace(/^#{1,6}\s+/gm, '');
+  out = out.replace(/\*\*(.+?)\*\*/g, '$1');
+  out = out.replace(/__(.+?)__/g, '$1');
+  out = out.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '$1');
+  out = out.replace(/`([^`]+)`/g, '$1');
+  out = out.replace(/^```[\s\S]*?\n([\s\S]*?)```$/gm, '$1');
+  out = out.replace(/^>\s+/gm, '');
+  out = out.replace(/^[-*+]\s+/gm, '• ');
+  out = out.replace(/^\d+\.\s+/gm, '');
+  out = out.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
+  out = out.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  return out.trim();
+};
+
+const buildSocialCaption = (post) => {
+  if (!post) return '';
+  const parts = [post.title, '', stripMarkdown(post.body)];
+  if ((post.tags || []).length) {
+    parts.push('');
+    parts.push(post.tags.map((t) => '#' + String(t).replace(/^#/, '')).join(' '));
+  }
+  return parts.join('\n');
+};
 
 const SOCIAL_KIND_LABELS = {
   image_only: '纯图卡片',
@@ -200,22 +228,36 @@ const MobileSocialPostModal = ({ briefing, onClose, t }) => {
             )}
           </div>
 
-          {/* Sticky download */}
+          {/* Sticky actions */}
           {isReady ? (
             <div
               style={{
                 padding: '10px 12px max(10px, env(safe-area-inset-bottom))',
                 borderTop: '1px solid var(--border-subtle)',
                 background: 'var(--surface, #fff)',
+                display: 'flex',
+                gap: 8,
               }}
             >
+              <Button
+                icon={<IconCopy />}
+                size='large'
+                style={{ flex: 1 }}
+                onClick={async () => {
+                  if (await copy(buildSocialCaption(post))) {
+                    showSuccess(t('已复制文案'));
+                  }
+                }}
+              >
+                {t('复制文案')}
+              </Button>
               <Button
                 theme='solid'
                 type='primary'
                 icon={<IconDownload />}
                 onClick={onDownload}
                 size='large'
-                block
+                style={{ flex: 1 }}
               >
                 {t('下载 ZIP')}
               </Button>

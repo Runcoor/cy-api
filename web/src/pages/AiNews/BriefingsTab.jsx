@@ -33,9 +33,38 @@ import {
   Tag,
   TextArea,
 } from '@douyinfe/semi-ui';
-import { IconRefresh, IconSend, IconPlusCircle, IconDelete, IconClose, IconImage, IconDownload } from '@douyinfe/semi-icons';
+import { IconRefresh, IconSend, IconPlusCircle, IconDelete, IconClose, IconImage, IconDownload, IconCopy } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
-import { API, showError, showSuccess } from '../../helpers';
+import { API, copy, showError, showSuccess } from '../../helpers';
+
+// Xiaohongshu has no markdown rendering — strip markdown markers so admins
+// can paste a clean caption directly into the post composer.
+const stripMarkdown = (s) => {
+  if (!s) return '';
+  let out = s;
+  out = out.replace(/^#{1,6}\s+/gm, ''); // headings
+  out = out.replace(/\*\*(.+?)\*\*/g, '$1'); // bold
+  out = out.replace(/__(.+?)__/g, '$1'); // bold alt
+  out = out.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '$1'); // italic
+  out = out.replace(/`([^`]+)`/g, '$1'); // inline code
+  out = out.replace(/^```[\s\S]*?\n([\s\S]*?)```$/gm, '$1'); // code blocks
+  out = out.replace(/^>\s+/gm, ''); // blockquote
+  out = out.replace(/^[-*+]\s+/gm, '• '); // list items → bullet
+  out = out.replace(/^\d+\.\s+/gm, ''); // numbered lists
+  out = out.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1'); // images
+  out = out.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // links
+  return out.trim();
+};
+
+const buildSocialCaption = (post) => {
+  if (!post) return '';
+  const parts = [post.title, '', stripMarkdown(post.body)];
+  if ((post.tags || []).length) {
+    parts.push('');
+    parts.push(post.tags.map((t) => '#' + String(t).replace(/^#/, '')).join(' '));
+  }
+  return parts.join('\n');
+};
 
 const STATUS_COLORS = {
   draft: 'grey',
@@ -1520,6 +1549,16 @@ const SocialPostModal = ({
             <div style={{ flex: 1 }} />
             {isReady ? (
               <>
+                <Button
+                  icon={<IconCopy />}
+                  onClick={async () => {
+                    if (await copy(buildSocialCaption(post))) {
+                      showSuccess(t('已复制文案'));
+                    }
+                  }}
+                >
+                  {t('复制文案')}
+                </Button>
                 <Button
                   icon={<IconDownload />}
                   theme='solid'

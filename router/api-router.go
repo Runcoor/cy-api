@@ -237,9 +237,13 @@ func SetApiRouter(router *gin.Engine) {
 			// Social-publish (xiaohongshu) — generate copy + images for one briefing
 			aiNewsAdminRoute.GET("/briefings/:id/social", controller.GetAINewsSocialPost)
 			aiNewsAdminRoute.POST("/briefings/:id/social", controller.GenerateAINewsSocialPost)
-			aiNewsAdminRoute.GET("/briefings/:id/social/zip", controller.DownloadAINewsSocialPostZIP)
-			aiNewsAdminRoute.GET("/social/images/*filepath", controller.ServeAINewsSocialImage)
 		}
+
+		// Routes invoked by browser-native navigation (<img>, window.open) —
+		// AdminAuth middleware requires an Aggre-User header that those
+		// requests can't send, so they check the session inline.
+		apiRouter.GET("/ai-news/admin/social/images/*filepath", controller.ServeAINewsSocialImage)
+		apiRouter.GET("/ai-news/admin/briefings/:id/social/zip", controller.DownloadAINewsSocialPostZIP)
 
 		// Subscription payment callbacks (no auth)
 		apiRouter.POST("/subscription/epay/notify", controller.SubscriptionEpayNotify)

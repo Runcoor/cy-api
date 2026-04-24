@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/runcoor/aggre-api/model"
 	"github.com/runcoor/aggre-api/service/ai_news"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -203,10 +205,20 @@ func GenerateAINewsSocialPost(c *gin.Context) {
 }
 
 // DownloadAINewsSocialPostZIP streams the packaged ZIP (caption + meta + images).
+//
+// Auth: session-only. Triggered by window.open which can't add the
+// Aggre-User header that AdminAuth middleware requires.
 func DownloadAINewsSocialPostZIP(c *gin.Context) {
+	session := sessions.Default(c)
+	role, _ := session.Get("role").(int)
+	status, _ := session.Get("status").(int)
+	if role < common.RoleAdminUser || status == common.UserStatusDisabled {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 	id, _ := strconv.Atoi(c.Param("id"))
 	if id <= 0 {
-		common.ApiErrorMsg(c, "invalid id")
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	data, filename, err := ai_news.BuildSocialPostZIP(id)
@@ -223,15 +235,26 @@ func DownloadAINewsSocialPostZIP(c *gin.Context) {
 // ServeAINewsSocialImage serves one stored image for the admin preview UI.
 // Path is the rel_path stored in DB. Path-traversal is blocked by
 // ai_news.ResolveStoredImagePath.
+//
+// Auth: session-only. The standard AdminAuth middleware also requires the
+// Aggre-User header which <img> tags cannot send, so we check the admin
+// role inline against the cookie session.
 func ServeAINewsSocialImage(c *gin.Context) {
+	session := sessions.Default(c)
+	role, _ := session.Get("role").(int)
+	status, _ := session.Get("status").(int)
+	if role < common.RoleAdminUser || status == common.UserStatusDisabled {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 	rel := strings.TrimPrefix(c.Param("filepath"), "/")
 	if rel == "" {
-		common.ApiErrorMsg(c, "invalid path")
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	abs, err := ai_news.ResolveStoredImagePath(rel)
 	if err != nil {
-		common.ApiErrorMsg(c, "invalid path")
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	c.File(abs)

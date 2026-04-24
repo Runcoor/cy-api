@@ -391,7 +391,7 @@ const TestEndpointResult = ({ label, data, t }) => {
       }}
     >
       <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
-        {ok ? '✓ ' : '✗ '} {label}
+        [{ok ? t('成功') : t('失败')}] {label}
         {' · '}
         <span style={{ color: 'var(--text-muted)' }}>{data.duration}</span>
       </div>

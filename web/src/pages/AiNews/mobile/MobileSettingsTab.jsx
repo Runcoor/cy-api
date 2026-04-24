@@ -411,7 +411,7 @@ const MobileTestResult = ({ label, data, t }) => {
       }}
     >
       <div style={{ fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
-        {ok ? '✓' : '✗'} {label} · {data.duration}
+        [{ok ? t('成功') : t('失败')}] {label} · {data.duration}
       </div>
       {ok ? (
         <div style={{ whiteSpace: 'pre-wrap' }}>{t('回复')}: {data.reply}</div>
