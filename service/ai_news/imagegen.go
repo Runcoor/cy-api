@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -149,6 +150,37 @@ func GenerateImage(ctx context.Context, opts GenImageOptions) ([]GenImageResult,
 	return out, nil
 }
 
+// resolveImageURL turns the upstream-returned image URL into an absolute URL
+// we can fetch. gpt2api hands back a path-only URL like
+//   /p/img/img_xxx/0?exp=...&sig=...
+// so we resolve it against the configured ImageGenBaseURL host.
+func resolveImageURL(srcURL string) (string, error) {
+	u, err := url.Parse(srcURL)
+	if err != nil {
+		return "", err
+	}
+	if u.IsAbs() {
+		return srcURL, nil
+	}
+	base := strings.TrimSpace(system_setting.GetAINewsSettings().ImageGenBaseURL)
+	if base == "" {
+		return "", fmt.Errorf("relative image URL %q but ImageGenBaseURL is empty", srcURL)
+	}
+	// Resolve against the host root, not against /v1 — image paths from
+	// gpt2api are absolute paths from the host root (e.g. /p/img/...).
+	bu, err := url.Parse(strings.TrimRight(base, "/"))
+	if err != nil {
+		return "", fmt.Errorf("parse base url: %w", err)
+	}
+	if !bu.IsAbs() {
+		return "", fmt.Errorf("ImageGenBaseURL %q is not absolute", base)
+	}
+	bu.Path = ""
+	bu.RawQuery = ""
+	bu.Fragment = ""
+	return bu.ResolveReference(u).String(), nil
+}
+
 // imageGenURL builds the full /v1/images/generations URL, accepting any of:
 //   - http://host:port
 //   - http://host:port/
@@ -203,17 +235,22 @@ func DownloadAndStoreImage(ctx context.Context, briefingId, position int, srcURL
 		}
 		data = decoded
 	case srcURL != "":
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, srcURL, nil)
+		fetchURL, err := resolveImageURL(srcURL)
+		if err != nil {
+			return StoredImage{}, fmt.Errorf("resolve %s: %w", srcURL, err)
+		}
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, fetchURL, nil)
 		if err != nil {
 			return StoredImage{}, err
 		}
+		req.Header.Set("Authorization", "Bearer "+system_setting.GetAINewsSettings().ImageGenAPIKey)
 		resp, err := downloadHTTPClient.Do(req)
 		if err != nil {
-			return StoredImage{}, fmt.Errorf("fetch %s: %w", srcURL, err)
+			return StoredImage{}, fmt.Errorf("fetch %s: %w", fetchURL, err)
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode >= 400 {
-			return StoredImage{}, fmt.Errorf("fetch %s: HTTP %d", srcURL, resp.StatusCode)
+			return StoredImage{}, fmt.Errorf("fetch %s: HTTP %d", fetchURL, resp.StatusCode)
 		}
 		data, err = io.ReadAll(resp.Body)
 		if err != nil {
