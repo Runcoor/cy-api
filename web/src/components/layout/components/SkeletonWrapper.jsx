@@ -101,8 +101,7 @@ const SkeletonWrapper = ({
         placeholder={
           <Skeleton.Image
             className={`absolute inset-0 ${className}`}
-            style={{ borderRadius: 'var(--radius-sm)' }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ borderRadius: 'var(--radius-sm)', width: '100%', height: '100%' }}
           />
         }
       />

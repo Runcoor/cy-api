@@ -223,8 +223,9 @@ const MessageContent = ({
               resize: 'vertical',
               fontSize: styleState.isMobile ? '14px' : '15px',
               lineHeight: '1.6',
+              borderColor: 'var(--accent)',
+              background: 'var(--surface-hover)',
             }}
-            style={{ borderColor: 'var(--accent)', background: 'var(--surface-hover)' }}
           />
           <div className='flex items-center gap-2 w-full'>
             <Button
@@ -270,8 +271,7 @@ const MessageContent = ({
                           src={imgItem.image_url.url}
                           alt={`用户上传的图片 ${index + 1}`}
                           className='max-w-full h-auto'
-                          style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}
-                          style={{ maxHeight: '300px' }}
+                          style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', maxHeight: '300px' }}
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'block';

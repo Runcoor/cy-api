@@ -137,9 +137,8 @@ const SettingsPanel = ({
             autoComplete='new-password'
             optionList={groups}
             renderOptionItem={renderGroupOption}
-            style={{ width: '100%' }}
+            style={{ width: '100%', borderRadius: 'var(--radius-md)' }}
             dropdownStyle={{ width: '100%', maxWidth: '100%' }}
-            style={{ borderRadius: 'var(--radius-md)' }}
             disabled={customRequestMode}
           />
         </div>
