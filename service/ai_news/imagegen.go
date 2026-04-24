@@ -113,7 +113,7 @@ func GenerateImage(ctx context.Context, opts GenImageOptions) ([]GenImageResult,
 		return nil, err
 	}
 
-	url := strings.TrimRight(s.ImageGenBaseURL, "/") + "/v1/images/generations"
+	url := imageGenURL(s.ImageGenBaseURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(raw))
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func GenerateImage(ctx context.Context, opts GenImageOptions) ([]GenImageResult,
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("image gen HTTP %d: %s", resp.StatusCode, truncate(string(respBody), 400))
+		return nil, fmt.Errorf("image gen HTTP %d at %s: %s", resp.StatusCode, url, truncate(string(respBody), 400))
 	}
 
 	var parsed imagesGenResponse
@@ -147,6 +147,20 @@ func GenerateImage(ctx context.Context, opts GenImageOptions) ([]GenImageResult,
 		out = append(out, GenImageResult{URL: d.URL, B64: d.B64JSON})
 	}
 	return out, nil
+}
+
+// imageGenURL builds the full /v1/images/generations URL, accepting any of:
+//   - http://host:port
+//   - http://host:port/
+//   - http://host:port/v1
+//   - http://host:port/v1/
+//
+// Matches the OpenAI Python SDK convention (which expects base_url without
+// /v1) but tolerates admins who copy the path from a curl example.
+func imageGenURL(base string) string {
+	b := strings.TrimRight(base, "/")
+	b = strings.TrimSuffix(b, "/v1")
+	return b + "/v1/images/generations"
 }
 
 // imagesRoot returns the directory where briefing images are stored.
