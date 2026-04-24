@@ -26,7 +26,6 @@ import {
   Pagination,
   Popconfirm,
   Select,
-  SideSheet,
   Spin,
   Table,
   Tabs,
@@ -34,7 +33,7 @@ import {
   Tag,
   TextArea,
 } from '@douyinfe/semi-ui';
-import { IconRefresh, IconSend, IconPlusCircle, IconDelete } from '@douyinfe/semi-icons';
+import { IconRefresh, IconSend, IconPlusCircle, IconDelete, IconClose } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import { API, showError, showSuccess } from '../../helpers';
 
@@ -98,8 +97,21 @@ const BriefingsTab = () => {
   const [editing, setEditing] = useState(null); // briefing object
   const [editForm, setEditForm] = useState({});
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [activeEditTab, setActiveEditTab] = useState('edit');
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+
+  // Preview tab state
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewSubject, setPreviewSubject] = useState('');
+
+  // Recipients tab state
+  const [recipientsLoading, setRecipientsLoading] = useState(false);
+  const [recipients, setRecipients] = useState([]);
+  const [recipientsTotal, setRecipientsTotal] = useState(0);
+  const [recipientsPage, setRecipientsPage] = useState(1);
+  const [recipientsSearch, setRecipientsSearch] = useState('');
 
   // Trigger modal state
   const [triggerVisible, setTriggerVisible] = useState(false);
@@ -239,12 +251,81 @@ const BriefingsTab = () => {
           plan_ids_json: b.plan_ids_json || '[]',
           status: b.status || 'draft',
         });
+        setActiveEditTab('edit');
+        setPreviewHtml('');
+        setPreviewSubject('');
+        setRecipients([]);
+        setRecipientsTotal(0);
+        setRecipientsPage(1);
+        setRecipientsSearch('');
         setSheetVisible(true);
       } else {
         showError(res?.data?.message || t('加载失败'));
       }
     } catch (e) {
       showError(e);
+    }
+  };
+
+  const loadPreview = async () => {
+    if (!editing) return;
+    setPreviewLoading(true);
+    try {
+      const res = await API.get(`/api/ai-news/admin/briefings/${editing.id}/preview`);
+      if (res?.data?.success) {
+        setPreviewHtml(res.data.data?.html || '');
+        setPreviewSubject(res.data.data?.subject || '');
+      } else {
+        showError(res?.data?.message || t('加载预览失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const loadRecipients = async (pageOverride) => {
+    if (!editing) return;
+    const page = pageOverride || recipientsPage;
+    setRecipientsLoading(true);
+    try {
+      const params = new URLSearchParams({ page, page_size: 20 });
+      if (recipientsSearch.trim()) params.set('search', recipientsSearch.trim());
+      const res = await API.get(
+        `/api/ai-news/admin/briefings/${editing.id}/recipients?${params}`,
+      );
+      if (res?.data?.success) {
+        setRecipients(res.data.data?.items || []);
+        setRecipientsTotal(res.data.data?.total || 0);
+      } else {
+        showError(res?.data?.message || t('加载收件人失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setRecipientsLoading(false);
+    }
+  };
+
+  // Auto-load each tab's data when it becomes active.
+  useEffect(() => {
+    if (!sheetVisible || !editing) return;
+    if (activeEditTab === 'preview' && !previewHtml) {
+      loadPreview();
+    }
+    if (activeEditTab === 'recipients' && recipients.length === 0 && !recipientsLoading) {
+      loadRecipients(1);
+      setRecipientsPage(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeEditTab, sheetVisible]);
+
+  // Refresh preview if user just saved while preview tab was open.
+  const refreshPreview = () => {
+    setPreviewHtml('');
+    if (activeEditTab === 'preview') {
+      loadPreview();
     }
   };
 
@@ -259,6 +340,12 @@ const BriefingsTab = () => {
       if (res?.data?.success) {
         showSuccess(t('已保存'));
         await load();
+        refreshPreview();
+        // Plan-id changes affect recipient list; refresh if user is on that tab.
+        if (activeEditTab === 'recipients') {
+          loadRecipients(1);
+          setRecipientsPage(1);
+        }
       } else {
         showError(res?.data?.message || t('保存失败'));
       }
@@ -466,80 +553,49 @@ const BriefingsTab = () => {
         </>
       )}
 
-      <SideSheet
+      <Modal
         visible={sheetVisible}
         onCancel={() => setSheetVisible(false)}
-        width={720}
-        title={
-          editing
-            ? `#${editing.id} · ${t(TYPE_LABELS[editing.type] || editing.type)}`
-            : t('编辑简报')
-        }
+        fullScreen
+        footer={null}
+        closeOnEsc
+        title={null}
+        header={null}
+        bodyStyle={{ padding: 0, height: '100vh' }}
       >
         {editing ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 12 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500 }}>{t('标题')}</label>
-              <Input
-                value={editForm.title}
-                onChange={(v) => setEditForm({ ...editForm, title: v })}
-                style={{ marginTop: 6 }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500 }}>{t('摘要')}</label>
-              <TextArea
-                value={editForm.summary}
-                onChange={(v) => setEditForm({ ...editForm, summary: v })}
-                autosize={{ minRows: 2, maxRows: 4 }}
-                style={{ marginTop: 6 }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500 }}>{t('正文 (Markdown)')}</label>
-              <TextArea
-                value={editForm.content}
-                onChange={(v) => setEditForm({ ...editForm, content: v })}
-                autosize={{ minRows: 12, maxRows: 30 }}
-                style={{ marginTop: 6, fontFamily: 'var(--font-mono)', fontSize: 13 }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500 }}>
-                {t('推送范围 (Plan IDs)')}
-              </label>
-              <Input
-                value={editForm.plan_ids_json}
-                onChange={(v) =>
-                  setEditForm({ ...editForm, plan_ids_json: v })
-                }
-                placeholder='[] 或 [1,2,3]'
-                style={{ marginTop: 6, fontFamily: 'var(--font-mono)' }}
-              />
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
-                {t(
-                  '决定这份简报发给谁。空 [] = 所有有活跃订阅的用户都能收到;[1,2,3] = 只发给订阅了 plan_id ∈ {1,2,3} 的用户。订阅管理页能看到每个套餐的 ID。',
-                )}
-              </div>
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500 }}>{t('状态')}</label>
-              <Select
-                value={editForm.status}
-                onChange={(v) => setEditForm({ ...editForm, status: v })}
-                style={{ width: '100%', marginTop: 6 }}
-              >
-                <Select.Option value='draft'>draft · {t('草稿(待审核)')}</Select.Option>
-                <Select.Option value='approved'>approved · {t('已审核(可发送)')}</Select.Option>
-                <Select.Option value='archived'>archived · {t('归档(URL 可重新抓取)')}</Select.Option>
-              </Select>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
-                {t(
-                  'draft / approved 都能点“发送给用户”;sent 状态会自动写入(发送成功后)。archived 用来废弃一份草稿——dedup 不会拦同一批 URL,可以重跑。',
-                )}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100vh',
+              background: 'var(--surface, #fff)',
+            }}
+          >
+            {/* Header bar */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 24px',
+                borderBottom: '1px solid var(--border-subtle)',
+                background: 'var(--bg-subtle, #fafafa)',
+              }}
+            >
+              <Tag color={editing.type === 'deep' ? 'violet' : 'cyan'} size='small'>
+                {t(TYPE_LABELS[editing.type] || editing.type)}
+              </Tag>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                #{editing.id}
+              </span>
+              <Tag color={STATUS_COLORS[editing.status] || 'grey'} size='small'>
+                {editing.status}
+              </Tag>
+              <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, marginLeft: 8 }}>
+                {editForm.title || editing.title}
+              </span>
+              <div style={{ flex: 1 }} />
               <Button onClick={onSave} loading={saving}>
                 {t('保存')}
               </Button>
@@ -554,19 +610,75 @@ const BriefingsTab = () => {
                   loading={sending}
                   disabled={editing.status === 'sent'}
                 >
-                  {t('发送给用户')}
+                  {recipientsTotal > 0
+                    ? t('发送给 {{n}} 位用户', { n: recipientsTotal })
+                    : t('发送给用户')}
                 </Button>
               </Popconfirm>
+              <Button
+                icon={<IconClose />}
+                theme='borderless'
+                onClick={() => setSheetVisible(false)}
+              />
             </div>
-            {editing.sources_json ? (
-              <div style={{ marginTop: 16 }}>
-                <label style={{ fontSize: 13, fontWeight: 500 }}>{t('来源')}</label>
-                <SourcesPreview json={editing.sources_json} />
-              </div>
-            ) : null}
+
+            {/* Tabs */}
+            <Tabs
+              type='line'
+              activeKey={activeEditTab}
+              onChange={setActiveEditTab}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+              contentStyle={{ flex: 1, overflow: 'hidden', minHeight: 0 }}
+            >
+              <TabPane tab={t('编辑')} itemKey='edit'>
+                <EditForm
+                  editForm={editForm}
+                  setEditForm={setEditForm}
+                  editing={editing}
+                  t={t}
+                />
+              </TabPane>
+              <TabPane tab={t('邮件预览')} itemKey='preview'>
+                <PreviewPane
+                  loading={previewLoading}
+                  html={previewHtml}
+                  subject={previewSubject}
+                  onRefresh={loadPreview}
+                  t={t}
+                />
+              </TabPane>
+              <TabPane
+                tab={
+                  recipientsTotal > 0
+                    ? `${t('收件人')} (${recipientsTotal})`
+                    : t('收件人')
+                }
+                itemKey='recipients'
+              >
+                <RecipientsPane
+                  loading={recipientsLoading}
+                  items={recipients}
+                  total={recipientsTotal}
+                  page={recipientsPage}
+                  search={recipientsSearch}
+                  onSearchChange={setRecipientsSearch}
+                  onSearchSubmit={() => {
+                    setRecipientsPage(1);
+                    loadRecipients(1);
+                  }}
+                  onPageChange={(p) => {
+                    setRecipientsPage(p);
+                    loadRecipients(p);
+                  }}
+                  onRefresh={() => loadRecipients(recipientsPage)}
+                  briefing={editing}
+                  t={t}
+                />
+              </TabPane>
+            </Tabs>
           </div>
         ) : null}
-      </SideSheet>
+      </Modal>
 
       <Modal
         title={t('触发 AI 前沿 Agent')}
@@ -671,6 +783,287 @@ const BriefingsTab = () => {
           </TabPane>
         </Tabs>
       </Modal>
+    </div>
+  );
+};
+
+const EditForm = ({ editForm, setEditForm, editing, t }) => (
+  <div
+    style={{
+      height: '100%',
+      overflowY: 'auto',
+      padding: '20px 24px',
+    }}
+  >
+    <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div>
+        <label style={{ fontSize: 13, fontWeight: 500 }}>{t('标题')}</label>
+        <Input
+          value={editForm.title}
+          onChange={(v) => setEditForm({ ...editForm, title: v })}
+          style={{ marginTop: 6 }}
+        />
+      </div>
+      <div>
+        <label style={{ fontSize: 13, fontWeight: 500 }}>{t('摘要')}</label>
+        <TextArea
+          value={editForm.summary}
+          onChange={(v) => setEditForm({ ...editForm, summary: v })}
+          autosize={{ minRows: 2, maxRows: 4 }}
+          style={{ marginTop: 6 }}
+        />
+      </div>
+      <div>
+        <label style={{ fontSize: 13, fontWeight: 500 }}>
+          {t('正文 (Markdown)')}
+        </label>
+        <TextArea
+          value={editForm.content}
+          onChange={(v) => setEditForm({ ...editForm, content: v })}
+          autosize={{ minRows: 18, maxRows: 40 }}
+          style={{ marginTop: 6, fontFamily: 'var(--font-mono)', fontSize: 13 }}
+        />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+        <div>
+          <label style={{ fontSize: 13, fontWeight: 500 }}>
+            {t('推送范围 (Plan IDs)')}
+          </label>
+          <Input
+            value={editForm.plan_ids_json}
+            onChange={(v) => setEditForm({ ...editForm, plan_ids_json: v })}
+            placeholder='[] 或 [1,2,3]'
+            style={{ marginTop: 6, fontFamily: 'var(--font-mono)' }}
+          />
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
+            {t('空 [] = 所有有活跃订阅的用户;[1,2,3] = 仅指定 plan。改完保存后切到“收件人”页查看实际推送列表。')}
+          </div>
+        </div>
+        <div>
+          <label style={{ fontSize: 13, fontWeight: 500 }}>{t('状态')}</label>
+          <Select
+            value={editForm.status}
+            onChange={(v) => setEditForm({ ...editForm, status: v })}
+            style={{ width: '100%', marginTop: 6 }}
+          >
+            <Select.Option value='draft'>draft · {t('草稿(待审核)')}</Select.Option>
+            <Select.Option value='approved'>approved · {t('已审核(可发送)')}</Select.Option>
+            <Select.Option value='archived'>archived · {t('归档(URL 可重新抓取)')}</Select.Option>
+          </Select>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.6 }}>
+            {t('archived 状态下 dedup 不会拦同一批 URL,可以重跑生成新草稿。')}
+          </div>
+        </div>
+      </div>
+      {editing.sources_json ? (
+        <div>
+          <label style={{ fontSize: 13, fontWeight: 500 }}>{t('来源')}</label>
+          <SourcesPreview json={editing.sources_json} />
+        </div>
+      ) : null}
+    </div>
+  </div>
+);
+
+const PreviewPane = ({ loading, html, subject, onRefresh, t }) => (
+  <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        padding: '12px 24px',
+        borderBottom: '1px solid var(--border-subtle)',
+        background: 'var(--bg-subtle, #fafafa)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+      }}
+    >
+      <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{t('邮件主题')}:</span>
+      <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>
+        {subject || '-'}
+      </span>
+      <div style={{ flex: 1 }} />
+      <Button size='small' icon={<IconRefresh />} onClick={onRefresh} loading={loading}>
+        {t('刷新预览')}
+      </Button>
+    </div>
+    <div style={{ flex: 1, overflow: 'hidden', background: '#f5f5f7', padding: 16 }}>
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+          <Spin />
+        </div>
+      ) : html ? (
+        <iframe
+          title='email preview'
+          srcDoc={html}
+          style={{
+            width: '100%',
+            height: '100%',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 8,
+            background: '#fff',
+          }}
+          sandbox=''
+        />
+      ) : (
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 48 }}>
+          {t('点击“刷新预览”加载邮件渲染结果')}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const RecipientsPane = ({
+  loading,
+  items,
+  total,
+  page,
+  search,
+  onSearchChange,
+  onSearchSubmit,
+  onPageChange,
+  onRefresh,
+  briefing,
+  t,
+}) => {
+  const cols = [
+    {
+      title: t('用户'),
+      dataIndex: 'username',
+      render: (v, r) => (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontWeight: 500, fontSize: 13 }}>
+            {r.display_name || v || `#${r.user_id}`}
+          </span>
+          {r.display_name && v ? (
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>@{v}</span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      title: t('邮箱'),
+      dataIndex: 'email',
+      render: (v) => (
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{v}</span>
+      ),
+    },
+    {
+      title: t('套餐'),
+      dataIndex: 'plan_name',
+      render: (v, r) => (
+        <Tag size='small'>
+          {v || `#${r.plan_id}`}
+        </Tag>
+      ),
+    },
+    {
+      title: t('到期时间'),
+      dataIndex: 'end_time',
+      render: (v) =>
+        v ? (
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            {new Date(v * 1000).toLocaleDateString()}
+          </span>
+        ) : (
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('永不')}</span>
+        ),
+    },
+    {
+      title: t('状态'),
+      dataIndex: 'already_sent',
+      width: 100,
+      render: (v) =>
+        v ? (
+          <Tag color='green' size='small'>
+            {t('已收到')}
+          </Tag>
+        ) : (
+          <Tag color='blue' size='small'>
+            {t('待发送')}
+          </Tag>
+        ),
+    },
+  ];
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          padding: '12px 24px',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'var(--bg-subtle, #fafafa)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          {t('共匹配')} <strong style={{ color: 'var(--text-primary)' }}>{total}</strong> {t('位用户')}
+          {briefing?.plan_ids_json && briefing.plan_ids_json !== '[]' ? (
+            <span style={{ marginLeft: 6 }}>
+              · {t('plan_ids')}: <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{briefing.plan_ids_json}</code>
+            </span>
+          ) : (
+            <span style={{ marginLeft: 6, color: 'var(--text-muted)' }}>· {t('所有活跃订阅')}</span>
+          )}
+        </span>
+        <div style={{ flex: 1 }} />
+        <Input
+          value={search}
+          onChange={onSearchChange}
+          onEnterPress={onSearchSubmit}
+          placeholder={t('搜索用户名 / 邮箱 / 显示名')}
+          style={{ width: 280 }}
+          showClear
+          onClear={() => {
+            onSearchChange('');
+            setTimeout(onSearchSubmit, 0);
+          }}
+        />
+        <Button size='small' icon={<IconRefresh />} onClick={onRefresh} loading={loading}>
+          {t('刷新')}
+        </Button>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+            <Spin />
+          </div>
+        ) : items.length === 0 ? (
+          <Empty
+            image={
+              <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+            }
+            darkModeImage={
+              <img src='/NoDataillustration.svg' style={{ width: 150, height: 150 }} />
+            }
+            title={t('没有匹配的收件人')}
+            description={t('当前的 plan_ids 没有匹配到任何活跃订阅用户。改一下推送范围或检查订阅状态。')}
+            style={{ padding: 30 }}
+          />
+        ) : (
+          <>
+            <Table
+              columns={cols}
+              dataSource={items}
+              rowKey='user_id'
+              pagination={false}
+              size='middle'
+            />
+            {total > 20 ? (
+              <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                <Pagination
+                  total={total}
+                  currentPage={page}
+                  pageSize={20}
+                  onPageChange={onPageChange}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
     </div>
   );
 };

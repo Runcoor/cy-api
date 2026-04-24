@@ -225,6 +225,8 @@ func SetApiRouter(router *gin.Engine) {
 			aiNewsAdminRoute.GET("/briefings/:id", controller.GetAINewsBriefing)
 			aiNewsAdminRoute.PUT("/briefings/:id", controller.UpdateAINewsBriefing)
 			aiNewsAdminRoute.DELETE("/briefings/:id", controller.DeleteAINewsBriefing)
+			aiNewsAdminRoute.GET("/briefings/:id/preview", controller.PreviewAINewsBriefing)
+			aiNewsAdminRoute.GET("/briefings/:id/recipients", controller.ListAINewsRecipients)
 
 			// Actions
 			aiNewsAdminRoute.POST("/trigger", controller.TriggerAINewsRun)

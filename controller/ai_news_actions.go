@@ -69,6 +69,60 @@ func TestAINewsLLM(c *gin.Context) {
 	common.ApiSuccess(c, result)
 }
 
+// PreviewAINewsBriefing returns the rendered HTML email body that subscribers
+// will receive for the given briefing. Used by the admin UI for live preview.
+func PreviewAINewsBriefing(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	br, err := model.GetAINewsBriefing(id)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	subject := ai_news.EmailSubjectFor(br)
+	bodyHTML := ai_news.BuildUserEmailHTML(br)
+	common.ApiSuccess(c, gin.H{
+		"subject": subject,
+		"html":    bodyHTML,
+	})
+}
+
+// ListAINewsRecipients returns the paginated list of users who would receive
+// the briefing (matching its plan_ids), with name + email + plan info +
+// already-sent flag. Used by the admin UI before clicking Send.
+func ListAINewsRecipients(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	br, err := model.GetAINewsBriefing(id)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+	search := c.Query("search")
+	planIds, _ := ai_news.ParsePlanIds(br.PlanIdsJSON)
+
+	items, total, err := ai_news.FindRecipientDetails(id, planIds, search, page, pageSize)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	common.ApiSuccess(c, gin.H{
+		"items":     items,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
+		"plan_ids":  planIds,
+	})
+}
+
 // SendAINewsBriefing dispatches a briefing by email to all eligible subscribers.
 // Synchronous so the admin gets immediate feedback on count.
 func SendAINewsBriefing(c *gin.Context) {

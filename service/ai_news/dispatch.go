@@ -9,6 +9,8 @@ import (
 
 	"github.com/runcoor/aggre-api/common"
 	"github.com/runcoor/aggre-api/model"
+
+	"gorm.io/gorm"
 )
 
 // SendBriefingToUsers delivers a briefing by email to every user with at least
@@ -77,6 +79,117 @@ type recipientUser struct {
 	Email string
 }
 
+// RecipientDetail is the richer per-user view used by the admin recipients
+// preview (name + plan info + already-sent flag, etc.).
+type RecipientDetail struct {
+	UserId       int    `json:"user_id"`
+	Username     string `json:"username"`
+	DisplayName  string `json:"display_name"`
+	Email        string `json:"email"`
+	PlanId       int    `json:"plan_id"`
+	PlanName     string `json:"plan_name"`
+	EndTime      int64  `json:"end_time"`
+	AlreadySent  bool   `json:"already_sent"`
+}
+
+// FindRecipientDetails returns the per-user list of recipients for a briefing,
+// joined with plan info. Used by the admin UI to preview who will receive it
+// before clicking Send.
+//
+// Pagination: page is 1-based; pageSize <= 0 means "no limit".
+func FindRecipientDetails(briefingId int, planIds []int, search string, page, pageSize int) ([]RecipientDetail, int64, error) {
+	q := model.DB.Table("user_subscriptions us").
+		Joins("JOIN users u ON u.id = us.user_id").
+		Joins("LEFT JOIN subscription_plans sp ON sp.id = us.plan_id").
+		Where("us.status = ?", "active").
+		Where("us.end_time = 0 OR us.end_time > ?", time.Now().Unix()).
+		Where("u.email <> ''").
+		Where("u.status = ?", 1)
+	if len(planIds) > 0 {
+		q = q.Where("us.plan_id IN ?", planIds)
+	}
+	if s := strings.TrimSpace(search); s != "" {
+		like := "%" + s + "%"
+		q = q.Where("u.username LIKE ? OR u.email LIKE ? OR u.display_name LIKE ?", like, like, like)
+	}
+
+	type row struct {
+		UserId      int
+		Username    string
+		DisplayName string
+		Email       string
+		PlanId      int
+		PlanName    string
+		EndTime     int64
+	}
+
+	// Distinct by user_id so a user with multiple matching subscriptions only
+	// appears once.
+	countQ := q.Session(&gorm.Session{})
+	var total int64
+	if err := countQ.Distinct("us.user_id").Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	dataQ := q.Select(
+		"us.user_id as user_id, " +
+			"u.username as username, " +
+			"u.display_name as display_name, " +
+			"u.email as email, " +
+			"us.plan_id as plan_id, " +
+			"COALESCE(sp.title, '') as plan_name, " +
+			"us.end_time as end_time",
+	).Order("us.user_id ASC")
+	if pageSize > 0 {
+		if page < 1 {
+			page = 1
+		}
+		dataQ = dataQ.Offset((page - 1) * pageSize).Limit(pageSize)
+	}
+
+	var rows []row
+	if err := dataQ.Scan(&rows).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Mark already-sent recipients (briefing-specific) so admin can see who
+	// will be skipped on the next dispatch.
+	sentMap := make(map[int]bool)
+	if briefingId > 0 && len(rows) > 0 {
+		ids := make([]int, 0, len(rows))
+		for _, r := range rows {
+			ids = append(ids, r.UserId)
+		}
+		var logs []model.AINewsSendLog
+		if err := model.DB.Where("briefing_id = ? AND error_msg = ? AND user_id IN ?", briefingId, "", ids).
+			Select("user_id").Find(&logs).Error; err == nil {
+			for _, l := range logs {
+				sentMap[l.UserId] = true
+			}
+		}
+	}
+
+	out := make([]RecipientDetail, 0, len(rows))
+	seen := make(map[int]bool)
+	for _, r := range rows {
+		if seen[r.UserId] {
+			continue
+		}
+		seen[r.UserId] = true
+		out = append(out, RecipientDetail{
+			UserId:      r.UserId,
+			Username:    r.Username,
+			DisplayName: r.DisplayName,
+			Email:       r.Email,
+			PlanId:      r.PlanId,
+			PlanName:    r.PlanName,
+			EndTime:     r.EndTime,
+			AlreadySent: sentMap[r.UserId],
+		})
+	}
+	return out, total, nil
+}
+
 // findEligibleUsers returns users with at least one active subscription matching
 // the given plan_ids. Empty planIds means "any active subscription qualifies".
 func findEligibleUsers(planIds []int) ([]recipientUser, error) {
@@ -106,6 +219,15 @@ func findEligibleUsers(planIds []int) ([]recipientUser, error) {
 	}
 	return out, nil
 }
+
+// ParsePlanIds is the exported alias used by the controller to introspect a
+// briefing's plan scope.
+func ParsePlanIds(jsonStr string) ([]int, error) { return parsePlanIds(jsonStr) }
+
+// EmailSubjectFor + BuildUserEmailHTML are exported for the preview endpoint
+// so the admin UI can show exactly what subscribers will receive.
+func EmailSubjectFor(b *model.AINewsBriefing) string { return emailSubjectFor(b) }
+func BuildUserEmailHTML(b *model.AINewsBriefing) string { return buildUserEmailHTML(b) }
 
 func parsePlanIds(jsonStr string) ([]int, error) {
 	jsonStr = strings.TrimSpace(jsonStr)
