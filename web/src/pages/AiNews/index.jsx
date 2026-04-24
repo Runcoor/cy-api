@@ -21,19 +21,34 @@ import React, { useState } from 'react';
 import { Tabs, TabPane } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 
+import { useIsMobile } from '../../hooks/common/useIsMobile';
 import SettingsTab from './SettingsTab';
 import SourcesTab from './SourcesTab';
 import BriefingsTab from './BriefingsTab';
+import MobileSettingsTab from './mobile/MobileSettingsTab';
+import MobileSourcesTab from './mobile/MobileSourcesTab';
+import MobileBriefingsTab from './mobile/MobileBriefingsTab';
 
 const AiNews = () => {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [active, setActive] = useState('briefings');
 
+  const Briefings = isMobile ? MobileBriefingsTab : BriefingsTab;
+  const Sources = isMobile ? MobileSourcesTab : SourcesTab;
+  const Settings = isMobile ? MobileSettingsTab : SettingsTab;
+
   return (
-    <div style={{ padding: '16px 24px', maxWidth: 1280, margin: '0 auto' }}>
+    <div
+      style={{
+        padding: isMobile ? '12px 12px 0' : '16px 24px',
+        maxWidth: 1280,
+        margin: '0 auto',
+      }}
+    >
       <h1
         style={{
-          fontSize: 24,
+          fontSize: isMobile ? 18 : 24,
           fontWeight: 700,
           letterSpacing: '-0.02em',
           color: 'var(--text-primary)',
@@ -42,18 +57,20 @@ const AiNews = () => {
       >
         {t('AI 前沿信息')}
       </h1>
-      <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 16 }}>
-        {t('Agent 每天采集 AI 资讯,生成深度分析与简单总结,经管理员审核后通过邮件分发给订阅用户')}
-      </p>
+      {!isMobile ? (
+        <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 16 }}>
+          {t('Agent 每天采集 AI 资讯,生成深度分析与简单总结,经管理员审核后通过邮件分发给订阅用户')}
+        </p>
+      ) : null}
       <Tabs type='line' activeKey={active} onChange={setActive}>
         <TabPane tab={t('简报')} itemKey='briefings'>
-          <BriefingsTab />
+          <Briefings />
         </TabPane>
         <TabPane tab={t('源管理')} itemKey='sources'>
-          <SourcesTab />
+          <Sources />
         </TabPane>
         <TabPane tab={t('设置')} itemKey='settings'>
-          <SettingsTab />
+          <Settings />
         </TabPane>
       </Tabs>
     </div>
