@@ -53,6 +53,22 @@ func GetAINewsRunStatus(c *gin.Context) {
 	})
 }
 
+// TestAINewsLLM fires a tiny LLM request to validate the configuration before
+// running a full agent cycle. Returns per-mode result so the admin can see
+// which endpoint(s) actually work for the configured model.
+//
+// Body (optional):
+//
+//	{ "model": "..." }    // overrides settings.LLMDeepModel for the test
+func TestAINewsLLM(c *gin.Context) {
+	var req struct {
+		Model string `json:"model"`
+	}
+	_ = c.ShouldBindJSON(&req)
+	result := ai_news.TestLLM(c.Request.Context(), req.Model)
+	common.ApiSuccess(c, result)
+}
+
 // SendAINewsBriefing dispatches a briefing by email to all eligible subscribers.
 // Synchronous so the admin gets immediate feedback on count.
 func SendAINewsBriefing(c *gin.Context) {

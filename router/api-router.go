@@ -229,6 +229,7 @@ func SetApiRouter(router *gin.Engine) {
 			// Actions
 			aiNewsAdminRoute.POST("/trigger", controller.TriggerAINewsRun)
 			aiNewsAdminRoute.GET("/run-status", controller.GetAINewsRunStatus)
+			aiNewsAdminRoute.POST("/test-llm", controller.TestAINewsLLM)
 			aiNewsAdminRoute.POST("/briefings/:id/send", controller.SendAINewsBriefing)
 		}
 

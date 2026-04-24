@@ -57,6 +57,11 @@ type responsesRequest struct {
 	Model           string              `json:"model"`
 	Input           []responsesInputMsg `json:"input"`
 	MaxOutputTokens *int                `json:"max_output_tokens,omitempty"`
+	Reasoning       *responsesReasoning `json:"reasoning,omitempty"`
+}
+
+type responsesReasoning struct {
+	Effort string `json:"effort,omitempty"` // minimal | low | medium | high
 }
 
 type responsesInputMsg struct {
@@ -94,8 +99,10 @@ type responsesResponse struct {
 //   - settings.LLMSource == "channel": resolve the channel by id and use its
 //     base URL + key the same way.
 //
-// Automatically routes to /v1/responses for reasoning-shaped model names
-// (unless LLMAPIMode overrides). maxTokens caps the upstream response.
+// Strategy: tries the preferred endpoint (chat or responses) per LLMAPIMode +
+// model-name auto-detect. If that returns an empty string (most common cause
+// of "successful but empty briefing"), automatically falls back to the other
+// endpoint before giving up. maxTokens caps the upstream response.
 func ChatComplete(ctx context.Context, modelName string, messages []ChatMessage, maxTokens int) (string, error) {
 	settings := system_setting.GetAINewsSettings()
 	baseURL, apiKey, err := resolveLLMEndpoint(settings)
@@ -106,10 +113,50 @@ func ChatComplete(ctx context.Context, modelName string, messages []ChatMessage,
 		return "", fmt.Errorf("model is required")
 	}
 
-	if pickAPIMode(settings.LLMAPIMode, modelName) == system_setting.AINewsAPIModeResponses {
-		return chatViaResponsesAPI(ctx, baseURL, apiKey, modelName, messages, maxTokens)
+	preferred := pickAPIMode(settings.LLMAPIMode, modelName)
+	allowFallback := strings.EqualFold(strings.TrimSpace(settings.LLMAPIMode), "") ||
+		strings.EqualFold(strings.TrimSpace(settings.LLMAPIMode), system_setting.AINewsAPIModeAuto)
+
+	first, firstErr := callOne(ctx, preferred, baseURL, apiKey, modelName, messages, maxTokens)
+	if firstErr == nil && strings.TrimSpace(first) != "" {
+		return first, nil
 	}
-	return chatViaChatCompletions(ctx, baseURL, apiKey, modelName, messages, maxTokens)
+	if !allowFallback {
+		if firstErr != nil {
+			return "", firstErr
+		}
+		return "", fmt.Errorf("LLM returned empty content via %s (no fallback because LLMAPIMode is fixed to %q)", preferred, settings.LLMAPIMode)
+	}
+
+	other := system_setting.AINewsAPIModeChat
+	if preferred == system_setting.AINewsAPIModeChat {
+		other = system_setting.AINewsAPIModeResponses
+	}
+	second, secondErr := callOne(ctx, other, baseURL, apiKey, modelName, messages, maxTokens)
+	if secondErr == nil && strings.TrimSpace(second) != "" {
+		return second, nil
+	}
+	combined := fmt.Errorf("both endpoints failed: [%s] %v ; [%s] %v",
+		preferred, formatErr(firstErr, first),
+		other, formatErr(secondErr, second),
+	)
+	return "", combined
+}
+
+func formatErr(err error, body string) string {
+	if err != nil {
+		return err.Error()
+	}
+	return "empty content (" + truncate(strings.TrimSpace(body), 200) + ")"
+}
+
+func callOne(ctx context.Context, mode, baseURL, apiKey, modelName string, messages []ChatMessage, maxTokens int) (string, error) {
+	switch mode {
+	case system_setting.AINewsAPIModeResponses:
+		return chatViaResponsesAPI(ctx, baseURL, apiKey, modelName, messages, maxTokens)
+	default:
+		return chatViaChatCompletions(ctx, baseURL, apiKey, modelName, messages, maxTokens)
+	}
 }
 
 func chatViaChatCompletions(ctx context.Context, baseURL, apiKey, modelName string, messages []ChatMessage, maxTokens int) (string, error) {
@@ -163,8 +210,21 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 		Model: modelName,
 		Input: input,
 	}
-	if maxTokens > 0 {
-		reqStruct.MaxOutputTokens = &maxTokens
+	// Bump max_output_tokens to leave room for both reasoning AND text output.
+	// Reasoning models can spend most of the budget thinking; if we cap too
+	// low the model "completes" with output: [].
+	effective := maxTokens
+	if isReasoningModel(modelName) && effective > 0 {
+		effective = effective * 4
+	}
+	if effective > 0 {
+		reqStruct.MaxOutputTokens = &effective
+	}
+	if isReasoningModel(modelName) {
+		// "low" lets the model spend most of the budget on actual output text
+		// instead of internal reasoning, which is what we want for summarizing
+		// already-curated content.
+		reqStruct.Reasoning = &responsesReasoning{Effort: "low"}
 	}
 	reqBody, err := common.Marshal(reqStruct)
 	if err != nil {
@@ -177,11 +237,11 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 		return "", err
 	}
 	if resp.StatusCode/100 != 2 {
-		return "", fmt.Errorf("LLM /v1/responses HTTP %d: %s", resp.StatusCode, truncate(string(body), 512))
+		return "", fmt.Errorf("LLM /v1/responses HTTP %d: %s", resp.StatusCode, truncate(string(body), 1500))
 	}
 	var parsed responsesResponse
 	if err := common.Unmarshal(body, &parsed); err != nil {
-		return "", fmt.Errorf("parse /v1/responses body: %w (body=%s)", err, truncate(string(body), 256))
+		return "", fmt.Errorf("parse /v1/responses body: %w (body=%s)", err, truncate(string(body), 512))
 	}
 	if parsed.Error != nil {
 		return "", fmt.Errorf("LLM error: %s", parsed.Error.Message)
@@ -212,9 +272,28 @@ func chatViaResponsesAPI(ctx context.Context, baseURL, apiKey, modelName string,
 	}
 	text := strings.TrimSpace(sb.String())
 	if text == "" {
-		return "", fmt.Errorf("LLM /v1/responses returned no output_text (body=%s)", truncate(string(body), 512))
+		return "", responsesEmptyError(parsed, body, modelName)
 	}
 	return text, nil
+}
+
+// responsesEmptyError builds a clear error when /v1/responses returns
+// status=completed with output: []. The most common cause is reasoning
+// consuming the entire output budget.
+func responsesEmptyError(parsed responsesResponse, body []byte, modelName string) error {
+	bodyTail := truncate(string(body), 1500)
+	hint := ""
+	if parsed.Usage != nil {
+		out := parsed.Usage.OutputTokens
+		reasoning := 0
+		if parsed.Usage.OutputTokensDetails != nil {
+			reasoning = parsed.Usage.OutputTokensDetails.ReasoningTokens
+		}
+		if out > 0 && reasoning >= out-50 {
+			hint = fmt.Sprintf(" — output_tokens=%d 几乎全部用于 reasoning (%d),没留给文本输出。模型 %s 可能不接受 reasoning.effort 参数,或者 max_output_tokens 太小。试试在 AI 前沿设置里把模型换成非 reasoning 模型。", out, reasoning, modelName)
+		}
+	}
+	return fmt.Errorf("LLM /v1/responses returned no output_text%s (body=%s)", hint, bodyTail)
 }
 
 func doLLMHTTP(ctx context.Context, endpoint, apiKey string, reqBody []byte) (*http.Response, []byte, error) {

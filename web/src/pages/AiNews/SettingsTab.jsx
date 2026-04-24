@@ -50,6 +50,8 @@ const SettingsTab = () => {
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState(null);
   const [channels, setChannels] = useState([]);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
 
   const loadSettings = async () => {
     setLoading(true);
@@ -84,6 +86,23 @@ const SettingsTab = () => {
     loadSettings();
     loadChannels();
   }, []);
+
+  const onTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const res = await API.post('/api/ai-news/admin/test-llm', {});
+      if (res?.data?.success) {
+        setTestResult(res.data.data);
+      } else {
+        showError(res?.data?.message || t('测试失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setTesting(false);
+    }
+  };
 
   const onSave = async () => {
     if (!settings) return;
@@ -261,7 +280,7 @@ const SettingsTab = () => {
         </div>
       </Field>
 
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
         <Button
           theme='solid'
           type='primary'
@@ -270,7 +289,77 @@ const SettingsTab = () => {
         >
           {t('保存设置')}
         </Button>
+        <Button loading={testing} onClick={onTest}>
+          {t('测试 LLM')}
+        </Button>
       </div>
+
+      {testResult ? (
+        <div
+          style={{
+            marginTop: 16,
+            padding: 12,
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 8,
+            background: 'var(--bg-subtle, #fafafa)',
+          }}
+        >
+          <div style={{ fontSize: 13, marginBottom: 8 }}>
+            {t('测试模型')}: <strong>{testResult.model || '-'}</strong>
+            {' · '}
+            {t('Base URL')}: <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{testResult.base_url || '-'}</span>
+            {' · '}
+            {t('优先模式')}: <strong>{testResult.preferred_mode}</strong>
+            {testResult.is_reasoning ? (
+              <span style={{ marginLeft: 8, color: 'var(--text-muted)', fontSize: 12 }}>
+                ({t('检测为 reasoning 模型')})
+              </span>
+            ) : null}
+          </div>
+          <TestEndpointResult label='/v1/chat/completions' data={testResult.chat} t={t} />
+          <TestEndpointResult label='/v1/responses' data={testResult.responses} t={t} />
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const TestEndpointResult = ({ label, data, t }) => {
+  if (!data?.tried) return null;
+  const ok = !!data.ok;
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        padding: 10,
+        borderRadius: 6,
+        background: ok
+          ? 'var(--semi-color-success-light-default, #f0fdf4)'
+          : 'var(--semi-color-danger-light-default, #fef2f2)',
+        border: `1px solid ${ok ? 'var(--semi-color-success-light-active, #bbf7d0)' : 'var(--semi-color-danger-light-active, #fecaca)'}`,
+      }}
+    >
+      <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
+        {ok ? '✓ ' : '✗ '} {label}
+        {' · '}
+        <span style={{ color: 'var(--text-muted)' }}>{data.duration}</span>
+      </div>
+      {ok ? (
+        <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+          {t('回复')}: {data.reply}
+        </div>
+      ) : (
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--semi-color-danger, #dc2626)',
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'var(--font-mono)',
+          }}
+        >
+          {data.error}
+        </div>
+      )}
     </div>
   );
 };
