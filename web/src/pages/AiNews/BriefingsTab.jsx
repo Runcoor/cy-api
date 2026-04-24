@@ -33,7 +33,7 @@ import {
   Tag,
   TextArea,
 } from '@douyinfe/semi-ui';
-import { IconRefresh, IconSend, IconPlusCircle, IconDelete, IconClose } from '@douyinfe/semi-icons';
+import { IconRefresh, IconSend, IconPlusCircle, IconDelete, IconClose, IconImage, IconDownload } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import { API, showError, showSuccess } from '../../helpers';
 
@@ -121,6 +121,13 @@ const BriefingsTab = () => {
   const [triggerArticles, setTriggerArticles] = useState([
     { title: '', url: '', content: '' },
   ]);
+
+  // Social-publish modal state
+  const [socialVisible, setSocialVisible] = useState(false);
+  const [socialBriefing, setSocialBriefing] = useState(null);
+  const [socialPost, setSocialPost] = useState(null);
+  const [socialLoading, setSocialLoading] = useState(false);
+  const [socialGenerating, setSocialGenerating] = useState(false);
 
   const loadRunStatus = async () => {
     try {
@@ -394,6 +401,51 @@ const BriefingsTab = () => {
     }
   };
 
+  const openSocial = async (record) => {
+    setSocialBriefing(record);
+    setSocialPost(null);
+    setSocialVisible(true);
+    setSocialLoading(true);
+    try {
+      const res = await API.get(`/api/ai-news/admin/briefings/${record.id}/social`);
+      if (res?.data?.success) {
+        setSocialPost(res.data.data?.exists ? res.data.data.post : null);
+      }
+    } catch (e) {
+      // first-time open: no row yet — fine
+    } finally {
+      setSocialLoading(false);
+    }
+  };
+
+  const generateSocialPost = async () => {
+    if (!socialBriefing) return;
+    setSocialGenerating(true);
+    try {
+      const res = await API.post(
+        `/api/ai-news/admin/briefings/${socialBriefing.id}/social`,
+      );
+      if (res?.data?.success) {
+        setSocialPost(res.data.data);
+        showSuccess(t('生成完成'));
+      } else {
+        showError(res?.data?.message || t('生成失败'));
+      }
+    } catch (e) {
+      showError(e);
+    } finally {
+      setSocialGenerating(false);
+    }
+  };
+
+  const downloadSocialZip = () => {
+    if (!socialBriefing) return;
+    window.open(
+      `/api/ai-news/admin/briefings/${socialBriefing.id}/social/zip`,
+      '_blank',
+    );
+  };
+
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60 },
     {
@@ -450,16 +502,27 @@ const BriefingsTab = () => {
     },
     {
       title: '',
-      width: 80,
+      width: 180,
       render: (_, record) => (
-        <Popconfirm
-          title={t('确认删除?')}
-          onConfirm={() => onDelete(record.id)}
-        >
-          <Button size='small' type='danger'>
-            {t('删除')}
-          </Button>
-        </Popconfirm>
+        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+          {record.type === 'deep' ? (
+            <Button
+              size='small'
+              icon={<IconImage />}
+              onClick={() => openSocial(record)}
+            >
+              {t('发布')}
+            </Button>
+          ) : null}
+          <Popconfirm
+            title={t('确认删除?')}
+            onConfirm={() => onDelete(record.id)}
+          >
+            <Button size='small' type='danger'>
+              {t('删除')}
+            </Button>
+          </Popconfirm>
+        </div>
       ),
     },
   ];
@@ -787,6 +850,18 @@ const BriefingsTab = () => {
           </TabPane>
         </Tabs>
       </Modal>
+
+      <SocialPostModal
+        visible={socialVisible}
+        briefing={socialBriefing}
+        post={socialPost}
+        loading={socialLoading}
+        generating={socialGenerating}
+        onClose={() => setSocialVisible(false)}
+        onGenerate={generateSocialPost}
+        onDownload={downloadSocialZip}
+        t={t}
+      />
     </div>
   );
 };
@@ -1316,6 +1391,322 @@ const SourcesPreview = ({ json }) => {
         </li>
       ))}
     </ol>
+  );
+};
+
+const SOCIAL_KIND_LABELS = {
+  image_only: '纯图卡片 (4-9 张)',
+  text_image: '图文笔记 (2-3 张)',
+};
+
+const SocialPostModal = ({
+  visible,
+  briefing,
+  post,
+  loading,
+  generating,
+  onClose,
+  onGenerate,
+  onDownload,
+  t,
+}) => {
+  const hasPost = !!post;
+  const isBusy = loading || generating;
+  return (
+    <Modal
+      visible={visible}
+      onCancel={onClose}
+      width='min(960px, 92vw)'
+      height='85vh'
+      footer={null}
+      closeOnEsc
+      title={null}
+      header={null}
+      bodyStyle={{ padding: 0, height: '85vh', overflow: 'hidden' }}
+      style={{ borderRadius: 12, overflow: 'hidden' }}
+    >
+      {!briefing ? null : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: 'var(--surface, #fff)',
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '14px 20px',
+              borderBottom: '1px solid var(--border-subtle)',
+            }}
+          >
+            <Tag color='violet' size='small'>
+              {t('社交发布')}
+            </Tag>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+              #{briefing.id}
+            </span>
+            <span
+              style={{
+                fontSize: 13,
+                color: 'var(--text-primary)',
+                fontWeight: 500,
+                marginLeft: 8,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: 360,
+              }}
+            >
+              {briefing.title}
+            </span>
+            <div style={{ flex: 1 }} />
+            {hasPost ? (
+              <>
+                <Button
+                  icon={<IconDownload />}
+                  theme='solid'
+                  type='primary'
+                  onClick={onDownload}
+                >
+                  {t('下载 ZIP')}
+                </Button>
+                <Popconfirm
+                  title={t('重新生成会替换现有图片,是否继续?')}
+                  onConfirm={onGenerate}
+                >
+                  <Button icon={<IconRefresh />} loading={generating}>
+                    {t('重新生成')}
+                  </Button>
+                </Popconfirm>
+              </>
+            ) : null}
+            <Button
+              icon={<IconClose />}
+              theme='borderless'
+              onClick={onClose}
+            />
+          </div>
+
+          {/* Body */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+            {isBusy ? (
+              <SocialLoadingPane generating={generating} t={t} />
+            ) : !hasPost ? (
+              <SocialEmptyPane onGenerate={onGenerate} t={t} />
+            ) : (
+              <SocialReadyPane post={post} t={t} />
+            )}
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+const SocialLoadingPane = ({ generating, t }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
+      padding: 60,
+      color: 'var(--text-muted)',
+    }}
+  >
+    <Spin size='large' />
+    <div style={{ fontSize: 14 }}>
+      {generating
+        ? t('正在调用 LLM 改写 + 生成配图,大约 30 秒到 3 分钟...')
+        : t('加载中...')}
+    </div>
+    {generating ? (
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', maxWidth: 480, textAlign: 'center', lineHeight: 1.6 }}>
+        {t('完成后可在此预览,并下载 ZIP 包(包含图片 + 文案 + 元信息),手动上传至小红书。')}
+      </div>
+    ) : null}
+  </div>
+);
+
+const SocialEmptyPane = ({ onGenerate, t }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 20,
+      padding: 60,
+    }}
+  >
+    <IconImage size='extra-large' style={{ color: 'var(--text-muted)' }} />
+    <div style={{ fontSize: 15, color: 'var(--text-primary)' }}>
+      {t('尚未生成社交帖')}
+    </div>
+    <div
+      style={{
+        fontSize: 13,
+        color: 'var(--text-muted)',
+        maxWidth: 520,
+        textAlign: 'center',
+        lineHeight: 1.7,
+      }}
+    >
+      {t('点击下方按钮:LLM 会判断这条简报适合"图文笔记"还是"纯图卡片",改写为小红书风格文案,并通过你配置的图像生成接口生成至少 2 张配图。')}
+    </div>
+    <Button
+      theme='solid'
+      type='primary'
+      icon={<IconImage />}
+      onClick={onGenerate}
+      size='large'
+    >
+      {t('生成')}
+    </Button>
+    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+      {t('未配置图像生成接口?去 设置 tab 填写 Base URL / API Key / 模型')}
+    </div>
+  </div>
+);
+
+const SocialReadyPane = ({ post, t }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 760, margin: '0 auto' }}>
+    {/* Meta strip */}
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Tag color={post.kind === 'image_only' ? 'orange' : 'cyan'} size='small'>
+        {t(SOCIAL_KIND_LABELS[post.kind] || post.kind)}
+      </Tag>
+      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+        {(post.images || []).length} {t('张图')}
+      </span>
+      <div style={{ flex: 1 }} />
+      <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+        {t('生成于')} {new Date((post.updated_at || post.created_at) * 1000).toLocaleString()}
+      </span>
+    </div>
+
+    {/* Title */}
+    <div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
+        {t('标题')}
+      </div>
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          padding: '12px 14px',
+          background: 'var(--bg-subtle, #fafafa)',
+          borderRadius: 8,
+          border: '1px solid var(--border-subtle)',
+        }}
+      >
+        {post.title}
+      </div>
+    </div>
+
+    {/* Body */}
+    <div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
+        {t('正文')}
+      </div>
+      <div
+        style={{
+          padding: '14px 16px',
+          background: 'var(--bg-subtle, #fafafa)',
+          borderRadius: 8,
+          border: '1px solid var(--border-subtle)',
+          whiteSpace: 'pre-wrap',
+          fontSize: 13,
+          lineHeight: 1.7,
+          color: 'var(--text-primary)',
+        }}
+      >
+        {post.body}
+      </div>
+    </div>
+
+    {/* Tags */}
+    {(post.tags || []).length > 0 ? (
+      <div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
+          {t('话题标签')}
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {post.tags.map((tag, i) => (
+            <Tag key={i} color='blue' size='small'>
+              #{tag.replace(/^#/, '')}
+            </Tag>
+          ))}
+        </div>
+      </div>
+    ) : null}
+
+    {/* Images */}
+    <div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
+        {t('配图')} ({(post.images || []).length})
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {(post.images || []).map((img) => (
+          <SocialImageCard key={img.position} img={img} t={t} />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const SocialImageCard = ({ img, t }) => {
+  const src = `/api/ai-news/admin/social/images/${img.rel_path}`;
+  return (
+    <div
+      style={{
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 8,
+        overflow: 'hidden',
+        background: 'var(--surface, #fff)',
+      }}
+    >
+      <div style={{ aspectRatio: '1 / 1', background: '#f5f5f5' }}>
+        <img
+          src={src}
+          alt={img.caption || `image ${img.position}`}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+      </div>
+      <div style={{ padding: '8px 10px' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 500 }}>
+          {img.position}. {img.caption || t('未命名')}
+        </div>
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--text-muted)',
+            marginTop: 4,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+          }}
+          title={img.prompt}
+        >
+          {img.prompt}
+        </div>
+      </div>
+    </div>
   );
 };
 

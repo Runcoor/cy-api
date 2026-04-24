@@ -233,6 +233,12 @@ func SetApiRouter(router *gin.Engine) {
 			aiNewsAdminRoute.GET("/run-status", controller.GetAINewsRunStatus)
 			aiNewsAdminRoute.POST("/test-llm", controller.TestAINewsLLM)
 			aiNewsAdminRoute.POST("/briefings/:id/send", controller.SendAINewsBriefing)
+
+			// Social-publish (xiaohongshu) — generate copy + images for one briefing
+			aiNewsAdminRoute.GET("/briefings/:id/social", controller.GetAINewsSocialPost)
+			aiNewsAdminRoute.POST("/briefings/:id/social", controller.GenerateAINewsSocialPost)
+			aiNewsAdminRoute.GET("/briefings/:id/social/zip", controller.DownloadAINewsSocialPostZIP)
+			aiNewsAdminRoute.GET("/social/images/*filepath", controller.ServeAINewsSocialImage)
 		}
 
 		// Subscription payment callbacks (no auth)

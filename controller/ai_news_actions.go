@@ -163,3 +163,80 @@ func SendAINewsBriefing(c *gin.Context) {
 		"failed": failed,
 	})
 }
+
+// GetAINewsSocialPost returns the existing social-post draft for a briefing
+// or {exists: false} if it hasn't been generated yet.
+func GetAINewsSocialPost(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	post, err := ai_news.GetSocialPostForBriefing(id)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	if post == nil {
+		common.ApiSuccess(c, gin.H{"exists": false})
+		return
+	}
+	common.ApiSuccess(c, gin.H{"exists": true, "post": post})
+}
+
+// GenerateAINewsSocialPost runs the LLM rewrite + image generation pipeline
+// synchronously. Slow (~30s-3min). UI should show a spinner.
+func GenerateAINewsSocialPost(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	if err := ai_news.PreflightCheckImageGen(); err != nil {
+		common.ApiErrorMsg(c, err.Error())
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Minute)
+	defer cancel()
+	post, err := ai_news.GenerateSocialPost(ctx, id)
+	if err != nil {
+		common.ApiErrorMsg(c, err.Error())
+		return
+	}
+	common.ApiSuccess(c, post)
+}
+
+// DownloadAINewsSocialPostZIP streams the packaged ZIP (caption + meta + images).
+func DownloadAINewsSocialPostZIP(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	if id <= 0 {
+		common.ApiErrorMsg(c, "invalid id")
+		return
+	}
+	data, filename, err := ai_news.BuildSocialPostZIP(id)
+	if err != nil {
+		common.ApiErrorMsg(c, err.Error())
+		return
+	}
+	c.Header("Content-Type", "application/zip")
+	c.Header("Content-Disposition", `attachment; filename="`+filename+`"`)
+	c.Header("Content-Length", strconv.Itoa(len(data)))
+	c.Data(200, "application/zip", data)
+}
+
+// ServeAINewsSocialImage serves one stored image for the admin preview UI.
+// Path is the rel_path stored in DB. Path-traversal is blocked by
+// ai_news.ResolveStoredImagePath.
+func ServeAINewsSocialImage(c *gin.Context) {
+	rel := strings.TrimPrefix(c.Param("filepath"), "/")
+	if rel == "" {
+		common.ApiErrorMsg(c, "invalid path")
+		return
+	}
+	abs, err := ai_news.ResolveStoredImagePath(rel)
+	if err != nil {
+		common.ApiErrorMsg(c, "invalid path")
+		return
+	}
+	c.File(abs)
+}

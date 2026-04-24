@@ -36,6 +36,12 @@ type AINewsSettings struct {
 	// models that drop content during chat-completions conversion.
 	LLMAPIMode string `json:"llm_api_mode"`
 
+	// Image generation (used by "publish to social" feature). OpenAI-compatible
+	// /v1/images/generations endpoint. Empty BaseURL disables the feature.
+	ImageGenBaseURL string `json:"image_gen_base_url"` // e.g. http://172.17.0.1:8317
+	ImageGenAPIKey  string `json:"image_gen_api_key"`
+	ImageGenModel   string `json:"image_gen_model"` // e.g. gpt-image-2
+
 	// Preview/admin
 	AdminPreviewEmails []string `json:"admin_preview_emails"`
 
@@ -54,6 +60,7 @@ var (
 		LLMSource:      AINewsLLMSourceChannel,
 		LLMDeepModel:   "claude-opus-4-7",
 		LLMSimpleModel: "claude-haiku-4-5",
+		ImageGenModel:  "gpt-image-2",
 		CronEnabled:    false,
 		CronHour:       9,
 		CronMinute:     0,
@@ -87,6 +94,9 @@ func GetAINewsSettings() AINewsSettings {
 		}
 		if out.LLMSimpleModel == "" {
 			out.LLMSimpleModel = aiNewsDefaults.LLMSimpleModel
+		}
+		if out.ImageGenModel == "" {
+			out.ImageGenModel = aiNewsDefaults.ImageGenModel
 		}
 	}
 

@@ -234,6 +234,48 @@ const SettingsTab = () => {
         </RadioGroup>
       </Field>
 
+      <div
+        style={{
+          marginTop: 24,
+          marginBottom: 12,
+          paddingTop: 16,
+          borderTop: '1px solid var(--border-subtle)',
+          fontSize: 13,
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+        }}
+      >
+        {t('图像生成接口 (用于发布社交平台)')}
+      </div>
+
+      <Field
+        label={t('图像生成 Base URL')}
+        hint={t('OpenAI 兼容的 /v1/images/generations 端点,留空则禁用社交发布功能')}
+      >
+        <Input
+          value={settings.image_gen_base_url || ''}
+          onChange={(v) => update({ image_gen_base_url: v })}
+          placeholder='http://172.17.0.1:8317'
+        />
+      </Field>
+
+      <Field label={t('图像生成 API Key')}>
+        <Input
+          value={settings.image_gen_api_key || ''}
+          onChange={(v) => update({ image_gen_api_key: v })}
+          placeholder='sk-...'
+          mode='password'
+        />
+      </Field>
+
+      <Field label={t('图像生成模型')} hint={t('如 gpt-image-2 / dall-e-3 / stable-diffusion-3')}>
+        <Input
+          value={settings.image_gen_model || ''}
+          onChange={(v) => update({ image_gen_model: v })}
+          placeholder='gpt-image-2'
+        />
+      </Field>
+
       <Field
         label={t('管理员预览邮箱')}
         hint={t('生成草稿后会发邮件到这些地址,逗号分隔')}

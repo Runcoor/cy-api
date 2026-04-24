@@ -115,6 +115,7 @@ func main() {
 
 	// AI news daily agent (no-op until enabled in admin settings)
 	ai_news.StartCron()
+	ai_news.StartCleanup()
 
 	// Wire task polling adaptor factory (breaks service -> relay import cycle)
 	service.GetTaskAdaptorFunc = func(platform constant.TaskPlatform) service.TaskPollingAdaptor {
