@@ -15,13 +15,40 @@
       "tier": {
         "free": "体验版",
         "paid": "按量付费",
-        "enterprise": "用量优惠 / 专属支持"
+        "enterprise": "用量优惠 / 专属支持",
+        "starter": "STARTER",
+        "pro": "PRO",
+        "ultra": "ULTRA"
+      },
+      "popular": "最受欢迎",
+      "subscribe": "立即订阅",
+      "loading": "套餐加载中…",
+      "loadError": "套餐加载失败",
+      "empty": "暂无可用套餐",
+      "gift": "赠送 {{amount}} 等额 Token",
+      "save": "省 {{pct}}%",
+      "unit": {
+        "day": "天",
+        "week": "周",
+        "month": "月",
+        "year": "年",
+        "custom": "周期"
+      },
+      "useCase": {
+        "starter": "AI 资讯日报 · 每日 3 分钟速读",
+        "pro": "AI 行业深度分析 · 持续追踪",
+        "ultra": "战略洞察 + 历史归档 + 月度回顾"
+      },
+      "audience": {
+        "starter": "个人尝鲜 / 学生 / 普通读者",
+        "pro": "行业从业者 / 产品经理 / 工程师",
+        "ultra": "决策者 / 投资人 / 团队负责人"
       },
       "hero": {
-        "kicker": "灵活定价 · 按需付费",
-        "title1": "适合每个规模的",
-        "title2": "精准计费",
-        "desc": "无需订阅,无需承诺。仅需 ¥1 即可体验部分模型,正式使用按实际消耗结算。规模上来后享受用量阶梯优惠和专属技术支持。"
+        "kicker": "订阅赠送 Token · 即开即用",
+        "title1": "选一份订阅",
+        "title2": "解锁所有模型",
+        "desc": "AI 内容订阅,赠送等额 Token。一份订阅同时获得每日精选内容与所有主流模型(GPT / Claude / Gemini / Grok)的调用额度,简单透明。"
       },
       "free": {
         "title": "1元试用",
@@ -58,37 +85,21 @@
         "cta": "联系销售"
       },
       "compare": {
-        "title": "深度功能对比",
-        "feature": "功能项",
-        "modelAccess": "可用模型",
-        "modelAccess_free": "部分基础模型",
-        "modelAccess_paid": "全部主流模型",
-        "modelAccess_enterprise": "无限制 + 自定义部署",
-        "requestLimit": "请求频率",
-        "requestLimit_free": "标准限速",
-        "requestLimit_paid": "高并发",
-        "requestLimit_enterprise": "无限并发",
-        "contextWindow": "上下文窗口",
-        "contextWindow_paid": "全量(最高 1M)",
-        "contextWindow_enterprise": "全量 + 缓存优化",
-        "support": "技术支持",
-        "support_free": "社区论坛",
-        "support_paid": "邮件优先",
-        "support_enterprise": "专属客户经理",
-        "discount": "用量折扣",
-        "discount_paid": "充值阶梯优惠",
-        "discount_enterprise": "最高 30%+ 折扣",
-        "sla": "SLA 保障",
-        "sla_paid": "标准服务",
-        "api": "API 访问",
-        "api_free": "标准 API",
-        "api_paid": "完整 API + 流式",
-        "api_enterprise": "完整 API + 私有化"
+        "title": "套餐对比",
+        "feature": "对比项",
+        "row": {
+          "price": "套餐价格",
+          "duration": "订阅周期",
+          "gift": "赠送 Token 等额",
+          "group": "升级会员组",
+          "useCase": "内容服务",
+          "audience": "适合人群"
+        }
       },
       "cta": {
         "title": "准备好开始了吗?",
-        "desc": "几秒钟创建账号,仅需 1 元即可体验所有基础模型。无需任何承诺。",
-        "primary": "1元试用",
+        "desc": "选一份适合你的订阅,赠送等额 Token,所有主流模型即开即用。",
+        "primary": "选择套餐",
         "primaryAuth": "前往控制台",
         "secondary": "联系我们"
       }

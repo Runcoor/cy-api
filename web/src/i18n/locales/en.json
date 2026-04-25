@@ -15,13 +15,39 @@
       "tier": {
         "free": "Starter",
         "paid": "Pay As You Go",
-        "enterprise": "Volume / Dedicated"
+        "enterprise": "Volume / Dedicated",
+        "starter": "STARTER",
+        "pro": "PRO",
+        "ultra": "ULTRA"
+      },
+      "subscribe": "Subscribe",
+      "loading": "Loading plans…",
+      "loadError": "Failed to load plans",
+      "empty": "No plans available yet",
+      "gift": "{{amount}} in token credits included",
+      "save": "Save {{pct}}%",
+      "unit": {
+        "day": "day",
+        "week": "week",
+        "month": "month",
+        "year": "year",
+        "custom": "period"
+      },
+      "useCase": {
+        "starter": "Daily 3-min AI digest",
+        "pro": "Daily AI deep-dive · ongoing tracking",
+        "ultra": "Strategic insight + archive + monthly review"
+      },
+      "audience": {
+        "starter": "Casual readers / students",
+        "pro": "Practitioners / PMs / engineers",
+        "ultra": "Decision-makers / investors / team leads"
       },
       "hero": {
-        "kicker": "Flexible · Pay only for what you use",
-        "title1": "Precision Pricing",
-        "title2": "for Every Scale",
-        "desc": "No subscription, no commitment. Try selected models for just ¥1, then pay strictly per actual usage. Scale up to unlock volume discounts and dedicated technical support."
+        "kicker": "Subscription · Token credits included",
+        "title1": "One subscription,",
+        "title2": "all the models",
+        "desc": "Subscribe to AI editorial content and get an equivalent token credit you can spend on any major model (GPT / Claude / Gemini / Grok). Simple, transparent, instantly usable."
       },
       "free": {
         "title": "¥1 Trial",
@@ -58,37 +84,21 @@
         "cta": "Contact Sales"
       },
       "compare": {
-        "title": "Deep Feature Comparison",
-        "feature": "Feature",
-        "modelAccess": "Model Access",
-        "modelAccess_free": "Selected base models",
-        "modelAccess_paid": "All flagship models",
-        "modelAccess_enterprise": "Unlimited + custom deploy",
-        "requestLimit": "Request Limit",
-        "requestLimit_free": "Standard",
-        "requestLimit_paid": "High concurrency",
-        "requestLimit_enterprise": "Unlimited",
-        "contextWindow": "Context Window",
-        "contextWindow_paid": "Full (up to 1M)",
-        "contextWindow_enterprise": "Full + cache optimization",
-        "support": "Support",
-        "support_free": "Community",
-        "support_paid": "Priority email",
-        "support_enterprise": "Dedicated manager",
-        "discount": "Volume Discount",
-        "discount_paid": "Tiered top-up",
-        "discount_enterprise": "Up to 30%+",
-        "sla": "SLA",
-        "sla_paid": "Standard",
-        "api": "API Access",
-        "api_free": "Standard API",
-        "api_paid": "Full API + streaming",
-        "api_enterprise": "Full API + on-prem"
+        "title": "Plan Comparison",
+        "feature": "Item",
+        "row": {
+          "price": "Price",
+          "duration": "Billing period",
+          "gift": "Token credits included",
+          "group": "Member group",
+          "useCase": "Content delivered",
+          "audience": "Best for"
+        }
       },
       "cta": {
-        "title": "Ready to evolve your workflow?",
-        "desc": "Create your account in seconds and try every base model for just ¥1. No commitment.",
-        "primary": "Try for ¥1",
+        "title": "Ready to get started?",
+        "desc": "Pick the subscription that fits — token credits included, every major model unlocked.",
+        "primary": "Choose a plan",
         "primaryAuth": "Go to Console",
         "secondary": "Contact Us"
       }

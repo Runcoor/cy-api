@@ -174,10 +174,15 @@ func SetApiRouter(router *gin.Engine) {
 		}
 
 		// Subscription billing (plans, purchase, admin management)
+		// /plans is intentionally outside the UserAuth group: the public
+		// pricing page (/plans on the frontend) needs to render plan cards
+		// to anonymous visitors. Only enabled plans are returned and the
+		// payload contains no user-specific data.
+		apiRouter.GET("/subscription/plans", controller.GetSubscriptionPlans)
+
 		subscriptionRoute := apiRouter.Group("/subscription")
 		subscriptionRoute.Use(middleware.UserAuth())
 		{
-			subscriptionRoute.GET("/plans", controller.GetSubscriptionPlans)
 			subscriptionRoute.GET("/self", controller.GetSubscriptionSelf)
 			subscriptionRoute.PUT("/self/preference", controller.UpdateSubscriptionPreference)
 			subscriptionRoute.POST("/epay/pay", middleware.CriticalRateLimit(), controller.SubscriptionRequestEpay)
