@@ -1,6 +1,12 @@
 services:
   aggre-api:
-    image: aggre-api:latest
+    # Production deploys pull this prebuilt image from GHCR (built by
+    # .github/workflows/deploy.yml on push to main). The VPS itself never
+    # runs `docker compose build` — it would OOM on the bun frontend build.
+    # Override AGGRE_API_IMAGE to pin a specific tag (e.g. sha-…) for rollback.
+    image: ${AGGRE_API_IMAGE:-ghcr.io/runcoor/aggre-api:latest}
+    # Local dev / CI fallback only — not used by the production deploy path.
+    # `docker compose build` will still rebuild and tag this image locally.
     build:
       context: .
       dockerfile: Dockerfile
