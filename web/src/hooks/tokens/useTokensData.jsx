@@ -66,6 +66,23 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
   // Search state — controlled by the card-layout filter bar
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Tab + group filter (for the enterprise table redesign)
+  // statusFilter: '' | 'active' | 'disabled' | 'expired' | 'exhausted'
+  const [statusFilter, setStatusFilter] = useState('');
+  const [groupFilter, setGroupFilter] = useState('');
+
+  // Aggregated stats for the metric strip + tab counts
+  const [stats, setStats] = useState(null);
+  const loadStats = async () => {
+    try {
+      const res = await API.get('/api/token/stats');
+      const { success, data } = res.data || {};
+      if (success && data) setStats(data);
+    } catch (_) {
+      // stats are non-critical — silent failure
+    }
+  };
+
   // Close edit modal
   const closeEdit = () => {
     setShowEdit(false);
@@ -86,10 +103,21 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
   };
 
   // Load tokens function
-  const loadTokens = async (page = 1, size = pageSize) => {
+  const loadTokens = async (
+    page = 1,
+    size = pageSize,
+    statusOverride = undefined,
+    groupOverride = undefined,
+  ) => {
     setLoading(true);
     setSearchMode(false);
-    const res = await API.get(`/api/token/?p=${page}&size=${size}`);
+    const status =
+      statusOverride !== undefined ? statusOverride : statusFilter;
+    const group = groupOverride !== undefined ? groupOverride : groupFilter;
+    const params = new URLSearchParams({ p: String(page), size: String(size) });
+    if (status) params.set('status', status);
+    if (group) params.set('group', group);
+    const res = await API.get(`/api/token/?${params.toString()}`);
     const { success, message, data } = res.data;
     if (success) {
       syncPageData(data);
@@ -97,6 +125,8 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
       showError(message);
     }
     setLoading(false);
+    // refresh stats alongside list — counts may have shifted
+    loadStats();
   };
 
   // Refresh function
@@ -457,6 +487,14 @@ export const useTokensData = (openFluentNotification, openCCSwitchModal) => {
     // Search state — card-layout filter bar
     searchQuery,
     setSearchQuery,
+
+    // Filters + stats (enterprise redesign)
+    statusFilter,
+    setStatusFilter,
+    groupFilter,
+    setGroupFilter,
+    stats,
+    loadStats,
 
     // Functions
     loadTokens,

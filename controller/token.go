@@ -34,15 +34,44 @@ func buildMaskedTokenResponses(tokens []*model.Token) []*model.Token {
 func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	pageInfo := common.GetPageQuery(c)
-	tokens, err := model.GetAllUserTokens(userId, pageInfo.GetStartIdx(), pageInfo.GetPageSize())
+
+	statusKey := strings.ToLower(strings.TrimSpace(c.Query("status")))
+	groupFilter := strings.TrimSpace(c.Query("group"))
+
+	// Fast path — no filters: keep the original two-query behaviour so
+	// nothing changes for legacy callers.
+	if statusKey == "" && groupFilter == "" {
+		tokens, err := model.GetAllUserTokens(userId, pageInfo.GetStartIdx(), pageInfo.GetPageSize())
+		if err != nil {
+			common.ApiError(c, err)
+			return
+		}
+		total, _ := model.CountUserTokens(userId)
+		pageInfo.SetTotal(int(total))
+		pageInfo.SetItems(buildMaskedTokenResponses(tokens))
+		common.ApiSuccess(c, pageInfo)
+		return
+	}
+
+	tokens, total, err := model.GetUserTokensFiltered(userId, statusKey, groupFilter,
+		pageInfo.GetStartIdx(), pageInfo.GetPageSize())
 	if err != nil {
 		common.ApiError(c, err)
 		return
 	}
-	total, _ := model.CountUserTokens(userId)
 	pageInfo.SetTotal(int(total))
 	pageInfo.SetItems(buildMaskedTokenResponses(tokens))
 	common.ApiSuccess(c, pageInfo)
+}
+
+func GetTokenStats(c *gin.Context) {
+	userId := c.GetInt("id")
+	stats, err := model.GetUserTokenStats(userId)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	common.ApiSuccess(c, stats)
 }
 
 func SearchTokens(c *gin.Context) {

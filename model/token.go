@@ -85,6 +85,112 @@ func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
 	return tokens, err
 }
 
+// GetUserTokensFiltered returns paged tokens for a user with optional
+// status and group filters. statusKey is one of "" (no filter), "active",
+// "disabled", "expired" (status=3 OR (status=1 AND expired_time<now)),
+// or "exhausted". group is matched exactly when non-empty.
+func GetUserTokensFiltered(userId int, statusKey string, group string, startIdx int, num int) ([]*Token, int64, error) {
+	q := DB.Model(&Token{}).Where("user_id = ?", userId)
+
+	now := common.GetTimestamp()
+	switch statusKey {
+	case "active":
+		// status=1 AND (expired_time = -1 OR expired_time > now)
+		q = q.Where("status = ? AND (expired_time = ? OR expired_time > ?)",
+			common.TokenStatusEnabled, int64(-1), now)
+	case "disabled":
+		q = q.Where("status = ?", common.TokenStatusDisabled)
+	case "expired":
+		// either explicitly marked expired, or active but past expiry
+		q = q.Where("status = ? OR (status = ? AND expired_time <> ? AND expired_time <= ?)",
+			common.TokenStatusExpired, common.TokenStatusEnabled, int64(-1), now)
+	case "exhausted":
+		q = q.Where("status = ?", common.TokenStatusExhausted)
+	}
+
+	if group != "" {
+		q = q.Where(commonGroupCol+" = ?", group)
+	}
+
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var tokens []*Token
+	if err := q.Order("id desc").Offset(startIdx).Limit(num).Find(&tokens).Error; err != nil {
+		return nil, 0, err
+	}
+	return tokens, total, nil
+}
+
+// UserTokenStats summarises a user's tokens for the management UI metric
+// strip. Computed by reading just the lightweight columns (bounded by the
+// per-user max-tokens cap) and tallying in Go — keeps the SQL portable
+// across SQLite / MySQL / PostgreSQL.
+type UserTokenStats struct {
+	Total          int   `json:"total"`
+	Active         int   `json:"active"`
+	Disabled       int   `json:"disabled"`
+	Expired        int   `json:"expired"`
+	Exhausted      int   `json:"exhausted"`
+	NearQuota      int   `json:"near_quota"`     // active, !unlimited, remain/(used+remain) < 15%
+	ExpiringSoon   int   `json:"expiring_soon"`  // active, expires within 7 days
+	NeedAttention  int   `json:"need_attention"` // NearQuota + ExpiringSoon
+	TotalUsedQuota int64 `json:"total_used_quota"`
+	TotalRemain    int64 `json:"total_remain_quota"`
+}
+
+func GetUserTokenStats(userId int) (*UserTokenStats, error) {
+	type row struct {
+		Status         int
+		UnlimitedQuota bool
+		RemainQuota    int
+		UsedQuota      int
+		ExpiredTime    int64
+	}
+	var rows []row
+	err := DB.Model(&Token{}).
+		Where("user_id = ?", userId).
+		Select("status, unlimited_quota, remain_quota, used_quota, expired_time").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	now := common.GetTimestamp()
+	expSoon := now + 7*24*60*60
+	s := &UserTokenStats{}
+	for _, r := range rows {
+		s.Total++
+		s.TotalUsedQuota += int64(r.UsedQuota)
+		s.TotalRemain += int64(r.RemainQuota)
+
+		expiredByTime := r.ExpiredTime != -1 && r.ExpiredTime <= now
+
+		switch {
+		case r.Status == common.TokenStatusExpired || (r.Status == common.TokenStatusEnabled && expiredByTime):
+			s.Expired++
+		case r.Status == common.TokenStatusDisabled:
+			s.Disabled++
+		case r.Status == common.TokenStatusExhausted:
+			s.Exhausted++
+		case r.Status == common.TokenStatusEnabled:
+			s.Active++
+			if !r.UnlimitedQuota && (r.UsedQuota+r.RemainQuota) > 0 {
+				if r.RemainQuota*100 < (r.UsedQuota+r.RemainQuota)*15 {
+					s.NearQuota++
+				}
+			}
+			if r.ExpiredTime != -1 && r.ExpiredTime > now && r.ExpiredTime <= expSoon {
+				s.ExpiringSoon++
+			}
+		}
+	}
+	s.NeedAttention = s.NearQuota + s.ExpiringSoon
+	return s, nil
+}
+
 // sanitizeLikePattern 校验并清洗用户输入的 LIKE 搜索模式。
 // 规则：
 //  1. 转义 ! 和 _（使用 ! 作为 ESCAPE 字符，兼容 MySQL/PostgreSQL/SQLite）
