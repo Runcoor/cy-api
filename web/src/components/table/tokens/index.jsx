@@ -18,6 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Notification,
   Button,
@@ -356,6 +357,45 @@ const PAGE_STYLES = `
   font-size: 12px;
 }
 .aks-menu.left { right: auto; left: 0; }
+/* portal-rendered row menu — escapes table-card overflow:hidden */
+.aks-menu-portal {
+  position: fixed;
+  min-width: 180px; background: white;
+  border: 1px solid var(--aks-line); border-radius: 8px;
+  box-shadow: 0 8px 24px -6px rgba(11,26,43,0.15);
+  padding: 4px; z-index: 1100;
+  font-size: 12px;
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --aks-blue-1: #0072ff;
+  --aks-grad: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+  --aks-grad-soft: linear-gradient(135deg, rgba(0,114,255,0.08) 0%, rgba(0,198,255,0.08) 100%);
+  --aks-ink-700: #2a3a4d;
+  --aks-ink-400: #8593a3;
+  --aks-line: #e8edf3;
+  --aks-danger: #ef5b5b;
+}
+.aks-menu-portal .aks-menu-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 5px; cursor: pointer; color: var(--aks-ink-700);
+  user-select: none;
+}
+.aks-menu-portal .aks-menu-item:hover { background: var(--aks-grad-soft); color: var(--aks-blue-1); }
+.aks-menu-portal .aks-menu-item.danger { color: var(--aks-danger); }
+.aks-menu-portal .aks-menu-item.danger:hover { background: rgba(239,91,91,0.06); }
+.aks-menu-portal .aks-menu-divider { height: 1px; background: var(--aks-line); margin: 4px 2px; }
+.aks-menu-portal .aks-menu-section-label { font-size: 10px; color: var(--aks-ink-400); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; padding: 6px 10px 4px; }
+@media (prefers-color-scheme: dark) {
+  .aks-menu-portal[data-theme='auto'] {
+    background: #131c27; border-color: #1f2a37;
+    --aks-ink-700: #c4ccd5;
+    --aks-line: #1f2a37;
+  }
+}
+.aks-menu-portal[data-theme='dark'] {
+  background: #131c27; border-color: #1f2a37;
+  --aks-ink-700: #c4ccd5;
+  --aks-line: #1f2a37;
+}
 .aks-menu-item {
   display: flex; align-items: center; gap: 8px;
   padding: 7px 10px; border-radius: 5px; cursor: pointer; color: var(--aks-ink-700);
@@ -638,6 +678,10 @@ function TokensPage() {
 
   /* ─── Local state ─── */
   const [openMenuId, setOpenMenuId] = useState(null);
+  // Row More menu — rendered via portal so it escapes the table-card's
+  // overflow:hidden / overflow-x:auto clipping. Stored as
+  // {record, top, right} when a button is clicked.
+  const [rowMenu, setRowMenu] = useState(null);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -675,11 +719,21 @@ function TokensPage() {
     setSearchInput(searchQuery || '');
   }, [searchQuery]);
 
-  /* Close menus on outside click */
+  /* Close menus on outside click + on scroll/resize for the row menu */
   useEffect(() => {
-    const onDocClick = () => setOpenMenuId(null);
+    const onDocClick = () => {
+      setOpenMenuId(null);
+      setRowMenu(null);
+    };
+    const onScrollOrResize = () => setRowMenu(null);
     document.addEventListener('click', onDocClick);
-    return () => document.removeEventListener('click', onDocClick);
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    return () => {
+      document.removeEventListener('click', onDocClick);
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
   }, []);
 
   /* ⌘K / Ctrl+K focuses search */
@@ -992,7 +1046,20 @@ function TokensPage() {
 
   const handleRowMore = (e, record) => {
     e.stopPropagation();
-    setOpenMenuId(openMenuId === `row-${record.id}` ? null : `row-${record.id}`);
+    if (rowMenu && rowMenu.record.id === record.id) {
+      setRowMenu(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const menuWidth = 200; // approximate; right-anchored
+    const menuMaxHeight = 360;
+    // Right-align to the button; flip upward when not enough room below.
+    const top =
+      rect.bottom + menuMaxHeight > window.innerHeight - 8
+        ? rect.top - menuMaxHeight - 4
+        : rect.bottom + 4;
+    const left = Math.max(8, rect.right - menuWidth);
+    setRowMenu({ record, top, left });
   };
 
   const handleEdit = (record) => {
@@ -1453,71 +1520,17 @@ function TokensPage() {
                         {record.expired_time === -1 ? t('永不过期') : timestamp2string(record.expired_time)}
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <div className='aks-dd-wrap' onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type='button'
-                            className='aks-icon-btn flat'
-                            style={{ width: 26, height: 26 }}
-                            onClick={(e) => handleRowMore(e, record)}
-                            aria-label={t('更多')}
-                          >
-                            <I.More />
-                          </button>
-                          {openMenuId === `row-${record.id}` && (
-                            <div className='aks-menu' onClick={(e) => e.stopPropagation()}>
-                              <div
-                                className='aks-menu-item'
-                                onClick={() => { setOpenMenuId(null); copyTokenKey(record); }}
-                              >
-                                <I.Copy /> {t('复制密钥')}
-                              </div>
-                              <div
-                                className='aks-menu-item'
-                                onClick={() => { setOpenMenuId(null); copyTokenConnectionString(record); }}
-                              >
-                                <I.Copy /> {t('复制连接信息')}
-                              </div>
-                              {chatLinks.length > 0 && (
-                                <>
-                                  <div className='aks-menu-divider' />
-                                  <div className='aks-menu-section-label'>{t('聊天')}</div>
-                                  {chatLinks.map((c, i) => (
-                                    <div
-                                      key={i}
-                                      className='aks-menu-item'
-                                      onClick={() => {
-                                        setOpenMenuId(null);
-                                        onOpenLink(c.name, c.value, record);
-                                      }}
-                                    >
-                                      <I.Comment /> {c.name}
-                                    </div>
-                                  ))}
-                                </>
-                              )}
-                              <div className='aks-menu-divider' />
-                              <div
-                                className='aks-menu-item'
-                                onClick={() => { setOpenMenuId(null); handleEdit(record); }}
-                              >
-                                <I.Edit /> {t('编辑')}
-                              </div>
-                              <div
-                                className='aks-menu-item'
-                                onClick={() => handleToggleStatus(record)}
-                              >
-                                <I.Power /> {record.status === 1 ? t('禁用') : t('启用')}
-                              </div>
-                              <div className='aks-menu-divider' />
-                              <div
-                                className='aks-menu-item danger'
-                                onClick={() => handleDelete(record)}
-                              >
-                                <I.Trash /> {t('删除')}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <button
+                          type='button'
+                          className='aks-icon-btn flat'
+                          style={{ width: 26, height: 26 }}
+                          onClick={(e) => handleRowMore(e, record)}
+                          aria-label={t('更多')}
+                          aria-haspopup='menu'
+                          aria-expanded={rowMenu?.record.id === record.id}
+                        >
+                          <I.More />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -1570,6 +1583,70 @@ function TokensPage() {
           )}
         </div>
       </div>
+
+      {/* Row More menu — portal so it isn't clipped by table-card overflow */}
+      {rowMenu &&
+        createPortal(
+          <div
+            className='aks-menu-portal'
+            data-theme='auto'
+            style={{ top: rowMenu.top, left: rowMenu.left }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className='aks-menu-item'
+              onClick={() => { setRowMenu(null); copyTokenKey(rowMenu.record); }}
+            >
+              <I.Copy /> {t('复制密钥')}
+            </div>
+            <div
+              className='aks-menu-item'
+              onClick={() => { setRowMenu(null); copyTokenConnectionString(rowMenu.record); }}
+            >
+              <I.Copy /> {t('复制连接信息')}
+            </div>
+            {chatLinks.length > 0 && (
+              <>
+                <div className='aks-menu-divider' />
+                <div className='aks-menu-section-label'>{t('聊天')}</div>
+                {chatLinks.map((c, i) => (
+                  <div
+                    key={i}
+                    className='aks-menu-item'
+                    onClick={() => {
+                      const r = rowMenu.record;
+                      setRowMenu(null);
+                      onOpenLink(c.name, c.value, r);
+                    }}
+                  >
+                    <I.Comment /> {c.name}
+                  </div>
+                ))}
+              </>
+            )}
+            <div className='aks-menu-divider' />
+            <div
+              className='aks-menu-item'
+              onClick={() => { const r = rowMenu.record; setRowMenu(null); handleEdit(r); }}
+            >
+              <I.Edit /> {t('编辑')}
+            </div>
+            <div
+              className='aks-menu-item'
+              onClick={() => { const r = rowMenu.record; setRowMenu(null); handleToggleStatus(r); }}
+            >
+              <I.Power /> {rowMenu.record.status === 1 ? t('禁用') : t('启用')}
+            </div>
+            <div className='aks-menu-divider' />
+            <div
+              className='aks-menu-item danger'
+              onClick={() => { const r = rowMenu.record; setRowMenu(null); handleDelete(r); }}
+            >
+              <I.Trash /> {t('删除')}
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* Modals */}
       <EditTokenModal
