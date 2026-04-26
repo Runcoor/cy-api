@@ -541,7 +541,7 @@ const PricingPage = () => {
     t,
   } = pricingData;
 
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('card');
   const [sortBy, setSortBy] = useState('default');
 
   // Compute prices for the visible models so we can sort/render uniformly.
@@ -1082,14 +1082,16 @@ const PAGE_CSS = `
 }
 
 .aml-price-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.aml-price-cell .label { font-size: 11px; color: var(--aml-ink-400); font-weight: 500; }
+.aml-price-cell .label { font-size: 10.5px; color: var(--aml-ink-400); font-weight: 500; }
 .aml-price-cell .value {
-  font-size: 14px; font-weight: 600;
+  font-size: 12px; font-weight: 600;
   background: var(--aml-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
   font-feature-settings: "tnum";
   white-space: nowrap;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: -0.01em;
 }
-.aml-price-cell .unit { font-size: 10px; color: var(--aml-ink-400); margin-left: 1px; font-weight: 500; }
+.aml-price-cell .unit { font-size: 9.5px; color: var(--aml-ink-400); margin-left: 1px; font-weight: 500; font-family: 'JetBrains Mono', ui-monospace, monospace; }
 .aml-price-cell.muted .value { background: none; -webkit-text-fill-color: var(--aml-ink-300); color: var(--aml-ink-300); }
 .aml-price-cell.percall .label {
   display: inline-flex; align-items: center; gap: 4px;
@@ -1112,20 +1114,28 @@ const PAGE_CSS = `
 .aml-tag.alt { background: var(--aml-line-soft); color: var(--aml-ink-500); border-color: transparent; }
 
 .aml-row-actions { display: flex; align-items: center; gap: 8px; }
-.aml-checkbox {
+/* Checkbox — selectors are scoped under .aml-root with extra specificity
+   so they out-rank the .aml-root button reset (border:none; background:none)
+   that would otherwise erase the box outline and surface. */
+.aml-root button.aml-checkbox {
   width: 18px; height: 18px; border-radius: 4px;
   border: 1.5px solid #94a3b8;
   display: inline-flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all .12s;
-  background: white;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,1);
+  background: #ffffff;
   flex: none; padding: 0;
 }
-.aml-checkbox:hover { border-color: var(--aml-blue-1); background: var(--aml-grad-soft); }
-.aml-checkbox.checked { background: var(--aml-grad); border-color: transparent; }
-.aml-checkbox.checked svg { color: white; }
-.aml-checkbox svg { opacity: 0; transition: opacity .12s; }
-.aml-checkbox.checked svg { opacity: 1; }
+.aml-root button.aml-checkbox:hover {
+  border-color: var(--aml-blue-1);
+  background: linear-gradient(135deg, rgba(0,114,255,0.08), rgba(0,198,255,0.08));
+}
+.aml-root button.aml-checkbox.checked {
+  background: var(--aml-grad);
+  border-color: transparent;
+}
+.aml-root button.aml-checkbox.checked svg { color: white; }
+.aml-root button.aml-checkbox svg { opacity: 0; transition: opacity .12s; }
+.aml-root button.aml-checkbox.checked svg { opacity: 1; }
 
 .aml-btn-primary {
   background: var(--aml-grad); color: white;
@@ -1168,7 +1178,12 @@ const PAGE_CSS = `
 .aml-card-item:hover { border-color: rgba(0,114,255,0.25); box-shadow: 0 4px 14px -6px rgba(0,114,255,0.18); }
 .aml-card-head { display: flex; gap: 12px; align-items: flex-start; }
 .aml-card-head .info { flex: 1; min-width: 0; }
-.aml-card-head .name { font-size: 15px; font-weight: 600; }
+.aml-card-head .name {
+  font-size: 13.5px; font-weight: 600;
+  word-break: break-all; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .aml-card-head .desc {
   font-size: 12px; color: var(--aml-ink-500); margin-top: 4px; line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
