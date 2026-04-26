@@ -37,6 +37,8 @@ export default function SettingsCreditLimit(props) {
     PreConsumedQuota: '',
     QuotaForInviter: '',
     QuotaForInvitee: '',
+    AffTierEnabled: false,
+    AffTiers: '',
     'quota_setting.enable_free_model_pre_consume': true,
   });
   const refForm = useRef();
@@ -180,6 +182,41 @@ export default function SettingsCreditLimit(props) {
                     setInputs({
                       ...inputs,
                       'quota_setting.enable_free_model_pre_consume': value,
+                    })
+                  }
+                />
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.Switch
+                  label={t('启用邀请阶梯奖励')}
+                  field={'AffTierEnabled'}
+                  extraText={t(
+                    '启用后，用户邀请人数命中下方阶梯时一次性追加奖励到邀请额度',
+                  )}
+                  onChange={(value) =>
+                    setInputs({
+                      ...inputs,
+                      AffTierEnabled: value,
+                    })
+                  }
+                />
+              </Col>
+              <Col xs={24} sm={24} md={16} lg={16} xl={16}>
+                <Form.TextArea
+                  label={t('阶梯奖励配置 (JSON)')}
+                  field={'AffTiers'}
+                  rows={3}
+                  extraText={t(
+                    '格式：[{"count":3,"bonus":1000000}, ...]，bonus 为 quota（500000 = $1）',
+                  )}
+                  placeholder='[{"count":3,"bonus":1000000},{"count":10,"bonus":5000000},{"count":25,"bonus":15000000},{"count":50,"bonus":40000000}]'
+                  onChange={(value) =>
+                    setInputs({
+                      ...inputs,
+                      AffTiers: value,
                     })
                   }
                 />

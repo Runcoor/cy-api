@@ -103,6 +103,13 @@ var TelegramBotName = ""
 var QuotaForNewUser = 0
 var QuotaForInviter = 0
 var QuotaForInvitee = 0
+
+// 邀请阶梯奖励 — 当邀请人数达到某个里程碑时一次性发放额外奖励到 AffQuota。
+// 默认关闭，admin 可在运营设置启用。AffTiers 为 JSON：
+//   [{"count": 3, "bonus": 1000000}, ...]
+// bonus 单位 = quota（按 PriceRatio = 500000/$1，1000000 = $2）。
+var AffTierEnabled = false
+var AffTiers = `[{"count":3,"bonus":1000000},{"count":10,"bonus":5000000},{"count":25,"bonus":15000000},{"count":50,"bonus":40000000}]`
 var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
 var AutomaticEnableChannelEnabled = false

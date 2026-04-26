@@ -17,379 +17,125 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   API,
+  copy,
   showError,
-  showInfo,
   showSuccess,
   renderQuota,
-  renderQuotaWithAmount,
-  copy,
   getQuotaPerUnit,
 } from '../../helpers';
-import { Modal, Toast, Tooltip } from '@douyinfe/semi-ui';
-import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../context/User';
-import { StatusContext } from '../../context/Status';
 
-import { Wallet, BarChart2, Zap, Receipt, Crown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import InvitationCard from './InvitationCard';
 import TransferModal from './modals/TransferModal';
-import PaymentConfirmModal from './modals/PaymentConfirmModal';
 import TopupHistoryModal from './modals/TopupHistoryModal';
 
-const WALLET_STYLES = `
-@keyframes wallet-pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,114,255,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(0,114,255,0); }
-}
-.wallet-recharge-btn {
-  animation: wallet-pulse-glow 2.5s ease-in-out infinite;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.wallet-recharge-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  animation: none;
-  box-shadow: 0 8px 24px rgba(0,114,255,0.3);
-}
-`;
+import BalanceHero from './parts/BalanceHero';
+import HealthCard from './parts/HealthCard';
+import BillingPreference from './parts/BillingPreference';
+import EarningsCard from './parts/EarningsCard';
+import SpendTrend from './parts/SpendTrend';
+import { WalIcons as I, WalletPageStyles } from './_shared/WalletPageStyles';
+
+const QUOTA_PER_USD = 500000; // mirror backend QuotaPerUnit
+const quotaToUsd = (q) => (Number(q) || 0) / QUOTA_PER_USD;
+
+const startOfMonthTs = () => {
+  const d = new Date();
+  return Math.floor(
+    new Date(d.getFullYear(), d.getMonth(), 1).getTime() / 1000,
+  );
+};
+const startOfPrevMonthTs = () => {
+  const d = new Date();
+  return Math.floor(
+    new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime() / 1000,
+  );
+};
 
 const TopUp = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [userState, userDispatch] = useContext(UserContext);
-  const [statusState] = useContext(StatusContext);
 
-  const [redemptionCode, setRedemptionCode] = useState('');
-  const [amount, setAmount] = useState(0.0);
-  const [minTopUp, setMinTopUp] = useState(statusState?.status?.min_topup || 1);
-  const [topUpCount, setTopUpCount] = useState(
-    statusState?.status?.min_topup || 1,
-  );
-  const [topUpLink, setTopUpLink] = useState(
-    statusState?.status?.top_up_link || '',
-  );
-  const [enableOnlineTopUp, setEnableOnlineTopUp] = useState(
-    statusState?.status?.enable_online_topup || false,
-  );
-  const [priceRatio, setPriceRatio] = useState(statusState?.status?.price || 1);
-
-  const [enableStripeTopUp, setEnableStripeTopUp] = useState(
-    statusState?.status?.enable_stripe_topup || false,
-  );
-  const [statusLoading, setStatusLoading] = useState(true);
-
-  // Creem 相关状态
-  const [creemProducts, setCreemProducts] = useState([]);
-  const [enableCreemTopUp, setEnableCreemTopUp] = useState(false);
-  const [creemOpen, setCreemOpen] = useState(false);
-  const [selectedCreemProduct, setSelectedCreemProduct] = useState(null);
-
-  // Waffo 相关状态
-  const [enableWaffoTopUp, setEnableWaffoTopUp] = useState(false);
-  const [waffoPayMethods, setWaffoPayMethods] = useState([]);
-  const [waffoMinTopUp, setWaffoMinTopUp] = useState(1);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [payWay, setPayWay] = useState('');
-  const [amountLoading, setAmountLoading] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [payMethods, setPayMethods] = useState([]);
-
-  const affFetchedRef = useRef(false);
-
-  // 邀请相关状态
-  const [affLink, setAffLink] = useState('');
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
-
-  // 账单Modal状态
   const [openHistory, setOpenHistory] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // 订阅相关
-  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
-  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [affLink, setAffLink] = useState('');
+  const affFetchedRef = useRef(false);
+
   const [billingPreference, setBillingPreference] =
     useState('subscription_first');
   const [activeSubscriptions, setActiveSubscriptions] = useState([]);
-  const [allSubscriptions, setAllSubscriptions] = useState([]);
 
-  // 预设充值额度选项
-  const [presetAmounts, setPresetAmounts] = useState([]);
-  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [totalTopupUsd, setTotalTopupUsd] = useState(0);
+  const [topupCount, setTopupCount] = useState(0);
+  const [monthTopupUsd, setMonthTopupUsd] = useState(0);
+  const [monthConsumeUsd, setMonthConsumeUsd] = useState(0);
+  const [prevMonthConsumeUsd, setPrevMonthConsumeUsd] = useState(0);
+  const [totalUsedUsd, setTotalUsedUsd] = useState(0);
 
-  // 充值配置信息
-  const [topupInfo, setTopupInfo] = useState({
-    amount_options: [],
-    discount: {},
+  const [range, setRange] = useState('30d');
+  const [spendByDay, setSpendByDay] = useState([]);
+
+  const [tierData, setTierData] = useState({
+    enabled: false,
+    current_count: 0,
+    tiers: [],
   });
 
-  const topUp = async () => {
-    if (redemptionCode === '') {
-      showInfo(t('请输入兑换码！'));
-      return;
-    }
-    setIsSubmitting(true);
+  const notificationThresholdLabel = useMemo(() => {
     try {
-      const res = await API.post('/api/user/topup', {
-        key: redemptionCode,
-      });
-      const { success, message, data } = res.data;
-      if (success) {
-        showSuccess(t('兑换成功！'));
-        Modal.success({
-          title: t('兑换成功！'),
-          content: t('成功兑换额度：') + renderQuota(data),
-          centered: true,
-        });
-        if (userState.user) {
-          const updatedUser = {
-            ...userState.user,
-            quota: userState.user.quota + data,
-          };
-          userDispatch({ type: 'login', payload: updatedUser });
-        }
-        setRedemptionCode('');
-      } else {
-        showError(message);
-      }
-    } catch (err) {
-      showError(t('请求失败'));
-    } finally {
-      setIsSubmitting(false);
+      const setting = userState?.user?.setting
+        ? JSON.parse(userState.user.setting)
+        : {};
+      const v = setting.quota_warning_threshold;
+      if (!v) return null;
+      return `$${(Number(v) / QUOTA_PER_USD).toFixed(2)}`;
+    } catch {
+      return null;
     }
-  };
+  }, [userState?.user?.setting]);
 
-  const openTopUpLink = () => {
-    if (!topUpLink) {
-      showError(t('超级管理员未设置充值链接！'));
-      return;
-    }
-    window.open(topUpLink, '_blank');
-  };
+  const monthDelta = monthTopupUsd - monthConsumeUsd;
+  const monthDeltaPct =
+    prevMonthConsumeUsd > 0
+      ? ((monthConsumeUsd - prevMonthConsumeUsd) / prevMonthConsumeUsd) * 100
+      : null;
 
-  const preTopUp = async (payment) => {
-    if (payment === 'stripe') {
-      if (!enableStripeTopUp) {
-        showError(t('管理员未开启Stripe充值！'));
-        return;
-      }
-    } else {
-      if (!enableOnlineTopUp) {
-        showError(t('管理员未开启在线充值！'));
-        return;
-      }
-    }
-
-    setPayWay(payment);
-    setPaymentLoading(true);
-    try {
-      if (payment === 'stripe') {
-        await getStripeAmount();
-      } else {
-        await getAmount();
-      }
-
-      if (topUpCount < minTopUp) {
-        showError(t('充值数量不能小于') + minTopUp);
-        return;
-      }
-      setOpen(true);
-    } catch (error) {
-      showError(t('获取金额失败'));
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
-
-  const onlineTopUp = async () => {
-    if (payWay === 'stripe') {
-      // Stripe 支付处理
-      if (amount === 0) {
-        await getStripeAmount();
-      }
-    } else {
-      // 普通支付处理
-      if (amount === 0) {
-        await getAmount();
-      }
-    }
-
-    if (topUpCount < minTopUp) {
-      showError('充值数量不能小于' + minTopUp);
-      return;
-    }
-    setConfirmLoading(true);
-    try {
-      let res;
-      if (payWay === 'stripe') {
-        // Stripe 支付请求
-        res = await API.post('/api/user/stripe/pay', {
-          amount: parseInt(topUpCount),
-          payment_method: 'stripe',
-        });
-      } else {
-        // 普通支付请求
-        res = await API.post('/api/user/pay', {
-          amount: parseInt(topUpCount),
-          payment_method: payWay,
-        });
-      }
-
-      if (res !== undefined) {
-        const { message, data } = res.data;
-        if (message === 'success') {
-          if (payWay === 'stripe') {
-            // Stripe 支付回调处理
-            window.open(data.pay_link, '_blank');
-          } else {
-            // 普通支付表单提交
-            let params = data;
-            let url = res.data.url;
-            let form = document.createElement('form');
-            form.action = url;
-            form.method = 'POST';
-            let isSafari =
-              navigator.userAgent.indexOf('Safari') > -1 &&
-              navigator.userAgent.indexOf('Chrome') < 1;
-            if (!isSafari) {
-              form.target = '_blank';
-            }
-            for (let key in params) {
-              let input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = params[key];
-              form.appendChild(input);
-            }
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-          }
-        } else {
-          const errorMsg =
-            typeof data === 'string' ? data : message || t('支付失败');
-          showError(errorMsg);
-        }
-      } else {
-        showError(res);
-      }
-    } catch (err) {
-      showError(t('支付请求失败'));
-    } finally {
-      setOpen(false);
-      setConfirmLoading(false);
-    }
-  };
-
-  const creemPreTopUp = async (product) => {
-    if (!enableCreemTopUp) {
-      showError(t('管理员未开启 Creem 充值！'));
-      return;
-    }
-    setSelectedCreemProduct(product);
-    setCreemOpen(true);
-  };
-
-  const onlineCreemTopUp = async () => {
-    if (!selectedCreemProduct) {
-      showError(t('请选择产品'));
-      return;
-    }
-    // Validate product has required fields
-    if (!selectedCreemProduct.productId) {
-      showError(t('产品配置错误，请联系管理员'));
-      return;
-    }
-    setConfirmLoading(true);
-    try {
-      const res = await API.post('/api/user/creem/pay', {
-        product_id: selectedCreemProduct.productId,
-        payment_method: 'creem',
-      });
-      if (res !== undefined) {
-        const { message, data } = res.data;
-        if (message === 'success') {
-          processCreemCallback(data);
-        } else {
-          const errorMsg =
-            typeof data === 'string' ? data : message || t('支付失败');
-          showError(errorMsg);
-        }
-      } else {
-        showError(res);
-      }
-    } catch (err) {
-      showError(t('支付请求失败'));
-    } finally {
-      setCreemOpen(false);
-      setConfirmLoading(false);
-    }
-  };
-
-  const waffoTopUp = async (payMethodIndex) => {
-    try {
-        if (topUpCount < waffoMinTopUp) {
-            showError(t('充值数量不能小于') + waffoMinTopUp);
-            return;
-        }
-        setPaymentLoading(true);
-        const requestBody = {
-            amount: parseInt(topUpCount),
-        };
-        if (payMethodIndex != null) {
-            requestBody.pay_method_index = payMethodIndex;
-        }
-        const res = await API.post('/api/user/waffo/pay', requestBody);
-        if (res !== undefined) {
-            const { message, data } = res.data;
-            if (message === 'success' && data?.payment_url) {
-                window.open(data.payment_url, '_blank');
-            } else {
-                showError(data || t('支付请求失败'));
-            }
-        } else {
-            showError(res);
-        }
-    } catch (e) {
-        showError(t('支付请求失败'));
-    } finally {
-        setPaymentLoading(false);
-    }
-  };
-
-  const processCreemCallback = (data) => {
-    // 与 Stripe 保持一致的实现方式
-    window.open(data.checkout_url, '_blank');
-  };
+  // ---- data fetches ----
 
   const getUserQuota = async () => {
-    let res = await API.get(`/api/user/self`);
-    const { success, message, data } = res.data;
-    if (success) {
-      userDispatch({ type: 'login', payload: data });
-    } else {
-      showError(message);
+    try {
+      const res = await API.get(`/api/user/self`);
+      const { success, data } = res.data;
+      if (success) {
+        userDispatch({ type: 'login', payload: data });
+        setTotalUsedUsd(quotaToUsd(data?.used_quota));
+      }
+    } catch {
+      /* ignore */
     }
   };
 
-  const getSubscriptionPlans = async () => {
-    setSubscriptionLoading(true);
+  const getAffLink = async () => {
     try {
-      const res = await API.get('/api/subscription/plans');
-      if (res.data?.success) {
-        setSubscriptionPlans(res.data.data || []);
+      const res = await API.get('/api/user/aff');
+      const { success, data, message } = res.data;
+      if (success) {
+        setAffLink(`${window.location.origin}/register?aff=${data}`);
+      } else if (message) {
+        showError(message);
       }
-    } catch (e) {
-      setSubscriptionPlans([]);
-    } finally {
-      setSubscriptionLoading(false);
+    } catch {
+      /* ignore */
     }
   };
 
@@ -400,20 +146,103 @@ const TopUp = () => {
         setBillingPreference(
           res.data.data?.billing_preference || 'subscription_first',
         );
-        // Active subscriptions
-        const activeSubs = res.data.data?.subscriptions || [];
-        setActiveSubscriptions(activeSubs);
-        // All subscriptions (including expired)
-        const allSubs = res.data.data?.all_subscriptions || [];
-        setAllSubscriptions(allSubs);
+        setActiveSubscriptions(res.data.data?.subscriptions || []);
       }
-    } catch (e) {
-      // ignore
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const getAffTiers = async () => {
+    try {
+      const res = await API.get('/api/user/aff/tiers');
+      if (res.data?.success && res.data.data) {
+        setTierData(res.data.data);
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  // Sum successful top-ups + count + this-month topup amount
+  // (one /api/user/topup/self call, paged-large)
+  const getTopupAggregates = async () => {
+    try {
+      const res = await API.get('/api/user/topup/self?p=1&page_size=200');
+      if (!res.data?.success) return;
+      const items = res.data.data?.items || [];
+      const monthStart = startOfMonthTs();
+      let total = 0,
+        count = 0,
+        monthSum = 0;
+      items.forEach((it) => {
+        if (it.status !== 'success') return;
+        const amt = Number(it.amount) || 0;
+        total += amt;
+        count += 1;
+        const ts =
+          Number(it.complete_time) ||
+          Number(it.created_time) ||
+          Number(it.create_time) ||
+          0;
+        if (ts >= monthStart) monthSum += amt;
+      });
+      setTotalTopupUsd(total);
+      setTopupCount(count);
+      setMonthTopupUsd(monthSum);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const getMonthConsume = async () => {
+    try {
+      const ts = startOfMonthTs();
+      const res = await API.get(
+        `/api/log/self/stat?type=2&start_timestamp=${ts}`,
+      );
+      if (res.data?.success) {
+        setMonthConsumeUsd(quotaToUsd(res.data.data?.quota || 0));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const getPrevMonthConsume = async () => {
+    try {
+      const start = startOfPrevMonthTs();
+      const end = startOfMonthTs();
+      const res = await API.get(
+        `/api/log/self/stat?type=2&start_timestamp=${start}&end_timestamp=${end}`,
+      );
+      if (res.data?.success) {
+        setPrevMonthConsumeUsd(quotaToUsd(res.data.data?.quota || 0));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const getSpendByDay = async (rangeKey = range) => {
+    const days = rangeKey === '7d' ? 7 : rangeKey === '90d' ? 90 : 30;
+    try {
+      const res = await API.get(`/api/log/self/stat-by-day?days=${days}`);
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setSpendByDay(
+          res.data.data.map((p) => ({
+            date: p.date,
+            usd: quotaToUsd(p.quota || 0),
+          })),
+        );
+      }
+    } catch {
+      setSpendByDay([]);
     }
   };
 
   const updateBillingPreference = async (pref) => {
-    const previousPref = billingPreference;
+    const previous = billingPreference;
     setBillingPreference(pref);
     try {
       const res = await API.put('/api/subscription/self/preference', {
@@ -421,174 +250,52 @@ const TopUp = () => {
       });
       if (res.data?.success) {
         showSuccess(t('更新成功'));
-        const normalizedPref =
-          res.data?.data?.billing_preference || pref || previousPref;
-        setBillingPreference(normalizedPref);
+        const normalized =
+          res.data?.data?.billing_preference || pref || previous;
+        setBillingPreference(normalized);
       } else {
         showError(res.data?.message || t('更新失败'));
-        setBillingPreference(previousPref);
+        setBillingPreference(previous);
       }
-    } catch (e) {
+    } catch {
       showError(t('请求失败'));
-      setBillingPreference(previousPref);
+      setBillingPreference(previous);
     }
   };
 
-  // 获取充值配置信息
-  const getTopupInfo = async () => {
-    try {
-      const res = await API.get('/api/user/topup/info');
-      const { message, data, success } = res.data;
-      if (success) {
-        setTopupInfo({
-          amount_options: data.amount_options || [],
-          discount: data.discount || {},
-        });
-
-        // 处理支付方式
-        let payMethods = data.pay_methods || [];
-        try {
-          if (typeof payMethods === 'string') {
-            payMethods = JSON.parse(payMethods);
-          }
-          if (payMethods && payMethods.length > 0) {
-            // 检查name和type是否为空
-            payMethods = payMethods.filter((method) => {
-              return method.name && method.type;
-            });
-            // 如果没有color，则设置默认颜色
-            payMethods = payMethods.map((method) => {
-              // 规范化最小充值数
-              const normalizedMinTopup = Number(method.min_topup);
-              method.min_topup = Number.isFinite(normalizedMinTopup)
-                ? normalizedMinTopup
-                : 0;
-
-              // Stripe 的最小充值从后端字段回填
-              if (
-                method.type === 'stripe' &&
-                (!method.min_topup || method.min_topup <= 0)
-              ) {
-                const stripeMin = Number(data.stripe_min_topup);
-                if (Number.isFinite(stripeMin)) {
-                  method.min_topup = stripeMin;
-                }
-              }
-
-              if (!method.color) {
-                if (method.type === 'alipay') {
-                  method.color = 'var(--accent)';
-                } else if (method.type === 'wxpay') {
-                  method.color = 'var(--success)';
-                } else if (method.type === 'stripe') {
-                  method.color = 'var(--accent)';
-                } else {
-                  method.color = 'var(--accent)';
-                }
-              }
-              return method;
-            });
-          } else {
-            payMethods = [];
-          }
-
-          // 如果启用了 Stripe 支付，添加到支付方法列表
-          // 这个逻辑现在由后端处理，如果 Stripe 启用，后端会在 pay_methods 中包含它
-
-          setPayMethods(payMethods);
-          const enableStripeTopUp = data.enable_stripe_topup || false;
-          const enableOnlineTopUp = data.enable_online_topup || false;
-          const enableCreemTopUp = data.enable_creem_topup || false;
-          const minTopUpValue = enableOnlineTopUp
-            ? data.min_topup
-            : enableStripeTopUp
-              ? data.stripe_min_topup
-              : data.enable_waffo_topup
-                ? data.waffo_min_topup
-                : 1;
-          setEnableOnlineTopUp(enableOnlineTopUp);
-          setEnableStripeTopUp(enableStripeTopUp);
-          setEnableCreemTopUp(enableCreemTopUp);
-          const enableWaffoTopUp = data.enable_waffo_topup || false;
-          setEnableWaffoTopUp(enableWaffoTopUp);
-          setWaffoPayMethods(data.waffo_pay_methods || []);
-          setWaffoMinTopUp(data.waffo_min_topup || 1);
-          setMinTopUp(minTopUpValue);
-          setTopUpCount(minTopUpValue);
-
-          // 设置 Creem 产品
-          try {
-            const products = JSON.parse(data.creem_products || '[]');
-            setCreemProducts(products);
-          } catch (e) {
-            setCreemProducts([]);
-          }
-
-          // 如果没有自定义充值数量选项，根据最小充值金额生成预设充值额度选项
-          if (topupInfo.amount_options.length === 0) {
-            setPresetAmounts(generatePresetAmounts(minTopUpValue));
-          }
-
-          // 初始化显示实付金额
-          getAmount(minTopUpValue);
-        } catch (e) {
-          setPayMethods([]);
-        }
-
-        // 如果有自定义充值数量选项，使用它们替换默认的预设选项
-        if (data.amount_options && data.amount_options.length > 0) {
-          const customPresets = data.amount_options.map((amount) => ({
-            value: amount,
-            discount: data.discount[amount] || 1.0,
-          }));
-          setPresetAmounts(customPresets);
-        }
-      } else {
-        showError(data || t('获取充值配置失败'));
-      }
-    } catch (error) {
-      showError(t('获取充值配置异常'));
-    }
-  };
-
-  // 获取邀请链接
-  const getAffLink = async () => {
-    const res = await API.get('/api/user/aff');
-    const { success, message, data } = res.data;
-    if (success) {
-      let link = `${window.location.origin}/register?aff=${data}`;
-      setAffLink(link);
-    } else {
-      showError(message);
-    }
-  };
-
-  // 划转邀请额度
   const transfer = async () => {
     if (transferAmount < getQuotaPerUnit()) {
       showError(t('划转金额最低为') + ' ' + renderQuota(getQuotaPerUnit()));
       return;
     }
-    const res = await API.post(`/api/user/aff_transfer`, {
-      quota: transferAmount,
-    });
-    const { success, message } = res.data;
-    if (success) {
-      showSuccess(message);
-      setOpenTransfer(false);
-      getUserQuota().then();
-    } else {
-      showError(message);
+    try {
+      const res = await API.post(`/api/user/aff_transfer`, {
+        quota: transferAmount,
+      });
+      const { success, message } = res.data;
+      if (success) {
+        showSuccess(message);
+        setOpenTransfer(false);
+        getUserQuota();
+      } else {
+        showError(message);
+      }
+    } catch {
+      showError(t('请求失败'));
     }
   };
 
-  // 复制邀请链接
-  const handleAffLinkClick = async () => {
-    await copy(affLink);
-    showSuccess(t('邀请链接已复制到剪切板'));
+  const onCopyAffLink = async () => {
+    if (!affLink) return;
+    if (await copy(affLink)) {
+      setCopied(true);
+      showSuccess(t('邀请链接已复制到剪切板'));
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
-  // URL 参数自动打开账单弹窗（支付回跳时触发）
+  // ---- effects ----
+
   useEffect(() => {
     if (searchParams.get('show_history') === 'true') {
       setOpenHistory(true);
@@ -598,148 +305,67 @@ const TopUp = () => {
   }, []);
 
   useEffect(() => {
-    // 始终获取最新用户数据，确保余额等统计信息准确
-    getUserQuota().then();
+    getUserQuota();
     setTransferAmount(getQuotaPerUnit());
   }, []);
 
   useEffect(() => {
     if (affFetchedRef.current) return;
     affFetchedRef.current = true;
-    getAffLink().then();
-  }, []);
-
-  // 在 statusState 可用时获取充值信息
-  useEffect(() => {
-    getTopupInfo().then();
-    getSubscriptionPlans().then();
-    getSubscriptionSelf().then();
+    getAffLink();
   }, []);
 
   useEffect(() => {
-    if (statusState?.status) {
-      // const minTopUpValue = statusState.status.min_topup || 1;
-      // setMinTopUp(minTopUpValue);
-      // setTopUpCount(minTopUpValue);
-      setTopUpLink(statusState.status.top_up_link || '');
-      setPriceRatio(statusState.status.price || 1);
+    getSubscriptionSelf();
+    getTopupAggregates();
+    getMonthConsume();
+    getPrevMonthConsume();
+    getAffTiers();
+  }, []);
 
-      setStatusLoading(false);
+  useEffect(() => {
+    getSpendByDay(range);
+  }, [range]);
+
+  // ---- derived presentational props ----
+
+  const trendStats = useMemo(() => {
+    const series = spendByDay.map((p) => p.usd);
+    const total = series.reduce((s, v) => s + v, 0);
+    const avg = series.length ? total / series.length : 0;
+    const peak = series.length ? Math.max(...series) : 0;
+    return { series, total, avg, peak };
+  }, [spendByDay]);
+
+  const activeSubLabel = useMemo(() => {
+    if (!activeSubscriptions.length) return null;
+    const first = activeSubscriptions[0];
+    return first?.plan_name || first?.plan_title || t('订阅生效中');
+  }, [activeSubscriptions, t]);
+
+  // base reward in USD per invite (read from server-set QuotaForInviter — not
+  // in user payload; fall back to a polite "邀请奖励" headline if unknown).
+  // We don't have a getter, so just derive headline amount from history when
+  // possible: if user has at least 1 invite + history, average it out.
+  const baseRewardUsd = useMemo(() => {
+    if (!userState?.user) return null;
+    const cnt = userState.user.aff_count || 0;
+    const hist = quotaToUsd(userState.user.aff_history_quota || 0);
+    if (cnt > 0 && hist > 0) {
+      return Math.round((hist / cnt) * 100) / 100;
     }
-  }, [statusState?.status]);
-
-  const renderAmount = () => {
-    return amount + ' ' + t('元');
-  };
-
-  const getAmount = async (value) => {
-    if (value === undefined) {
-      value = topUpCount;
-    }
-    setAmountLoading(true);
-    try {
-      const res = await API.post('/api/user/amount', {
-        amount: parseFloat(value),
-      });
-      if (res !== undefined) {
-        const { message, data } = res.data;
-        if (message === 'success') {
-          setAmount(parseFloat(data));
-        } else {
-          setAmount(0);
-          Toast.error({ content: '错误：' + data, id: 'getAmount' });
-        }
-      } else {
-        showError(res);
-      }
-    } catch (err) {
-      // amount fetch failed silently
-    }
-    setAmountLoading(false);
-  };
-
-  const getStripeAmount = async (value) => {
-    if (value === undefined) {
-      value = topUpCount;
-    }
-    setAmountLoading(true);
-    try {
-      const res = await API.post('/api/user/stripe/amount', {
-        amount: parseFloat(value),
-      });
-      if (res !== undefined) {
-        const { message, data } = res.data;
-        if (message === 'success') {
-          setAmount(parseFloat(data));
-        } else {
-          setAmount(0);
-          Toast.error({ content: '错误：' + data, id: 'getAmount' });
-        }
-      } else {
-        showError(res);
-      }
-    } catch (err) {
-      // amount fetch failed silently
-    } finally {
-      setAmountLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
-  };
-
-  const handleTransferCancel = () => {
-    setOpenTransfer(false);
-  };
-
-  const handleOpenHistory = () => {
-    setOpenHistory(true);
-  };
-
-  const handleHistoryCancel = () => {
-    setOpenHistory(false);
-  };
-
-  const handleCreemCancel = () => {
-    setCreemOpen(false);
-    setSelectedCreemProduct(null);
-  };
-
-  // 选择预设充值额度
-  const selectPresetAmount = (preset) => {
-    setTopUpCount(preset.value);
-    setSelectedPreset(preset.value);
-
-    // 计算实际支付金额，考虑折扣
-    const discount = preset.discount || topupInfo.discount[preset.value] || 1.0;
-    const discountedAmount = preset.value * priceRatio * discount;
-    setAmount(discountedAmount);
-  };
-
-  // 格式化大数字显示
-  const formatLargeNumber = (num) => {
-    return num.toString();
-  };
-
-  // 根据最小充值金额生成预设充值额度选项
-  const generatePresetAmounts = (minAmount) => {
-    const multipliers = [1, 5, 10, 30, 50, 100, 300, 500];
-    return multipliers.map((multiplier) => ({
-      value: minAmount * multiplier,
-    }));
-  };
+    return null;
+  }, [userState?.user]);
 
   return (
-    <>
-    <style>{WALLET_STYLES}</style>
-    <div className='w-full max-w-5xl mx-auto relative px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-10'>
-      {/* 模态框 */}
+    <div className='wal-root'>
+      <WalletPageStyles />
+
       <TransferModal
         t={t}
         openTransfer={openTransfer}
         transfer={transfer}
-        handleTransferCancel={handleTransferCancel}
+        handleTransferCancel={() => setOpenTransfer(false)}
         userState={userState}
         renderQuota={renderQuota}
         getQuotaPerUnit={getQuotaPerUnit}
@@ -748,201 +374,121 @@ const TopUp = () => {
       />
       <TopupHistoryModal
         visible={openHistory}
-        onCancel={handleHistoryCancel}
+        onCancel={() => setOpenHistory(false)}
         t={t}
         userInfo={userState?.user}
       />
 
-      {/* Section 1: Hero — 余额 + 账户管理 */}
-      <section>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
-          {/* 主余额卡片 — 渐变 */}
-          <div
-            className='md:col-span-2 relative overflow-hidden flex flex-col justify-between'
-            style={{
-              background: 'var(--accent-gradient)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '32px 28px',
-              minHeight: 220,
-              boxShadow: '0 20px 40px rgba(0,114,255,0.12)',
-            }}
-          >
-            <div className='relative z-10'>
-              <div className='flex items-center gap-2 mb-2' style={{ opacity: 0.85 }}>
-                <Wallet size={16} color='#fff' />
-                <span className='text-xs font-semibold tracking-wider uppercase' style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  {t('wallet.currentBalance')}
-                </span>
-              </div>
-              <div className='font-extrabold tracking-tighter' style={{ fontSize: 'clamp(36px, 8vw, 56px)', color: '#fff', fontFamily: 'var(--font-serif)', lineHeight: 1.1 }}>
-                {renderQuota(userState?.user?.quota)}
-              </div>
+      <div className='wal-page'>
+        <div className='wal-page-head'>
+          <div>
+            <h1 className='wal-page-title'>{t('钱包')}</h1>
+            <div className='wal-page-sub'>
+              {t('账户余额、充值、收益与交易明细')}
             </div>
-            <div className='relative z-10 flex flex-wrap items-center gap-4 mt-4'>
-              <div className='flex gap-8 sm:gap-10 flex-1'>
-                <div>
-                  <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('历史消耗')}</p>
-                  <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{renderQuota(userState?.user?.used_quota)}</p>
-                </div>
-                <div>
-                  <p className='text-[10px] uppercase tracking-widest font-semibold mb-1' style={{ color: 'rgba(255,255,255,0.6)' }}>{t('请求次数')}</p>
-                  <p className='text-lg sm:text-xl font-bold' style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{userState?.user?.request_count || 0}</p>
-                </div>
-              </div>
-            </div>
-            {/* 订阅状态摘要 + 操作按钮 */}
-            <div className='relative z-10 flex flex-wrap items-center gap-3 mt-4'>
-              {activeSubscriptions.length > 0 && (
-                <span className='inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5'
-                  style={{ borderRadius: 9999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
-                  <Crown size={12} />
-                  {activeSubscriptions.length} {t('个订阅生效中')}
-                </span>
-              )}
-              <div style={{ flex: 1 }} />
-              <button onClick={handleOpenHistory}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '8px 16px', borderRadius: 'var(--radius-lg)',
-                  background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', outline: 'none',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <Receipt size={14} />
-                {t('账单')}
-              </button>
-              <button
-                className='wallet-recharge-btn'
-                onClick={() => navigate('/console/recharge')}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '8px 20px', borderRadius: 'var(--radius-lg)',
-                  background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.3)', color: '#fff',
-                  fontWeight: 700, fontSize: 14, cursor: 'pointer', outline: 'none',
-                }}
-              >
-                <Zap size={16} />
-                {t('充值')}
-              </button>
-            </div>
-            {/* 装饰圆 */}
-            <div style={{ position: 'absolute', right: -60, top: -60, width: 240, height: 240, background: 'rgba(255,255,255,0.08)', borderRadius: '50%', filter: 'blur(40px)' }} />
-            <div style={{ position: 'absolute', left: -30, bottom: -30, width: 120, height: 120, background: 'rgba(0,0,0,0.08)', borderRadius: '50%', filter: 'blur(30px)' }} />
           </div>
-
-          {/* 账户管理卡 — 计费偏好 + 快捷操作 */}
-          <div
-            className='flex flex-col justify-between'
-            style={{
-              background: 'var(--surface)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '24px',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.03)',
-            }}
-          >
-            <div className='mb-4'>
-              <span
-                className='inline-flex items-center justify-center mb-3'
-                style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--accent-light)' }}
-              >
-                <BarChart2 size={20} style={{ color: 'var(--accent)' }} />
-              </span>
-              <h3 className='text-lg font-bold' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>{t('wallet.accountHealth')}</h3>
-              <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>{t('wallet.statusMonitor')}</p>
-            </div>
-            <div className='space-y-3 mb-4'>
-              <div className='flex justify-between items-center'>
-                <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>{t('wallet.uptime')}</span>
-                <span className='text-sm font-bold' style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>99.9%</span>
-              </div>
-              <div style={{ width: '100%', height: 8, borderRadius: 9999, background: 'var(--surface-active)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: '99.9%', background: 'var(--accent-gradient)', borderRadius: 9999 }} />
-              </div>
-            </div>
-            {/* 计费偏好 — pill toggle buttons */}
-            <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 12 }}>
-              <div className='flex items-center gap-1.5 mb-2.5'>
-                <p className='text-[11px] font-semibold' style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-                  {t('计费偏好')}
-                </p>
-                <Tooltip
-                  position='top'
-                  content={
-                    <div style={{ maxWidth: 280, lineHeight: 1.6, fontSize: 12 }}>
-                      {t('选择消费额度时优先使用订阅套餐额度还是钱包余额。未生效的订阅将自动跳过，回落到钱包扣费。')}
-                    </div>
-                  }
-                >
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)', cursor: 'help', lineHeight: 1 }}>ⓘ</span>
-                </Tooltip>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                {[
-                  {
-                    value: 'subscription_first',
-                    label: t('优先订阅'),
-                    desc: t('推荐。优先扣订阅套餐额度；订阅用完或未生效时自动回落到钱包扣费。'),
-                  },
-                  {
-                    value: 'wallet_first',
-                    label: t('优先钱包'),
-                    desc: t('优先扣钱包余额；钱包不足时自动使用订阅额度。适合想先把钱包余额用完再走订阅的用户。'),
-                  },
-                  {
-                    value: 'subscription_only',
-                    label: t('仅用订阅'),
-                    desc: t('只扣订阅额度，不会使用钱包余额。订阅用完或未生效时会直接返回余额不足。'),
-                  },
-                  {
-                    value: 'wallet_only',
-                    label: t('仅用钱包'),
-                    desc: t('只扣钱包余额，不会使用订阅额度。适合暂时不想消耗订阅额度的场景。'),
-                  },
-                ].map((opt) => (
-                  <Tooltip
-                    key={opt.value}
-                    position='top'
-                    content={
-                      <div style={{ maxWidth: 260, lineHeight: 1.6, fontSize: 12 }}>
-                        {opt.desc}
-                      </div>
-                    }
-                  >
-                    <button
-                      onClick={() => updateBillingPreference(opt.value)}
-                      style={{
-                        padding: '6px 0', borderRadius: 'var(--radius-md)',
-                        border: billingPreference === opt.value ? '1px solid var(--accent)' : '1px solid var(--border-default)',
-                        background: billingPreference === opt.value ? 'var(--accent-light)' : 'var(--surface)',
-                        color: billingPreference === opt.value ? 'var(--accent)' : 'var(--text-secondary)',
-                        fontSize: 12, fontWeight: 600, cursor: 'pointer', outline: 'none',
-                        transition: 'all 0.2s', width: '100%',
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  </Tooltip>
-                ))}
-              </div>
-            </div>
+          <div className='wal-head-actions'>
+            <button
+              className='wal-btn'
+              onClick={() => {
+                getTopupAggregates();
+                getMonthConsume();
+                getPrevMonthConsume();
+                getSpendByDay(range);
+                getAffTiers();
+                getUserQuota();
+              }}
+              title={t('刷新')}
+            >
+              <I.Refresh /> {t('刷新')}
+            </button>
+            <button className='wal-btn' onClick={() => setOpenHistory(true)}>
+              <I.Receipt /> {t('账单')}
+            </button>
           </div>
         </div>
-      </section>
 
-      {/* Section 2: 收益统计 & 邀请奖励 */}
-      <InvitationCard
-        t={t}
-        userState={userState}
-        renderQuota={renderQuota}
-        setOpenTransfer={setOpenTransfer}
-        affLink={affLink}
-        handleAffLinkClick={handleAffLinkClick}
-      />
+        {/* ROW 1: Balance + Health */}
+        <div className='wal-grid-12'>
+          <div className='wal-col-8'>
+            <BalanceHero
+              t={t}
+              user={userState?.user}
+              monthDelta={monthDelta}
+              totalTopupUsd={totalTopupUsd}
+              topupCount={topupCount}
+              totalUsedUsd={totalUsedUsd}
+              monthDeltaPct={monthDeltaPct}
+              onOpenHistory={() => setOpenHistory(true)}
+              onRecharge={() => navigate('/console/recharge')}
+            />
+          </div>
+          <div className='wal-col-4'>
+            <HealthCard
+              t={t}
+              warningEnabled={!!notificationThresholdLabel}
+              warningThresholdLabel={notificationThresholdLabel}
+            />
+          </div>
+        </div>
+
+        {/* ROW 2: Billing Preference + Earnings */}
+        <div className='wal-grid-12'>
+          <div className='wal-col-7'>
+            <BillingPreference
+              t={t}
+              value={billingPreference}
+              onChange={updateBillingPreference}
+              activeSubscription={activeSubLabel}
+            />
+          </div>
+          <div className='wal-col-5'>
+            <EarningsCard
+              t={t}
+              affQuotaUsd={quotaToUsd(userState?.user?.aff_quota || 0)}
+              affHistoryUsd={quotaToUsd(
+                userState?.user?.aff_history_quota || 0,
+              )}
+              onTransfer={() => setOpenTransfer(true)}
+            />
+          </div>
+        </div>
+
+        {/* ROW 3: Spend Trend */}
+        <div className='wal-grid-12'>
+          <div className='wal-col-12'>
+            <SpendTrend
+              t={t}
+              range={range}
+              setRange={setRange}
+              data={trendStats.series}
+              totalUsd={trendStats.total}
+              avgUsd={trendStats.avg}
+              peakUsd={trendStats.peak}
+              prevPeriodDeltaPct={null}
+            />
+          </div>
+        </div>
+
+        {/* ROW 4: Invite */}
+        <div className='wal-grid-12'>
+          <div className='wal-col-12'>
+            <InvitationCard
+              t={t}
+              affLink={affLink}
+              copied={copied}
+              onCopy={onCopyAffLink}
+              affCount={userState?.user?.aff_count || 0}
+              monthEarningsUsd={quotaToUsd(
+                userState?.user?.aff_history_quota || 0,
+              )}
+              baseRewardUsd={baseRewardUsd}
+              tierData={tierData}
+            />
+          </div>
+        </div>
+      </div>
     </div>
-    </>
   );
 };
 

@@ -371,6 +371,64 @@ func TransferAffQuota(c *gin.Context) {
 	common.ApiSuccessI18n(c, i18n.MsgUserTransferSuccess, nil)
 }
 
+// AffTierItem 单档奖励 + 已发放状态。
+type AffTierItem struct {
+	Count       int   `json:"count"`
+	BonusQuota  int   `json:"bonus_quota"`
+	Achieved    bool  `json:"achieved"`
+	GrantedAt   int64 `json:"granted_at,omitempty"`
+}
+
+// AffTiersResponse /api/user/aff/tiers 返回。
+type AffTiersResponse struct {
+	Enabled       bool          `json:"enabled"`
+	CurrentCount  int           `json:"current_count"`
+	Tiers         []AffTierItem `json:"tiers"`
+}
+
+// GetAffTiers 返回邀请阶梯奖励配置 + 当前用户进度。
+// 系统未启用时返回 enabled=false, tiers=[]。
+func GetAffTiers(c *gin.Context) {
+	id := c.GetInt("id")
+	user, err := model.GetUserById(id, true)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	resp := AffTiersResponse{
+		Enabled:      common.AffTierEnabled,
+		CurrentCount: user.AffCount,
+		Tiers:        []AffTierItem{},
+	}
+	if !common.AffTierEnabled {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "", "data": resp})
+		return
+	}
+
+	tiers := model.GetAffTiers()
+	grants, _ := model.ListInviteTierGrants(user.Id)
+	grantedAt := make(map[int]int64, len(grants))
+	for _, g := range grants {
+		grantedAt[g.TierCount] = g.GrantedAt
+	}
+	for _, t := range tiers {
+		item := AffTierItem{
+			Count:      t.Count,
+			BonusQuota: t.Bonus,
+		}
+		if ts, ok := grantedAt[t.Count]; ok {
+			item.Achieved = true
+			item.GrantedAt = ts
+		} else if user.AffCount >= t.Count {
+			// 历史命中过但未发放（启用前已经达到阈值），视作已达成不再补发。
+			item.Achieved = true
+		}
+		resp.Tiers = append(resp.Tiers, item)
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "", "data": resp})
+}
+
 func GetAffCode(c *gin.Context) {
 	id := c.GetInt("id")
 	user, err := model.GetUserById(id, true)

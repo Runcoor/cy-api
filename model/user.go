@@ -344,6 +344,30 @@ func inviteUser(inviterId int) (err error) {
 	user.AffCount++
 	user.AffQuota += common.QuotaForInviter
 	user.AffHistoryQuota += common.QuotaForInviter
+
+	// 阶梯奖励：当 AffCount 命中某档时一次性追加 bonus。
+	// 唯一索引 + 提前查询双重保护，避免重复发放。
+	if common.AffTierEnabled {
+		for _, tier := range GetAffTiers() {
+			if user.AffCount != tier.Count {
+				continue
+			}
+			already, ckErr := HasInviteTierGrant(user.Id, tier.Count)
+			if ckErr != nil || already {
+				continue
+			}
+			if rerr := RecordInviteTierGrant(user.Id, tier.Count, tier.Bonus); rerr != nil {
+				// 唯一索引冲突 = 并发发放，跳过
+				continue
+			}
+			user.AffQuota += tier.Bonus
+			user.AffHistoryQuota += tier.Bonus
+			RecordLog(user.Id, LogTypeSystem,
+				fmt.Sprintf("邀请阶梯奖励：达成 %d 人，赠送 %s",
+					tier.Count, logger.LogQuota(tier.Bonus)))
+		}
+	}
+
 	return DB.Save(user).Error
 }
 

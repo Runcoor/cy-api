@@ -485,6 +485,56 @@ func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelNa
 	return stat, nil
 }
 
+// DailyQuotaPoint 单日用量。
+type DailyQuotaPoint struct {
+	Date  string `json:"date"`
+	Quota int    `json:"quota"`
+}
+
+// SumUsedQuotaByDay 返回指定用户近 N 天的每日 quota 消费（type=consume）。
+// 用 created_at / 86400 做整数除法分桶，跨 SQLite/MySQL/PostgreSQL 一致。
+// 缺失日期补 0，按时间升序返回。
+func SumUsedQuotaByDay(username string, days int) ([]DailyQuotaPoint, error) {
+	if days <= 0 {
+		days = 30
+	}
+	if days > 90 {
+		days = 90
+	}
+	startTs := time.Now().Add(-time.Duration(days) * 24 * time.Hour).Unix()
+
+	type bucket struct {
+		Day   int64 `gorm:"column:day"`
+		Quota int   `gorm:"column:quota"`
+	}
+	var rows []bucket
+	err := LOG_DB.Table("logs").
+		Select("(created_at / 86400) AS day, SUM(quota) AS quota").
+		Where("username = ? AND type = ? AND created_at >= ?",
+			username, LogTypeConsume, startTs).
+		Group("(created_at / 86400)").
+		Order("(created_at / 86400) ASC").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	byDay := make(map[int64]int, len(rows))
+	for _, r := range rows {
+		byDay[r.Day] = r.Quota
+	}
+	today := time.Now().Unix() / 86400
+	out := make([]DailyQuotaPoint, 0, days)
+	for i := days - 1; i >= 0; i-- {
+		d := today - int64(i)
+		out = append(out, DailyQuotaPoint{
+			Date:  time.Unix(d*86400, 0).UTC().Format("2006-01-02"),
+			Quota: byDay[d],
+		})
+	}
+	return out, nil
+}
+
 func SumUsedToken(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string) (token int) {
 	tx := LOG_DB.Table("logs").Select("ifnull(sum(prompt_tokens),0) + ifnull(sum(completion_tokens),0)")
 	if username != "" {

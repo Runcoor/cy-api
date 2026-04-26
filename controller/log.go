@@ -152,6 +152,29 @@ func GetLogsSelfStat(c *gin.Context) {
 	return
 }
 
+// GetLogsSelfStatByDay 返回当前用户近 N 天的每日消费 quota。
+// 仅统计 type=consume 日志，缺失日期补 0。
+func GetLogsSelfStatByDay(c *gin.Context) {
+	username := c.GetString("username")
+	days, _ := strconv.Atoi(c.Query("days"))
+	if days <= 0 {
+		days = 30
+	}
+	if days > 90 {
+		days = 90
+	}
+	points, err := model.SumUsedQuotaByDay(username, days)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    points,
+	})
+}
+
 func DeleteHistoryLogs(c *gin.Context) {
 	targetTimestamp, _ := strconv.ParseInt(c.Query("target_timestamp"), 10, 64)
 	if targetTimestamp == 0 {
