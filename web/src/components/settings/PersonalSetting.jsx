@@ -35,7 +35,6 @@ import { UserContext } from '../../context/User';
 import { Modal } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 
-// 导入子组件
 import UserInfoHeader from './personal/components/UserInfoHeader';
 import AccountManagement from './personal/cards/AccountManagement';
 import NotificationSettings from './personal/cards/NotificationSettings';
@@ -44,6 +43,18 @@ import EmailBindModal from './personal/modals/EmailBindModal';
 import WeChatBindModal from './personal/modals/WeChatBindModal';
 import AccountDeleteModal from './personal/modals/AccountDeleteModal';
 import ChangePasswordModal from './personal/modals/ChangePasswordModal';
+import {
+  AasIcons as I,
+  AccountSettingsStyles,
+} from './personal/_shared/AccountSettingsStyles';
+
+const NAV_ITEMS = (t) => [
+  { id: 'account', label: t('账户绑定'), icon: <I.Plug /> },
+  { id: 'security', label: t('安全设置'), icon: <I.Shield /> },
+  { id: 'notifications', label: t('通知配置'), icon: <I.Bell /> },
+  { id: 'pricing', label: t('价格设置'), icon: <I.Tag /> },
+  { id: 'privacy', label: t('隐私设置'), icon: <I.Lock /> },
+];
 
 const PersonalSetting = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -90,6 +101,10 @@ const PersonalSetting = () => {
     recordIpLog: false,
   });
 
+  const [activeNav, setActiveNav] = useState('account');
+  const [dirty, setDirty] = useState(false);
+  const [savingNotif, setSavingNotif] = useState(false);
+
   useEffect(() => {
     let saved = localStorage.getItem('status');
     if (saved) {
@@ -103,7 +118,6 @@ const PersonalSetting = () => {
         setTurnstileSiteKey('');
       }
     }
-    // Always refresh status from server to avoid stale flags (e.g., admin just enabled OAuth)
     (async () => {
       try {
         const res = await API.get('/api/status');
@@ -120,7 +134,7 @@ const PersonalSetting = () => {
           }
         }
       } catch (e) {
-        // ignore and keep local status
+        // keep local status
       }
     })();
 
@@ -141,7 +155,7 @@ const PersonalSetting = () => {
       setDisableButton(false);
       setCountdown(30);
     }
-    return () => clearInterval(countdownInterval); // Clean up on unmount
+    return () => clearInterval(countdownInterval);
   }, [disableButton, countdown]);
 
   useEffect(() => {
@@ -164,11 +178,30 @@ const PersonalSetting = () => {
           settings.accept_unset_model_ratio_model || false,
         recordIpLog: settings.record_ip_log || false,
       });
+      setDirty(false);
     }
   }, [userState?.user?.setting]);
 
+  // Section anchor scroll spy.
+  useEffect(() => {
+    const ids = NAV_ITEMS(t).map((n) => `sec-${n.id}`);
+    const handler = () => {
+      const scrollY = window.scrollY + 120;
+      let current = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollY) current = id;
+      }
+      const next = current.replace(/^sec-/, '');
+      setActiveNav((prev) => (prev === next ? prev : next));
+    };
+    window.addEventListener('scroll', handler, { passive: true });
+    handler();
+    return () => window.removeEventListener('scroll', handler);
+  }, [t]);
+
   const handleInputChange = (name, value) => {
-    setInputs((inputs) => ({ ...inputs, [name]: value }));
+    setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
   const generateAccessToken = async () => {
@@ -198,7 +231,7 @@ const PersonalSetting = () => {
         showError(message);
       }
     } catch (error) {
-      // 忽略错误，保留默认状态
+      // keep default
     }
   };
 
@@ -277,12 +310,6 @@ const PersonalSetting = () => {
     }
   };
 
-  const handleSystemTokenClick = async (e) => {
-    e.target.select();
-    await copy(e.target.value);
-    showSuccess(t('系统令牌已复制到剪切板'));
-  };
-
   const deleteAccount = async () => {
     if (inputs.self_account_deletion_confirmation !== userState.user.username) {
       showError(t('请输入你的账户名以确认删除！'));
@@ -318,10 +345,6 @@ const PersonalSetting = () => {
   };
 
   const changePassword = async () => {
-    // if (inputs.original_password === '') {
-    //   showError(t('请输入原密码！'));
-    //   return;
-    // }
     if (inputs.set_new_password === '') {
       showError(t('请输入新密码！'));
       return;
@@ -392,27 +415,20 @@ const PersonalSetting = () => {
     setLoading(false);
   };
 
-  const copyText = async (text) => {
-    if (await copy(text)) {
-      showSuccess(t('已复制：') + text);
-    } else {
-      // setSearchKeyword(text);
-      Modal.error({ title: t('无法复制到剪贴板，请手动复制'), content: text });
-    }
-  };
-
   const handleNotificationSettingChange = (type, value) => {
     setNotificationSettings((prev) => ({
       ...prev,
-      [type]: value.target
-        ? value.target.value !== undefined
-          ? value.target.value
-          : value.target.checked
-        : value, // handle checkbox properly
+      [type]:
+        value && value.target
+          ? value.target.value !== undefined
+            ? value.target.value
+            : value.target.checked
+          : value,
     }));
   };
 
   const saveNotificationSettings = async () => {
+    setSavingNotif(true);
     try {
       const res = await API.put('/api/user/setting', {
         notify_type: notificationSettings.warningType,
@@ -438,61 +454,138 @@ const PersonalSetting = () => {
 
       if (res.data.success) {
         showSuccess(t('设置保存成功'));
+        setDirty(false);
         await getUserData();
       } else {
         showError(res.data.message);
       }
     } catch (error) {
       showError(t('设置保存失败'));
+    } finally {
+      setSavingNotif(false);
     }
   };
 
+  const discardNotificationChanges = () => {
+    if (userState?.user?.setting) {
+      const settings = JSON.parse(userState.user.setting);
+      setNotificationSettings({
+        warningType: settings.notify_type || 'email',
+        warningThreshold: settings.quota_warning_threshold || 500000,
+        webhookUrl: settings.webhook_url || '',
+        webhookSecret: settings.webhook_secret || '',
+        notificationEmail: settings.notification_email || '',
+        barkUrl: settings.bark_url || '',
+        gotifyUrl: settings.gotify_url || '',
+        gotifyToken: settings.gotify_token || '',
+        gotifyPriority:
+          settings.gotify_priority !== undefined ? settings.gotify_priority : 5,
+        upstreamModelUpdateNotifyEnabled:
+          settings.upstream_model_update_notify_enabled === true,
+        acceptUnsetModelRatioModel:
+          settings.accept_unset_model_ratio_model || false,
+        recordIpLog: settings.record_ip_log || false,
+      });
+    }
+    setDirty(false);
+  };
+
+  const navItems = NAV_ITEMS(t);
+
   return (
-    <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12'>
-      <div className='space-y-16 sm:space-y-20'>
-        {/* Section 1: Hero Profile Header */}
+    <div className='aas-root'>
+      <AccountSettingsStyles />
+
+      <div className='aas-page'>
+        <header className='aas-page-head'>
+          <div>
+            <h1 className='aas-page-title'>{t('账户设置')}</h1>
+            <div className='aas-page-sub'>
+              {t('个人资料、账户绑定、安全策略与通知偏好')}
+            </div>
+          </div>
+        </header>
+
+        {/* Wallet hero */}
         <UserInfoHeader t={t} userState={userState} />
 
-        {/* Section 2: 签到日历 */}
+        {/* Optional check-in calendar (kept full width above the layout grid) */}
         {status?.checkin_enabled && (
-          <CheckinCalendar
-            t={t}
-            status={status}
-            turnstileEnabled={turnstileEnabled}
-            turnstileSiteKey={turnstileSiteKey}
-          />
+          <div style={{ marginBottom: 16 }}>
+            <CheckinCalendar
+              t={t}
+              status={status}
+              turnstileEnabled={turnstileEnabled}
+              turnstileSiteKey={turnstileSiteKey}
+            />
+          </div>
         )}
 
-        {/* Section 3: 账户绑定 + 安全设置 */}
-        <AccountManagement
-          t={t}
-          userState={userState}
-          status={status}
-          systemToken={systemToken}
-          setShowEmailBindModal={setShowEmailBindModal}
-          setShowWeChatBindModal={setShowWeChatBindModal}
-          generateAccessToken={generateAccessToken}
-          handleSystemTokenClick={handleSystemTokenClick}
-          setShowChangePasswordModal={setShowChangePasswordModal}
-          setShowAccountDeleteModal={setShowAccountDeleteModal}
-          passkeyStatus={passkeyStatus}
-          passkeySupported={passkeySupported}
-          passkeyRegisterLoading={passkeyRegisterLoading}
-          passkeyDeleteLoading={passkeyDeleteLoading}
-          onPasskeyRegister={handleRegisterPasskey}
-          onPasskeyDelete={handleRemovePasskey}
-        />
+        <div className='aas-layout'>
+          <nav className='aas-nav-rail'>
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                type='button'
+                className={`aas-nav-item ${activeNav === item.id ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveNav(item.id);
+                  document
+                    .getElementById(`sec-${item.id}`)
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
+          </nav>
 
-        {/* Section 4: 通知与偏好设置 */}
-        <NotificationSettings
-          t={t}
-          notificationSettings={notificationSettings}
-          handleNotificationSettingChange={handleNotificationSettingChange}
-          saveNotificationSettings={saveNotificationSettings}
-        />
+          <div className='aas-main-col'>
+            <AccountManagement
+              t={t}
+              userState={userState}
+              status={status}
+              systemToken={systemToken}
+              setShowEmailBindModal={setShowEmailBindModal}
+              setShowWeChatBindModal={setShowWeChatBindModal}
+              generateAccessToken={generateAccessToken}
+              setShowChangePasswordModal={setShowChangePasswordModal}
+              setShowAccountDeleteModal={setShowAccountDeleteModal}
+              passkeyStatus={passkeyStatus}
+              passkeySupported={passkeySupported}
+              passkeyRegisterLoading={passkeyRegisterLoading}
+              passkeyDeleteLoading={passkeyDeleteLoading}
+              onPasskeyRegister={handleRegisterPasskey}
+              onPasskeyDelete={handleRemovePasskey}
+            />
+
+            <NotificationSettings
+              t={t}
+              notificationSettings={notificationSettings}
+              handleNotificationSettingChange={handleNotificationSettingChange}
+              markNotificationDirty={() => setDirty(true)}
+            />
+          </div>
+        </div>
+
+        {/* Save bar */}
+        <div className={`aas-save-bar ${dirty ? 'show' : ''}`}>
+          <span className='aas-dot' />
+          <span>{t('有未保存的更改')}</span>
+          <button className='aas-discard' onClick={discardNotificationChanges}>
+            {t('放弃')}
+          </button>
+          <button
+            className='aas-save-action'
+            onClick={saveNotificationSettings}
+            disabled={savingNotif}
+          >
+            {savingNotif ? '…' : t('保存设置')}
+          </button>
+        </div>
       </div>
 
-      {/* 模态框 */}
+      {/* Modals — kept outside the scoped root so Semi portal styles don't leak */}
       <EmailBindModal
         t={t}
         showEmailBindModal={showEmailBindModal}
