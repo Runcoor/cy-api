@@ -20,32 +20,45 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useEffect, useState, useRef } from 'react';
 import { Button, Col, Form, Row } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  compareObjects,
-  API,
-  showError,
-  showSuccess,
-  showWarning,
-} from '../../../helpers';
+import { API, showError, showSuccess, showWarning } from '../../../helpers';
 import MacSpinner from '../../../components/common/ui/MacSpinner';
+
+const INITIAL_INPUTS = {
+  QuotaForNewUser: '',
+  PreConsumedQuota: '',
+  QuotaForInviter: '',
+  QuotaForInvitee: '',
+  AffTierEnabled: false,
+  AffTiers: '',
+  'quota_setting.enable_free_model_pre_consume': true,
+};
+// Stable whitelist of fields this section owns. Used to filter parent
+// options so the section only writes its own keys, and as the union for
+// change detection below — using live `inputs` here was buggy because
+// setInputs() replaces the state object, dropping any key the backend
+// hasn't returned yet (e.g. newly-added AffTierEnabled / AffTiers on a
+// fresh deploy).
+const FIELD_KEYS = Object.keys(INITIAL_INPUTS);
 
 export default function SettingsCreditLimit(props) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [inputs, setInputs] = useState({
-    QuotaForNewUser: '',
-    PreConsumedQuota: '',
-    QuotaForInviter: '',
-    QuotaForInvitee: '',
-    AffTierEnabled: false,
-    AffTiers: '',
-    'quota_setting.enable_free_model_pre_consume': true,
-  });
+  const [inputs, setInputs] = useState(INITIAL_INPUTS);
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
 
   function onSubmit() {
-    const updateArray = compareObjects(inputs, inputsRow);
+    // Compare against the union of known fields so newly-added keys
+    // (those absent from inputsRow on a fresh deploy) still register
+    // as a change.
+    const updateArray = [];
+    for (const key of FIELD_KEYS) {
+      const before = inputsRow[key];
+      const after = inputs[key];
+      if (String(before ?? '') !== String(after ?? '')) {
+        updateArray.push({ key, oldValue: before, newValue: after });
+      }
+    }
     if (!updateArray.length) return showWarning(t('你似乎并没有修改什么'));
     const requestQueue = updateArray.map((item) => {
       let value = '';
@@ -80,15 +93,23 @@ export default function SettingsCreditLimit(props) {
   }
 
   useEffect(() => {
-    const currentInputs = {};
-    for (let key in props.options) {
-      if (Object.keys(inputs).includes(key)) {
-        currentInputs[key] = props.options[key];
+    // Always seed every owned field — fall back to the initial default
+    // when the backend hasn't sent a value yet. Coerce booleans so the
+    // Switch reflects state correctly even when the API returns the
+    // string "true"/"false".
+    const currentInputs = { ...INITIAL_INPUTS };
+    for (const key of FIELD_KEYS) {
+      const v = props.options?.[key];
+      if (v === undefined || v === null) continue;
+      if (typeof INITIAL_INPUTS[key] === 'boolean') {
+        currentInputs[key] = v === true || v === 'true';
+      } else {
+        currentInputs[key] = v;
       }
     }
     setInputs(currentInputs);
     setInputsRow(structuredClone(currentInputs));
-    refForm.current.setValues(currentInputs);
+    refForm.current?.setValues(currentInputs);
   }, [props.options]);
   return (
     <>
