@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { DatePicker, Avatar, Descriptions } from '@douyinfe/semi-ui';
+import { DatePicker, Avatar } from '@douyinfe/semi-ui';
 import {
   renderQuota,
   renderNumber,
@@ -57,7 +57,13 @@ const TYPE_LABEL = {
 const PROVIDER_FROM_MODEL = (model) => {
   if (!model) return 'generic';
   const m = model.toLowerCase();
-  if (m.includes('gpt') || m.includes('openai') || m.includes('o3') || m.includes('o4')) return 'openai';
+  if (
+    m.includes('gpt') ||
+    m.includes('openai') ||
+    m.includes('o3') ||
+    m.includes('o4')
+  )
+    return 'openai';
   if (m.includes('claude') || m.includes('anthropic')) return 'anthropic';
   if (m.includes('gemini') || m.includes('google')) return 'google';
   if (m.includes('azure')) return 'azure';
@@ -65,11 +71,31 @@ const PROVIDER_FROM_MODEL = (model) => {
 };
 
 const PROVIDER_GLYPHS = {
-  openai: <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'><circle cx='12' cy='12' r='9' /></svg>,
-  anthropic: <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'><path d='M14 4 22 20h-4l-1.5-3.5h-9L6 20H2L10 4h4z' /></svg>,
-  google: <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'><path d='M12 3 14 10 21 12 14 14 12 21 10 14 3 12 10 10z' /></svg>,
-  azure: <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'><path d='M12 2 2 22h20L12 2zm0 6 6 12H6l6-12z' /></svg>,
-  generic: <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'><circle cx='12' cy='12' r='5' /></svg>,
+  openai: (
+    <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'>
+      <circle cx='12' cy='12' r='9' />
+    </svg>
+  ),
+  anthropic: (
+    <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'>
+      <path d='M14 4 22 20h-4l-1.5-3.5h-9L6 20H2L10 4h4z' />
+    </svg>
+  ),
+  google: (
+    <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'>
+      <path d='M12 3 14 10 21 12 14 14 12 21 10 14 3 12 10 10z' />
+    </svg>
+  ),
+  azure: (
+    <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'>
+      <path d='M12 2 2 22h20L12 2zm0 6 6 12H6l6-12z' />
+    </svg>
+  ),
+  generic: (
+    <svg width='10' height='10' viewBox='0 0 24 24' fill='currentColor'>
+      <circle cx='12' cy='12' r='5' />
+    </svg>
+  ),
 };
 
 const splitTime = (s) => {
@@ -79,11 +105,18 @@ const splitTime = (s) => {
   return [s.slice(0, idx), s.slice(idx + 1)];
 };
 
-const fmtNum = (n) => (typeof n === 'number' ? n : parseInt(n) || 0).toLocaleString('en-US');
+const fmtNum = (n) =>
+  (typeof n === 'number' ? n : parseInt(n) || 0).toLocaleString('en-US');
 
 /* ───────── small reusable components ───────── */
 
-const FilterPillMenu = ({ label, value, options, onChange, allLabel = '全部' }) => {
+const FilterPillMenu = ({
+  label,
+  value,
+  options,
+  onChange,
+  allLabel = '全部',
+}) => {
   const wrapRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState(null);
@@ -91,7 +124,8 @@ const FilterPillMenu = ({ label, value, options, onChange, allLabel = '全部' }
   useEffect(() => {
     if (!open) return;
     const onDoc = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target))
+        setOpen(false);
     };
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
@@ -113,19 +147,33 @@ const FilterPillMenu = ({ label, value, options, onChange, allLabel = '全部' }
   const allOpts = [{ value: 'all', label: allLabel }, ...options];
 
   return (
-    <div ref={wrapRef} style={{ display: 'inline-block', position: 'relative' }}>
-      <button type='button' className={`alog-pill ${active ? 'active' : ''}`} onClick={toggle}>
+    <div
+      ref={wrapRef}
+      style={{ display: 'inline-block', position: 'relative' }}
+    >
+      <button
+        type='button'
+        className={`alog-pill ${active ? 'active' : ''}`}
+        onClick={toggle}
+      >
         <span className='pill-key'>{label}:</span>
         <span>{active ? sel?.label || value : allLabel}</span>
         {active ? (
-          <span className='pill-clear' onClick={(e) => { e.stopPropagation(); onChange('all'); }}>
+          <span
+            className='pill-clear'
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange('all');
+            }}
+          >
             <I.Close />
           </span>
         ) : (
           <I.Chevron />
         )}
       </button>
-      {open && pos &&
+      {open &&
+        pos &&
         createPortal(
           <div
             className='alog-menu-portal'
@@ -137,9 +185,15 @@ const FilterPillMenu = ({ label, value, options, onChange, allLabel = '全部' }
                 key={o.value}
                 type='button'
                 className={`alog-menu-item ${String(value) === String(o.value) ? 'selected' : ''}`}
-                onClick={() => { onChange(o.value); setOpen(false); }}
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
               >
-                {o.label} <span className='check'><I.Check /></span>
+                {o.label}{' '}
+                <span className='check'>
+                  <I.Check />
+                </span>
               </button>
             ))}
           </div>,
@@ -180,7 +234,15 @@ const setDensityOnRoot = (dense) => {
 
 /* ───────── Row ───────── */
 
-const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText }) => {
+const Row = ({
+  record,
+  expanded,
+  onToggle,
+  expandRows,
+  isAdminUser,
+  t,
+  copyText,
+}) => {
   const kind = TYPE_TO_KIND[record.type] || 'system';
   const isConsume = kind === 'consume';
   const isError = kind === 'error';
@@ -198,8 +260,11 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
   const ttftSec = other?.frt ? (parseFloat(other.frt) / 1000).toFixed(1) : null;
 
   const requestId = record.request_id || other?.request_id || '';
-  const channelLabel = record.channel_name || (record.channel ? `#${record.channel}` : '');
-  const failReason = isError ? (record.content || other?.reject_reason || '') : '';
+  const channelLabel =
+    record.channel_name || (record.channel ? `#${record.channel}` : '');
+  const failReason = isError
+    ? record.content || other?.reject_reason || ''
+    : '';
 
   const onCopyReq = (e) => {
     e.stopPropagation();
@@ -219,7 +284,9 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
           </div>
         </td>
         <td>
-          <span className={`alog-type-label ${kind}`}>{t(TYPE_LABEL[record.type] || '系统')}</span>
+          <span className={`alog-type-label ${kind}`}>
+            {t(TYPE_LABEL[record.type] || '系统')}
+          </span>
         </td>
         {isAdminUser && (
           <td>
@@ -242,7 +309,9 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
         <td>
           {record.model_name ? (
             <span className='alog-model-pill'>
-              <span className={`alog-provider-icon ${provider}`}>{PROVIDER_GLYPHS[provider]}</span>
+              <span className={`alog-provider-icon ${provider}`}>
+                {PROVIDER_GLYPHS[provider]}
+              </span>
               {record.model_name}
             </span>
           ) : (
@@ -251,7 +320,9 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
         </td>
         <td>
           {record.token_name ? (
-            <span className='alog-token-pill' title={record.token_name}>{record.token_name}</span>
+            <span className='alog-token-pill' title={record.token_name}>
+              {record.token_name}
+            </span>
           ) : (
             <span style={{ color: 'var(--alog-ink-300)' }}>—</span>
           )}
@@ -260,19 +331,29 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
           {isConsume && (
             <div className='alog-metrics-cell'>
               {useTimeSec > 0 && (
-                <span className='alog-metric-chip duration'>{useTimeSec}<span className='unit'>s</span></span>
+                <span className='alog-metric-chip duration'>
+                  {useTimeSec}
+                  <span className='unit'>s</span>
+                </span>
               )}
               {ttftSec && (
-                <span className='alog-metric-chip ttft'>{ttftSec}<span className='unit'>s</span></span>
+                <span className='alog-metric-chip ttft'>
+                  {ttftSec}
+                  <span className='unit'>s</span>
+                </span>
               )}
-              <span className={`alog-metric-chip ${record.is_stream ? 'stream' : 'nostream'}`}>
+              <span
+                className={`alog-metric-chip ${record.is_stream ? 'stream' : 'nostream'}`}
+              >
                 {record.is_stream ? t('流') : t('非流')}
               </span>
             </div>
           )}
           {isSystem && (
             <span className='alog-detail-cell'>
-              <span className='text' title={record.content}>{record.content || '—'}</span>
+              <span className='text' title={record.content}>
+                {record.content || '—'}
+              </span>
               {record.quota > 0 && (
                 <span className='gain'>+{renderQuota(record.quota, 6)}</span>
               )}
@@ -280,13 +361,17 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
           )}
           {isError && (
             <span className='alog-detail-cell'>
-              <span className='err text' title={failReason}>{failReason || t('请求失败')}</span>
+              <span className='err text' title={failReason}>
+                {failReason || t('请求失败')}
+              </span>
             </span>
           )}
         </td>
         <td>
           {totalTokens > 0 ? (
-            <span className='alog-metric-chip tokens'>{fmtNum(totalTokens)}</span>
+            <span className='alog-metric-chip tokens'>
+              {fmtNum(totalTokens)}
+            </span>
           ) : (
             <span style={{ color: 'var(--alog-ink-300)' }}>—</span>
           )}
@@ -295,16 +380,29 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
           {isConsume ? (
             <span className='alog-cost'>{renderQuota(record.quota, 6)}</span>
           ) : isSystem && record.quota > 0 ? (
-            <span className='alog-cost gain'>+{renderQuota(record.quota, 6)}</span>
+            <span className='alog-cost gain'>
+              +{renderQuota(record.quota, 6)}
+            </span>
           ) : (
             <span className='alog-cost zero'>—</span>
           )}
         </td>
         <td>
-          <div className='alog-row-actions' onClick={(e) => e.stopPropagation()}>
-            <button type='button' title={t('查看详情')} onClick={onToggle}><I.Eye /></button>
+          <div
+            className='alog-row-actions'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button type='button' title={t('查看详情')} onClick={onToggle}>
+              <I.Eye />
+            </button>
             {requestId && (
-              <button type='button' title={t('复制 Request ID')} onClick={onCopyReq}><I.Copy /></button>
+              <button
+                type='button'
+                title={t('复制 Request ID')}
+                onClick={onCopyReq}
+              >
+                <I.Copy />
+              </button>
             )}
           </div>
         </td>
@@ -316,11 +414,32 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
               <div className='alog-detail-section'>
                 <h4>{t('请求信息')}</h4>
                 <dl className='alog-detail-kv'>
-                  {requestId && (<><dt>Request ID</dt><dd className='mono'>{requestId}</dd></>)}
-                  {record.ip && (<><dt>{t('来源 IP')}</dt><dd className='mono'>{record.ip}</dd></>)}
-                  {record.group && (<><dt>{t('分组')}</dt><dd>{record.group}</dd></>)}
-                  {isAdminUser && channelLabel && (<><dt>{t('渠道')}</dt><dd className='mono'>{channelLabel}</dd></>)}
-                  <dt>{t('时间戳')}</dt><dd className='mono'>{record.timestamp2string}</dd>
+                  {requestId && (
+                    <>
+                      <dt>Request ID</dt>
+                      <dd className='mono'>{requestId}</dd>
+                    </>
+                  )}
+                  {record.ip && (
+                    <>
+                      <dt>{t('来源 IP')}</dt>
+                      <dd className='mono'>{record.ip}</dd>
+                    </>
+                  )}
+                  {record.group && (
+                    <>
+                      <dt>{t('分组')}</dt>
+                      <dd>{record.group}</dd>
+                    </>
+                  )}
+                  {isAdminUser && channelLabel && (
+                    <>
+                      <dt>{t('渠道')}</dt>
+                      <dd className='mono'>{channelLabel}</dd>
+                    </>
+                  )}
+                  <dt>{t('时间戳')}</dt>
+                  <dd className='mono'>{record.timestamp2string}</dd>
                 </dl>
               </div>
               {isConsume && (
@@ -328,22 +447,47 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
                   <div className='alog-detail-section'>
                     <h4>{t('Token 用量')}</h4>
                     <dl className='alog-detail-kv'>
-                      <dt>{t('输入')}</dt><dd className='mono'>{fmtNum(inputTokens)}</dd>
-                      <dt>{t('输出')}</dt><dd className='mono'>{fmtNum(outputTokens)}</dd>
-                      {cacheTokens > 0 && (<><dt>{t('缓存读取')}</dt><dd className='mono'>{fmtNum(cacheTokens)}</dd></>)}
-                      <dt>{t('合计')}</dt><dd className='mono'>{fmtNum(totalWithCache)}</dd>
+                      <dt>{t('输入')}</dt>
+                      <dd className='mono'>{fmtNum(inputTokens)}</dd>
+                      <dt>{t('输出')}</dt>
+                      <dd className='mono'>{fmtNum(outputTokens)}</dd>
+                      {cacheTokens > 0 && (
+                        <>
+                          <dt>{t('缓存读取')}</dt>
+                          <dd className='mono'>{fmtNum(cacheTokens)}</dd>
+                        </>
+                      )}
+                      <dt>{t('合计')}</dt>
+                      <dd className='mono'>{fmtNum(totalWithCache)}</dd>
                     </dl>
                     {totalWithCache > 0 && (
                       <>
                         <div className='alog-token-bar'>
-                          <div className='seg input' style={{ width: `${(inputTokens / totalWithCache) * 100}%` }} />
-                          <div className='seg output' style={{ width: `${(outputTokens / totalWithCache) * 100}%` }} />
-                          <div className='seg cache' style={{ width: `${(cacheTokens / totalWithCache) * 100}%` }} />
+                          <div
+                            className='seg input'
+                            style={{
+                              width: `${(inputTokens / totalWithCache) * 100}%`,
+                            }}
+                          />
+                          <div
+                            className='seg output'
+                            style={{
+                              width: `${(outputTokens / totalWithCache) * 100}%`,
+                            }}
+                          />
+                          <div
+                            className='seg cache'
+                            style={{
+                              width: `${(cacheTokens / totalWithCache) * 100}%`,
+                            }}
+                          />
                         </div>
                         <div className='alog-token-legend'>
                           <span className='input'>{t('输入')}</span>
                           <span className='output'>{t('输出')}</span>
-                          {cacheTokens > 0 && <span className='cache'>{t('缓存')}</span>}
+                          {cacheTokens > 0 && (
+                            <span className='cache'>{t('缓存')}</span>
+                          )}
                         </div>
                       </>
                     )}
@@ -351,11 +495,25 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
                   <div className='alog-detail-section'>
                     <h4>{t('性能 & 计费')}</h4>
                     <dl className='alog-detail-kv'>
-                      {useTimeSec > 0 && (<><dt>{t('总耗时')}</dt><dd className='mono'>{useTimeSec} s</dd></>)}
-                      {ttftSec && (<><dt>{t('首 token 延迟')}</dt><dd className='mono'>{ttftSec} s</dd></>)}
-                      <dt>{t('响应模式')}</dt><dd>{record.is_stream ? t('流式') : t('非流式')}</dd>
+                      {useTimeSec > 0 && (
+                        <>
+                          <dt>{t('总耗时')}</dt>
+                          <dd className='mono'>{useTimeSec} s</dd>
+                        </>
+                      )}
+                      {ttftSec && (
+                        <>
+                          <dt>{t('首 token 延迟')}</dt>
+                          <dd className='mono'>{ttftSec} s</dd>
+                        </>
+                      )}
+                      <dt>{t('响应模式')}</dt>
+                      <dd>{record.is_stream ? t('流式') : t('非流式')}</dd>
                       <dt>{t('本次花费')}</dt>
-                      <dd className='mono' style={{ color: 'var(--alog-blue-1)', fontWeight: 600 }}>
+                      <dd
+                        className='mono'
+                        style={{ color: 'var(--alog-blue-1)', fontWeight: 600 }}
+                      >
                         {renderQuota(record.quota, 6)}
                       </dd>
                     </dl>
@@ -366,12 +524,26 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
                 <div className='alog-detail-section'>
                   <h4>{isError ? t('错误详情') : t('事件详情')}</h4>
                   <dl className='alog-detail-kv'>
-                    {record.content && (<><dt>{t('描述')}</dt><dd>{record.content}</dd></>)}
+                    {record.content && (
+                      <>
+                        <dt>{t('描述')}</dt>
+                        <dd>{record.content}</dd>
+                      </>
+                    )}
                     {record.quota > 0 && (
                       <>
                         <dt>{t('金额')}</dt>
-                        <dd className='mono' style={{ color: isError ? 'var(--alog-red)' : 'var(--alog-green)', fontWeight: 600 }}>
-                          {isSystem ? '+' : ''}{renderQuota(record.quota, 6)}
+                        <dd
+                          className='mono'
+                          style={{
+                            color: isError
+                              ? 'var(--alog-red)'
+                              : 'var(--alog-green)',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {isSystem ? '+' : ''}
+                          {renderQuota(record.quota, 6)}
                         </dd>
                       </>
                     )}
@@ -380,9 +552,33 @@ const Row = ({ record, expanded, onToggle, expandRows, isAdminUser, t, copyText 
               )}
 
               {expandRows && expandRows.length > 0 && (
-                <div className='alog-detail-section' style={{ gridColumn: '1 / -1', marginTop: 4 }}>
+                <div
+                  className='alog-detail-section'
+                  style={{ gridColumn: '1 / -1', marginTop: 4 }}
+                >
                   <h4>{t('扩展信息')}</h4>
-                  <Descriptions data={expandRows} size='small' />
+                  <dl className='alog-detail-kv alog-detail-kv-extra'>
+                    {expandRows.map((row, idx) => {
+                      const isMono =
+                        typeof row.value === 'string' &&
+                        (/^[\w-]{12,}$/.test(row.value) ||
+                          /^\$[\d.]/.test(row.value) ||
+                          row.key === 'Request ID');
+                      const isMulti =
+                        typeof row.value === 'string' &&
+                        row.value.includes('\n');
+                      return (
+                        <React.Fragment key={`${row.key}-${idx}`}>
+                          <dt>{row.key}</dt>
+                          <dd
+                            className={`${isMono ? 'mono' : ''} ${isMulti ? 'multi' : ''}`}
+                          >
+                            {row.value}
+                          </dd>
+                        </React.Fragment>
+                      );
+                    })}
+                  </dl>
                 </div>
               )}
             </div>
@@ -493,7 +689,10 @@ const LogsPage = () => {
     activeFilters.push({
       key: t('搜索'),
       value: searchQuery,
-      onClear: () => { setSearchInput(''); setSearchQuery(''); },
+      onClear: () => {
+        setSearchInput('');
+        setSearchQuery('');
+      },
     });
   }
 
@@ -516,11 +715,28 @@ const LogsPage = () => {
   // Pagination helpers
   const totalPages = Math.max(1, Math.ceil(logCount / (pageSize || 1)));
   const renderPageNumbers = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (totalPages <= 7)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (activePage <= 4) return [1, 2, 3, 4, 5, '…', totalPages];
     if (activePage >= totalPages - 3)
-      return [1, '…', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-    return [1, '…', activePage - 1, activePage, activePage + 1, '…', totalPages];
+      return [
+        1,
+        '…',
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    return [
+      1,
+      '…',
+      activePage - 1,
+      activePage,
+      activePage + 1,
+      '…',
+      totalPages,
+    ];
   };
 
   // Detect quick-range key from current dateRange
@@ -529,8 +745,12 @@ const LogsPage = () => {
     const start = new Date(dateRange[0]);
     const now = new Date();
     const diffDays = Math.round((now - start) / (24 * 60 * 60 * 1000));
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (Math.abs(start - startOfToday) < 60_000) return 'today';
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    if (Math.abs(start - startOfToday) < 60000) return 'today';
     if (Math.abs(diffDays - 7) <= 1) return '7d';
     if (Math.abs(diffDays - 30) <= 1) return '30d';
     return null;
@@ -539,8 +759,17 @@ const LogsPage = () => {
   // CSV export — current page only (no extra backend hop)
   const exportCsv = async () => {
     const headers = [
-      '时间', '类型', '用户', '模型', '令牌', 'Request ID', 'Tokens(in)', 'Tokens(out)',
-      '耗时(s)', '是否流', '花费',
+      '时间',
+      '类型',
+      '用户',
+      '模型',
+      '令牌',
+      'Request ID',
+      'Tokens(in)',
+      'Tokens(out)',
+      '耗时(s)',
+      '是否流',
+      '花费',
     ];
     const lines = [headers.join(',')];
     logs.forEach((r) => {
@@ -559,7 +788,9 @@ const LogsPage = () => {
         renderQuota(r.quota, 6),
       ].map((v) => {
         const s = String(v ?? '');
-        return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+        return s.includes(',') || s.includes('"')
+          ? `"${s.replace(/"/g, '""')}"`
+          : s;
       });
       lines.push(row.join(','));
     });
@@ -596,13 +827,21 @@ const LogsPage = () => {
               </div>
             </div>
             <div className='alog-head-actions'>
-              <button type='button' className='alog-btn' onClick={exportCsv} disabled={logs.length === 0}>
+              <button
+                type='button'
+                className='alog-btn'
+                onClick={exportCsv}
+                disabled={logs.length === 0}
+              >
                 <I.Download /> {t('导出')}
               </button>
               <button
                 type='button'
                 className='alog-iconbtn'
-                onClick={() => { refresh(); handleEyeClick && handleEyeClick(); }}
+                onClick={() => {
+                  refresh();
+                  handleEyeClick && handleEyeClick();
+                }}
                 disabled={loading}
                 title={t('刷新')}
               >
@@ -647,7 +886,9 @@ const LogsPage = () => {
             <div className='alog-kpi'>
               <div className='alog-kpi-label'>{t('平均花费 / 请求')}</div>
               <div className='alog-kpi-value mono'>
-                {avgPerRequest !== null && totalRequests > 0 ? renderQuota(avgPerRequest, 6) : '—'}
+                {avgPerRequest !== null && totalRequests > 0
+                  ? renderQuota(avgPerRequest, 6)
+                  : '—'}
               </div>
               <div className='alog-kpi-foot'>
                 <span>{t('累计花费 / 总请求数')}</span>
@@ -670,17 +911,28 @@ const LogsPage = () => {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
               {searchInput && (
-                <button type='button' className='alog-search-clear' onClick={handleClearSearch} aria-label={t('清除')}>
+                <button
+                  type='button'
+                  className='alog-search-clear'
+                  onClick={handleClearSearch}
+                  aria-label={t('清除')}
+                >
                   <I.Close />
                 </button>
               )}
               <kbd
                 style={{
-                  fontSize: 10, padding: '1px 5px', borderRadius: 4,
-                  background: 'var(--alog-line-soft)', color: 'var(--alog-ink-500)',
-                  border: '1px solid var(--alog-line)', fontFamily: 'inherit',
+                  fontSize: 10,
+                  padding: '1px 5px',
+                  borderRadius: 4,
+                  background: 'var(--alog-line-soft)',
+                  color: 'var(--alog-ink-500)',
+                  border: '1px solid var(--alog-line)',
+                  fontFamily: 'inherit',
                 }}
-              >⌘K</kbd>
+              >
+                ⌘K
+              </kbd>
             </div>
 
             <div className='alog-toolbar-divider' />
@@ -699,9 +951,13 @@ const LogsPage = () => {
 
             <div
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '4px 8px 4px 10px', borderRadius: 8,
-                border: '1px solid var(--alog-line)', background: 'white',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '4px 8px 4px 10px',
+                borderRadius: 8,
+                border: '1px solid var(--alog-line)',
+                background: 'white',
               }}
             >
               <I.Calendar />
@@ -713,7 +969,12 @@ const LogsPage = () => {
                 size='small'
                 density='compact'
                 showClear
-                style={{ border: 'none', background: 'transparent', minWidth: 240, padding: 0 }}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  minWidth: 240,
+                  padding: 0,
+                }}
               />
             </div>
           </form>
@@ -724,8 +985,11 @@ const LogsPage = () => {
               <span className='label'>{t('筛选条件')}</span>
               {activeFilters.map((f, i) => (
                 <span key={i} className='alog-filter-tag'>
-                  <span className='key'>{f.key}:</span>{f.value}
-                  <button type='button' className='x' onClick={f.onClear}><I.Close /></button>
+                  <span className='key'>{f.key}:</span>
+                  {f.value}
+                  <button type='button' className='x' onClick={f.onClear}>
+                    <I.Close />
+                  </button>
                 </span>
               ))}
               <button
@@ -743,7 +1007,9 @@ const LogsPage = () => {
           )}
 
           {/* Table */}
-          <div className={`alog-table-wrap ${activeFilters.length > 0 ? 'with-active-filters' : ''}`}>
+          <div
+            className={`alog-table-wrap ${activeFilters.length > 0 ? 'with-active-filters' : ''}`}
+          >
             <div className='alog-table-scroll'>
               <table className='alog-table'>
                 <thead>
@@ -755,7 +1021,9 @@ const LogsPage = () => {
                     <th style={{ width: 110 }}>{t('令牌')}</th>
                     <th>{t('详情 / 性能')}</th>
                     <th style={{ width: 90 }}>Tokens</th>
-                    <th className='num' style={{ width: 110 }}>{t('花费')}</th>
+                    <th className='num' style={{ width: 110 }}>
+                      {t('花费')}
+                    </th>
                     <th style={{ width: 70 }} />
                   </tr>
                 </thead>
@@ -789,32 +1057,49 @@ const LogsPage = () => {
             {logCount > 0 && (
               <div className='alog-table-foot'>
                 <div>
-                  {t('共')} <strong style={{ color: 'var(--alog-ink-900)' }}>{logCount}</strong> {t('条')}
-                  {' · '}{t('第')} {activePage} / {totalPages} {t('页')}
+                  {t('共')}{' '}
+                  <strong style={{ color: 'var(--alog-ink-900)' }}>
+                    {logCount}
+                  </strong>{' '}
+                  {t('条')}
+                  {' · '}
+                  {t('第')} {activePage} / {totalPages} {t('页')}
                 </div>
                 <div className='alog-pager'>
                   <button
                     type='button'
                     disabled={activePage <= 1}
-                    onClick={() => handlePageChange(Math.max(1, activePage - 1))}
-                  ><I.ChevronL /></button>
+                    onClick={() =>
+                      handlePageChange(Math.max(1, activePage - 1))
+                    }
+                  >
+                    <I.ChevronL />
+                  </button>
                   {renderPageNumbers().map((p, i) =>
                     p === '…' ? (
-                      <span key={`e-${i}`} className='ellipsis'>…</span>
+                      <span key={`e-${i}`} className='ellipsis'>
+                        …
+                      </span>
                     ) : (
                       <button
                         key={p}
                         type='button'
                         className={p === activePage ? 'active' : ''}
                         onClick={() => handlePageChange(p)}
-                      >{p}</button>
+                      >
+                        {p}
+                      </button>
                     ),
                   )}
                   <button
                     type='button'
                     disabled={activePage >= totalPages}
-                    onClick={() => handlePageChange(Math.min(totalPages, activePage + 1))}
-                  ><I.ChevronR /></button>
+                    onClick={() =>
+                      handlePageChange(Math.min(totalPages, activePage + 1))
+                    }
+                  >
+                    <I.ChevronR />
+                  </button>
                 </div>
               </div>
             )}

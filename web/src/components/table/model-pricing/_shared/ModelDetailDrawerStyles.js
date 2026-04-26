@@ -20,14 +20,17 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 
 export const MODEL_DRAWER_STYLES = `
-/* Kill SideSheet's default border-radius and inner body padding so the
-   panel meets the viewport edge cleanly and our scoped layout fills height. */
-.semi-sidesheet-inner.md-detail-sheet,
-.semi-sidesheet-inner.md-detail-sheet .semi-sidesheet-content,
-.semi-sidesheet-inner.md-detail-sheet .semi-sidesheet-body {
+/* Drawer container — the .md-detail-sheet className lives on the
+   outermost wrapper. These descendant selectors out-specificity the
+   global .semi-sidesheet-inner { border-radius: var(--radius-lg) !important }
+   rule from web/src/index.css. */
+.md-detail-sheet.semi-sidesheet,
+.md-detail-sheet .semi-sidesheet-inner,
+.md-detail-sheet .semi-sidesheet-content,
+.md-detail-sheet .semi-sidesheet-body {
   border-radius: 0 !important;
 }
-.semi-sidesheet-inner.md-detail-sheet .semi-sidesheet-body {
+.md-detail-sheet .semi-sidesheet-body {
   padding: 0 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -340,8 +343,9 @@ export const MODEL_DRAWER_STYLES = `
 .md-table-head,
 .md-table-row {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1.3fr;
+  grid-template-columns: 1fr 0.9fr 1.6fr;
   align-items: center;
+  gap: 8px;
   padding: 10px 14px;
   font-size: 12.5px;
 }
@@ -406,28 +410,32 @@ export const MODEL_DRAWER_STYLES = `
 .md-price-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 .md-price-line {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  flex-wrap: wrap;
+  white-space: nowrap;
+  min-width: 0;
 }
 .md-price-label {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--md-ink-500);
-  min-width: 30px;
+  flex: none;
 }
 .md-price-val {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #ea580c;
   font-feature-settings: 'tnum';
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 .md-price-unit {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--md-ink-500);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 .md-loading {
   display: flex;

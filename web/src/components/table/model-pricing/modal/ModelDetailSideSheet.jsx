@@ -305,7 +305,7 @@ const ModelDetailSideSheet = ({
     <SideSheet
       placement='right'
       visible={visible}
-      width={isMobile ? '100%' : 520}
+      width={isMobile ? '100%' : 580}
       onCancel={onClose}
       closable={false}
       headerStyle={{ display: 'none' }}

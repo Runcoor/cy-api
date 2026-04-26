@@ -233,6 +233,48 @@ function PriceCell({ label, value, t }) {
   );
 }
 
+/* Per-call pill — used when a model is billed by request (quota_type === 1).
+   In list/card layouts it spans the three input/output/cache columns. */
+function PerCallPriceCell({ value, t, span }) {
+  return (
+    <div
+      className='aml-price-cell percall'
+      style={span ? { gridColumn: `span ${span}` } : undefined}
+    >
+      <div className='label'>{t('按次计费')}</div>
+      <div className='value mono'>
+        {value || '—'}
+        <span className='unit'> / {t('次')}</span>
+      </div>
+    </div>
+  );
+}
+
+/* Render the right set of price cells for a model based on quota_type. */
+function PriceCells({ m, layout, t }) {
+  if (m.quota_type === 1) {
+    return <PerCallPriceCell value={m._input} t={t} span={3} />;
+  }
+  if (layout === 'card') {
+    return (
+      <>
+        <PriceCell label={t('输入')} value={m._input} t={t} />
+        <PriceCell label={t('输出')} value={m._output} t={t} />
+        <PriceCell label={t('缓存')} value={m._cache} t={t} />
+      </>
+    );
+  }
+  return (
+    <>
+      <PriceCell label={t('输入')} value={m._input} t={t} />
+      <PriceCell label={t('输出')} value={m._output} t={t} />
+      <div className='aml-cache-cell' style={{ display: 'contents' }}>
+        <PriceCell label={t('缓存读取')} value={m._cache} t={t} />
+      </div>
+    </>
+  );
+}
+
 /* ─── Chip ─── */
 function Chip({ active, onClick, children, count }) {
   return (
@@ -273,11 +315,7 @@ function ListRow({ m, selected, onToggleSelect, onView, t }) {
         </div>
         <div className='aml-model-desc'>{m.description || '—'}</div>
       </div>
-      <PriceCell label={t('输入')} value={m._input} t={t} />
-      <PriceCell label={t('输出')} value={m._output} t={t} />
-      <div className='aml-cache-cell' style={{ display: 'contents' }}>
-        <PriceCell label={t('缓存读取')} value={m._cache} t={t} />
-      </div>
+      <PriceCells m={m} layout='list' t={t} />
       <div className='aml-tag-cell'>
         {tags.slice(0, 2).map((tg) => (
           <span key={tg} className='aml-tag'>
@@ -332,9 +370,7 @@ function CardItem({ m, selected, onToggleSelect, onView, t }) {
         </button>
       </div>
       <div className='aml-card-prices'>
-        <PriceCell label={t('输入')} value={m._input} t={t} />
-        <PriceCell label={t('输出')} value={m._output} t={t} />
-        <PriceCell label={t('缓存')} value={m._cache} t={t} />
+        <PriceCells m={m} layout='card' t={t} />
       </div>
       <div className='aml-card-foot'>
         <div className='left'>
@@ -420,9 +456,17 @@ function TableView({ items, selected, onToggleSelect, onView, t }) {
                 <td>
                   <span className='aml-pill'>{m.vendor_name || '—'}</span>
                 </td>
-                <td className='num grad-num mono'>{m._input || '—'}</td>
-                <td className='num grad-num mono'>{m._output || '—'}</td>
-                <td className='num grad-num mono'>{m._cache || '—'}</td>
+                {m.quota_type === 1 ? (
+                  <td colSpan={3} className='num grad-num mono'>
+                    {m._input || '—'} / {t('次')}
+                  </td>
+                ) : (
+                  <>
+                    <td className='num grad-num mono'>{m._input || '—'}</td>
+                    <td className='num grad-num mono'>{m._output || '—'}</td>
+                    <td className='num grad-num mono'>{m._cache || '—'}</td>
+                  </>
+                )}
                 <td>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {tags.slice(0, 3).map((tg) => (
@@ -1047,6 +1091,14 @@ const PAGE_CSS = `
 }
 .aml-price-cell .unit { font-size: 10px; color: var(--aml-ink-400); margin-left: 1px; font-weight: 500; }
 .aml-price-cell.muted .value { background: none; -webkit-text-fill-color: var(--aml-ink-300); color: var(--aml-ink-300); }
+.aml-price-cell.percall .label {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: #1d8e9f; font-weight: 600;
+}
+.aml-price-cell.percall .label::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: #30b0c7; box-shadow: 0 0 0 2px rgba(48,176,199,0.18);
+}
 
 .aml-tag-cell { display: flex; gap: 4px; flex-wrap: wrap; max-width: 130px; justify-content: flex-end; }
 .aml-tag {

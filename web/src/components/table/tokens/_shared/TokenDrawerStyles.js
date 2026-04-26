@@ -20,14 +20,18 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 
 export const TOKEN_DRAWER_STYLES = `
-/* Drawer container — scoped to .tk-create-sheet so other SideSheet
-   instances on the page keep their default styling. */
-.semi-sidesheet-inner.tk-create-sheet,
-.semi-sidesheet-inner.tk-create-sheet .semi-sidesheet-content,
-.semi-sidesheet-inner.tk-create-sheet .semi-sidesheet-body {
+/* Drawer container — the .tk-create-sheet className lives on the
+   outermost wrapper (Semi puts it there alongside .semi-sidesheet).
+   These descendant selectors out-specificity the global
+   .semi-sidesheet-inner { border-radius: var(--radius-lg) !important }
+   rule from web/src/index.css. */
+.tk-create-sheet.semi-sidesheet,
+.tk-create-sheet .semi-sidesheet-inner,
+.tk-create-sheet .semi-sidesheet-content,
+.tk-create-sheet .semi-sidesheet-body {
   border-radius: 0 !important;
 }
-.semi-sidesheet-inner.tk-create-sheet .semi-sidesheet-body {
+.tk-create-sheet .semi-sidesheet-body {
   padding: 0 !important;
   display: flex !important;
   flex-direction: column !important;
