@@ -514,6 +514,65 @@ export const LOG_PAGE_STYLES = `
   .alog-kpis.cols-4 .alog-kpi:nth-child(4) { display: block; }
   .alog-page { padding: 16px 14px 40px; }
 }
+
+/* ───────── Dark mode ───────── */
+html.dark .alog-root {
+  --alog-ink-900: rgba(255,255,255,0.95);
+  --alog-ink-700: rgba(255,255,255,0.78);
+  --alog-ink-500: rgba(255,255,255,0.55);
+  --alog-ink-400: rgba(255,255,255,0.42);
+  --alog-ink-300: rgba(255,255,255,0.28);
+  --alog-line: rgba(255,255,255,0.08);
+  --alog-line-soft: rgba(255,255,255,0.04);
+  --alog-bg: #1c1c1e;
+  --alog-card: #2a2a2c;
+  --alog-green-bg: rgba(48,209,88,0.16);
+  --alog-orange-bg: rgba(255,159,10,0.16);
+  --alog-red-bg: rgba(255,69,58,0.16);
+  --alog-purple-bg: rgba(124,58,237,0.22);
+}
+html.dark .alog-root .alog-search,
+html.dark .alog-root .alog-pill,
+html.dark .alog-root .alog-quick-ranges,
+html.dark .alog-root .alog-filter-tag {
+  background: var(--alog-card);
+}
+html.dark .alog-root .alog-table thead th,
+html.dark .alog-root .alog-table tbody tr:hover,
+html.dark .alog-root .alog-table-foot {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .alog-root .alog-table tbody tr.expanded,
+html.dark .alog-root .alog-detail-panel {
+  background: linear-gradient(180deg, rgba(56,182,255,0.08), transparent);
+}
+html.dark .alog-root .alog-pager button {
+  background: var(--alog-card);
+}
+html.dark .alog-root .alog-detail-kv dd.multi,
+html.dark .alog-root .alog-detail-kv-extra {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .alog-root .alog-detail-kv-extra dd.multi {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.08);
+}
+html.dark .alog-root .alog-metric-chip.duration {
+  background: rgba(255,159,10,0.16); color: #ffb340;
+}
+html.dark .alog-root .alog-metric-chip.ttft {
+  background: rgba(255,107,46,0.18); color: #ff8d5a;
+}
+html.dark .alog-menu-portal {
+  background: #2a2a2c;
+  border-color: rgba(255,255,255,0.1);
+  --alog-line-soft: rgba(255,255,255,0.06);
+  --alog-ink-700: rgba(255,255,255,0.78);
+  box-shadow: 0 12px 28px -8px rgba(0,0,0,0.45);
+}
+html.dark .alog-menu-portal .alog-menu-item { color: rgba(255,255,255,0.78); }
+html.dark .alog-menu-portal .alog-menu-item:hover { background: rgba(255,255,255,0.06); }
+html.dark .alog-menu-portal .alog-menu-divider { background: rgba(255,255,255,0.06); }
 `;
 
 /* ───────── Inline-SVG icon set shared by both pages ───────── */

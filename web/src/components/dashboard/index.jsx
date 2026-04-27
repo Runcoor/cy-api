@@ -214,7 +214,7 @@ function Gauge({ value, max }) {
           <stop offset='100%' stopColor='#00c6ff' />
         </linearGradient>
       </defs>
-      <path d={arcBg} fill='none' stroke='#e8edf3' strokeWidth='6' strokeLinecap='round' />
+      <path d={arcBg} fill='none' stroke='var(--add-line)' strokeWidth='6' strokeLinecap='round' />
       <path
         d={arcFg}
         fill='none'
@@ -1147,6 +1147,19 @@ const PAGE_CSS = `
   .agg-dash-kpi-row { grid-template-columns: 1fr; }
   .balance-card .bc-stats { grid-template-columns: 1fr; }
   .agg-dash-topbar { flex-direction: column; align-items: flex-start; }
+}
+
+/* ───────── Dark mode ───────── */
+html.dark .agg-dash-root {
+  --add-ink-900: rgba(255,255,255,0.95);
+  --add-ink-700: rgba(255,255,255,0.78);
+  --add-ink-500: rgba(255,255,255,0.55);
+  --add-ink-400: rgba(255,255,255,0.42);
+  --add-ink-300: rgba(255,255,255,0.28);
+  --add-line: rgba(255,255,255,0.08);
+  --add-line-soft: rgba(255,255,255,0.04);
+  --add-bg: #1c1c1e;
+  --add-card: #2a2a2c;
 }
 `;
 

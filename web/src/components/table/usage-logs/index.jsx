@@ -957,7 +957,7 @@ const LogsPage = () => {
                 padding: '4px 8px 4px 10px',
                 borderRadius: 8,
                 border: '1px solid var(--alog-line)',
-                background: 'white',
+                background: 'var(--alog-card)',
               }}
             >
               <I.Calendar />

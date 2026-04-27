@@ -442,6 +442,59 @@ export const ACCOUNT_SETTINGS_STYLES = `
   .aas-root .aas-section-head { padding: 12px 14px; }
   .aas-root .aas-row { padding: 10px 14px; }
 }
+
+/* ───────── Dark mode ───────── */
+html.dark .aas-root {
+  --aas-ink-900: rgba(255,255,255,0.95);
+  --aas-ink-700: rgba(255,255,255,0.78);
+  --aas-ink-500: rgba(255,255,255,0.55);
+  --aas-ink-400: rgba(255,255,255,0.42);
+  --aas-ink-300: rgba(255,255,255,0.28);
+  --aas-line: rgba(255,255,255,0.08);
+  --aas-line-soft: rgba(255,255,255,0.04);
+  --aas-bg: #1c1c1e;
+  --aas-card: #2a2a2c;
+  --aas-grad-bg: linear-gradient(135deg, rgba(0,114,255,0.12) 0%, rgba(0,198,255,0.10) 100%);
+  --aas-green-bg: rgba(48,209,88,0.16);
+  --aas-orange-bg: rgba(255,159,10,0.16);
+  --aas-red-bg: rgba(255,69,58,0.16);
+  --aas-purple-bg: rgba(124,58,237,0.22);
+}
+html.dark .aas-root .aas-binding {
+  background: var(--aas-card);
+}
+html.dark .aas-root .aas-binding:hover,
+html.dark .aas-root .aas-row:hover {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .aas-root .aas-binding-icon.email { background: rgba(56,182,255,0.18); color: #5ec4ff; }
+html.dark .aas-root .aas-binding-icon.wechat { background: rgba(7,193,96,0.18); color: #4ade80; }
+html.dark .aas-root .aas-binding-icon.github { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); }
+html.dark .aas-root .aas-binding-icon.discord { background: rgba(88,101,242,0.22); color: #a4adff; }
+html.dark .aas-root .aas-binding-icon.telegram { background: rgba(0,136,204,0.22); color: #5cc5ff; }
+html.dark .aas-root .aas-binding-icon.linuxdo { background: rgba(255,159,10,0.18); color: #ffb340; }
+html.dark .aas-root .aas-btn { background: rgba(255,255,255,0.04); }
+html.dark .aas-root .aas-btn.danger { background: rgba(255,255,255,0.04); }
+html.dark .aas-root .aas-switch { background: rgba(255,255,255,0.18); }
+html.dark .aas-root .aas-switch::after { background: #f0f0f2; }
+html.dark .aas-root .aas-input { background: rgba(255,255,255,0.04); }
+html.dark .aas-root .aas-sub-card { background: rgba(255,255,255,0.04); }
+html.dark .aas-root .aas-token-display { background: #0a0a0c; color: #cce6ff; }
+html.dark .aas-root .aas-avatar { background: #0a0a0c; }
+html.dark .aas-root .aas-role-pill { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.95); }
+html.dark .aas-root .aas-danger-row {
+  background: linear-gradient(135deg, rgba(255,69,58,0.10) 0%, rgba(255,69,58,0.05) 100%);
+  border-color: rgba(255,69,58,0.25);
+}
+html.dark .aas-root .aas-danger-row:hover {
+  background: linear-gradient(135deg, rgba(255,69,58,0.14) 0%, rgba(255,69,58,0.08) 100%);
+}
+
+/* save bar (portalled, lives outside .aas-root) */
+html.dark .aas-save-bar {
+  background: #0a0a0c;
+  box-shadow: 0 14px 40px -10px rgba(0,0,0,0.65);
+}
 `;
 
 // Inline SVG icon set used across the redesigned account page.

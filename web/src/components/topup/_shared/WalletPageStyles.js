@@ -654,6 +654,57 @@ export const WALLET_PAGE_STYLES = `
   .wal-root .wal-tier-step { flex: 0 0 calc(50% - 12px); }
   .wal-root .wal-tier-step::after { display: none; }
 }
+
+/* ───────── Dark mode ───────── */
+html.dark .wal-root {
+  --wal-ink-900: rgba(255,255,255,0.95);
+  --wal-ink-700: rgba(255,255,255,0.78);
+  --wal-ink-500: rgba(255,255,255,0.55);
+  --wal-ink-400: rgba(255,255,255,0.42);
+  --wal-ink-300: rgba(255,255,255,0.28);
+  --wal-line: rgba(255,255,255,0.08);
+  --wal-line-soft: rgba(255,255,255,0.04);
+  --wal-card: #2a2a2c;
+  --wal-green-bg: rgba(48,209,88,0.16);
+  --wal-orange-bg: rgba(255,159,10,0.16);
+  --wal-red-bg: rgba(255,69,58,0.16);
+  --wal-purple-bg: rgba(124,58,237,0.22);
+}
+html.dark .wal-root .wal-trend-tabs {
+  background: rgba(255,255,255,0.06);
+}
+html.dark .wal-root .wal-trend-tabs button.active {
+  background: var(--wal-card);
+  color: rgba(255,255,255,0.95);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+html.dark .wal-root .wal-billing-opt {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .wal-root .wal-invite-link {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .wal-root .wal-tier-step .wal-tdot {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.16);
+}
+html.dark .wal-root .wal-recharge-cta-mini {
+  background: linear-gradient(135deg, #ffffff 0%, #d4ecff 100%);
+  color: #0050d4;
+}
+html.dark .wal-root .wal-share-btn {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6);
+}
+html.dark .wal-root .wal-billing-hint {
+  background: linear-gradient(135deg, rgba(56,182,255,0.10), rgba(0,198,255,0.06));
+  border-color: rgba(56,182,255,0.18);
+  color: rgba(255,255,255,0.78);
+}
+html.dark .wal-root .wal-bo-tooltip {
+  background: #0a0a0c; color: rgba(255,255,255,0.92);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.7);
+}
+html.dark .wal-root .wal-bo-tooltip-arrow { border-top-color: #0a0a0c; }
 `;
 
 export const WalIcons = {

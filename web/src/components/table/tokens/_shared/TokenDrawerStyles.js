@@ -678,6 +678,40 @@ export const TOKEN_DRAWER_STYLES = `
     justify-content: flex-end;
   }
 }
+
+/* ───────── Dark mode ───────── */
+html.dark .tk-root {
+  --tk-ink-900: rgba(255,255,255,0.95);
+  --tk-ink-700: rgba(255,255,255,0.78);
+  --tk-ink-500: rgba(255,255,255,0.55);
+  --tk-ink-400: rgba(255,255,255,0.42);
+  --tk-ink-300: rgba(255,255,255,0.28);
+  --tk-line: rgba(255,255,255,0.08);
+  --tk-line-soft: rgba(255,255,255,0.04);
+  --tk-bg: #1c1c1e;
+  --tk-card: #2a2a2c;
+}
+html.dark .tk-root .tk-input,
+html.dark .tk-root .tk-textarea,
+html.dark .tk-root .tk-stepper,
+html.dark .tk-root .tk-stepper input,
+html.dark .tk-root .tk-chip,
+html.dark .tk-root .tk-input-suffix,
+html.dark .tk-root .tk-quota-presets button,
+html.dark .tk-root .tk-btn-ghost {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .tk-root .tk-switch-knob {
+  background: #f0f0f2;
+}
+html.dark .tk-root .tk-foot {
+  background: #232325;
+}
+html.dark .tk-root .semi-select,
+html.dark .tk-root .semi-select .semi-select-selection,
+html.dark .tk-root .semi-input-wrapper {
+  background: rgba(255,255,255,0.04) !important;
+}
 `;
 
 export const TkIcons = {

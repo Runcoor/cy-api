@@ -384,18 +384,6 @@ const PAGE_STYLES = `
 .aks-menu-portal .aks-menu-item.danger:hover { background: rgba(239,91,91,0.06); }
 .aks-menu-portal .aks-menu-divider { height: 1px; background: var(--aks-line); margin: 4px 2px; }
 .aks-menu-portal .aks-menu-section-label { font-size: 10px; color: var(--aks-ink-400); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; padding: 6px 10px 4px; }
-@media (prefers-color-scheme: dark) {
-  .aks-menu-portal[data-theme='auto'] {
-    background: #131c27; border-color: #1f2a37;
-    --aks-ink-700: #c4ccd5;
-    --aks-line: #1f2a37;
-  }
-}
-.aks-menu-portal[data-theme='dark'] {
-  background: #131c27; border-color: #1f2a37;
-  --aks-ink-700: #c4ccd5;
-  --aks-line: #1f2a37;
-}
 .aks-menu-item {
   display: flex; align-items: center; gap: 8px;
   padding: 7px 10px; border-radius: 5px; cursor: pointer; color: var(--aks-ink-700);
@@ -528,37 +516,44 @@ const PAGE_STYLES = `
   .aks-page { padding: 16px 14px 40px; }
 }
 
-/* dark mode */
-@media (prefers-color-scheme: dark) {
-  .aks-root[data-theme='auto'] {
-    --aks-ink-900: #e6eaf0;
-    --aks-ink-700: #c4ccd5;
-    --aks-ink-500: #8593a3;
-    --aks-ink-400: #6c7a8b;
-    --aks-ink-300: #4a5564;
-    --aks-line: #1f2a37;
-    --aks-line-soft: #182230;
-    --aks-bg: #0b121b;
-    --aks-card: #131c27;
-  }
-  .aks-root[data-theme='auto'] .aks-table thead th { background: #182230; }
-  .aks-root[data-theme='auto'] .aks-table tbody tr:hover { background: #182230; }
-  .aks-root[data-theme='auto'] .aks-table-foot { background: #182230; }
+/* ───────── Dark mode (driven by html.dark from ThemeToggle) ───────── */
+html.dark .aks-root {
+  --aks-ink-900: rgba(255,255,255,0.95);
+  --aks-ink-700: rgba(255,255,255,0.78);
+  --aks-ink-500: rgba(255,255,255,0.55);
+  --aks-ink-400: rgba(255,255,255,0.42);
+  --aks-ink-300: rgba(255,255,255,0.28);
+  --aks-line: rgba(255,255,255,0.08);
+  --aks-line-soft: rgba(255,255,255,0.04);
+  --aks-bg: #1c1c1e;
+  --aks-card: #2a2a2c;
 }
-.aks-root[data-theme='dark'] {
-  --aks-ink-900: #e6eaf0;
-  --aks-ink-700: #c4ccd5;
-  --aks-ink-500: #8593a3;
-  --aks-ink-400: #6c7a8b;
-  --aks-ink-300: #4a5564;
-  --aks-line: #1f2a37;
-  --aks-line-soft: #182230;
-  --aks-bg: #0b121b;
-  --aks-card: #131c27;
+html.dark .aks-root .aks-table thead th,
+html.dark .aks-root .aks-table tbody tr:hover,
+html.dark .aks-root .aks-table-foot {
+  background: rgba(255,255,255,0.04);
 }
-.aks-root[data-theme='dark'] .aks-table thead th { background: #182230; }
-.aks-root[data-theme='dark'] .aks-table tbody tr:hover { background: #182230; }
-.aks-root[data-theme='dark'] .aks-table-foot { background: #182230; }
+html.dark .aks-root .aks-cb {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.32);
+}
+html.dark .aks-root .aks-pager button {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .aks-root .aks-bulk-bar .actions button {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.78);
+}
+html.dark .aks-menu-portal {
+  background: #2a2a2c;
+  border-color: rgba(255,255,255,0.1);
+  --aks-ink-700: rgba(255,255,255,0.78);
+  --aks-line: rgba(255,255,255,0.08);
+  box-shadow: 0 12px 28px -8px rgba(0,0,0,0.45);
+}
+html.dark .aks-menu-portal .aks-menu-item:hover {
+  background: rgba(56,182,255,0.10);
+}
 `;
 
 /* ───────── Small reusable components ───────── */
@@ -1131,7 +1126,7 @@ function TokensPage() {
   }, []);
 
   return (
-    <div className='aks-root' data-theme='auto'>
+    <div className='aks-root'>
       <style>{PAGE_STYLES}</style>
       <div className={`aks-page ${compactMode ? 'aks-page-dense' : ''}`} style={compactMode ? {} : {}}>
         {/* Make density a class on root for the table */}
@@ -1589,7 +1584,6 @@ function TokensPage() {
         createPortal(
           <div
             className='aks-menu-portal'
-            data-theme='auto'
             style={{ top: rowMenu.top, left: rowMenu.left }}
             onClick={(e) => e.stopPropagation()}
           >

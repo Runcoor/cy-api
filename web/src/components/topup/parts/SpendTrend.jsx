@@ -141,7 +141,7 @@ const SpendTrend = ({
               x2={W}
               y1={H * f}
               y2={H * f}
-              stroke='#eef2f7'
+              stroke='var(--wal-line-soft)'
               strokeDasharray='3 3'
             />
           ))}
@@ -160,7 +160,7 @@ const SpendTrend = ({
                 cx={peakPoint.x}
                 cy={peakPoint.y}
                 r='5'
-                fill='white'
+                fill='var(--wal-card)'
                 stroke='var(--wal-blue-1)'
                 strokeWidth='2.5'
               />

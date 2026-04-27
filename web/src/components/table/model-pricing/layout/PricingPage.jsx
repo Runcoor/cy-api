@@ -1247,9 +1247,48 @@ const PAGE_CSS = `
   .aml-cards { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* dark-mode awareness — soften the bg/lines if the host is dark */
-@media (prefers-color-scheme: dark) {
-  .aml-root { background: transparent; }
+/* ───────── Dark mode (driven by html.dark, set by ThemeToggle) ───────── */
+html.dark .aml-root {
+  --aml-ink-900: rgba(255,255,255,0.95);
+  --aml-ink-700: rgba(255,255,255,0.78);
+  --aml-ink-500: rgba(255,255,255,0.55);
+  --aml-ink-400: rgba(255,255,255,0.42);
+  --aml-ink-300: rgba(255,255,255,0.28);
+  --aml-line: rgba(255,255,255,0.08);
+  --aml-line-soft: rgba(255,255,255,0.04);
+  --aml-bg: #1c1c1e;
+  --aml-card: #2a2a2c;
+}
+html.dark .aml-root .aml-table thead th,
+html.dark .aml-root .aml-table tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+html.dark .aml-root .aml-table tbody tr.selected {
+  background: linear-gradient(90deg, rgba(56,182,255,0.10), transparent);
+}
+html.dark .aml-root .aml-row.selected {
+  background: linear-gradient(180deg, rgba(56,182,255,0.10), transparent 40%);
+}
+html.dark .aml-root .aml-pill {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6);
+}
+html.dark .aml-root .aml-card-item:hover,
+html.dark .aml-root .aml-row:hover {
+  border-color: rgba(56,182,255,0.32);
+  box-shadow: 0 4px 14px -6px rgba(0,0,0,0.4);
+}
+html.dark .aml-root button.aml-checkbox {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.32);
+}
+html.dark .aml-root button.aml-checkbox.checked {
+  background: var(--aml-grad);
+  border-color: transparent;
+}
+html.dark .aml-sel-bar {
+  background: #2a2a2c;
+  color: rgba(255,255,255,0.9);
+  box-shadow: 0 14px 40px -10px rgba(0,0,0,0.5);
 }
 `;
 

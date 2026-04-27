@@ -608,7 +608,7 @@ const TaskLogsPage = () => {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '4px 8px 4px 10px', borderRadius: 8,
-                border: '1px solid var(--alog-line)', background: 'white',
+                border: '1px solid var(--alog-line)', background: 'var(--alog-card)',
               }}
             >
               <I.Calendar />

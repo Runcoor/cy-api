@@ -462,6 +462,43 @@ export const MODEL_DRAWER_STYLES = `
     padding: 10px 12px;
   }
 }
+
+/* ───────── Dark mode ───────── */
+html.dark .md-root {
+  --md-ink-900: rgba(255,255,255,0.95);
+  --md-ink-700: rgba(255,255,255,0.78);
+  --md-ink-500: rgba(255,255,255,0.55);
+  --md-ink-400: rgba(255,255,255,0.42);
+  --md-ink-300: rgba(255,255,255,0.28);
+  --md-line: rgba(255,255,255,0.08);
+  --md-bg: #1c1c1e;
+  --md-card: #2a2a2c;
+  --md-body-bg: #1c1c1e;
+}
+html.dark .md-root .md-table-head,
+html.dark .md-root .md-table-row + .md-table-row {
+  background: rgba(255,255,255,0.03);
+}
+html.dark .md-root .md-card-icon.blue { background: rgba(56,182,255,0.18); color: #5ec4ff; }
+html.dark .md-root .md-card-icon.purple { background: rgba(176,124,255,0.18); color: #b07cff; }
+html.dark .md-root .md-card-icon.amber { background: rgba(255,159,10,0.18); color: #ffb340; }
+html.dark .md-root .md-billing-pill.usage {
+  background: rgba(124,120,255,0.16); color: #a8a4ff;
+}
+html.dark .md-root .md-billing-pill.percall {
+  background: rgba(72,200,220,0.16); color: #5fdbe5;
+}
+html.dark .md-root .md-billing-pill.muted {
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+}
+html.dark .md-root .md-group-pill,
+html.dark .md-root .md-ratio-pill {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85);
+}
+html.dark .md-root .md-route {
+  background: rgba(56,182,255,0.08);
+  border-color: rgba(56,182,255,0.18);
+}
 `;
 
 export const MdIcons = {
