@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Modal, Button } from '@douyinfe/semi-ui';
-import { Download, Printer } from 'lucide-react';
+import { Download, Printer, Receipt } from 'lucide-react';
 import { timestamp2string } from '../../../helpers';
 import { useIsMobile } from '../../../hooks/common/useIsMobile';
+import ReceiptModal from './ReceiptModal';
 
 const STATUS_MAP = {
   success: { zh: '已支付', en: 'Paid', color: '#34C759' },
@@ -46,8 +47,11 @@ function getBillingMethod(record) {
 const BillDetailModal = ({ visible, onCancel, record, userInfo, t }) => {
   const billRef = useRef(null);
   const isMobile = useIsMobile();
+  const [receiptVisible, setReceiptVisible] = useState(false);
 
   if (!record) return null;
+
+  const isPaid = record.status === 'success';
 
   const status = STATUS_MAP[record.status] || STATUS_MAP.pending;
   const currency = PAYMENT_CURRENCY[record.payment_method] || 'USD';
@@ -122,6 +126,7 @@ const BillDetailModal = ({ visible, onCancel, record, userInfo, t }) => {
   };
 
   return (
+    <>
     <Modal
       title={
         <div className='flex items-center justify-between w-full'>
@@ -135,6 +140,15 @@ const BillDetailModal = ({ visible, onCancel, record, userInfo, t }) => {
       footer={
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Button onClick={onCancel}>{t('取消')}</Button>
+          {isPaid && (
+            <Button
+              theme='light'
+              icon={<Receipt size={14} />}
+              onClick={() => setReceiptVisible(true)}
+            >
+              {t('开具收据')}
+            </Button>
+          )}
           <Button
             type='primary'
             theme='solid'
@@ -324,6 +338,14 @@ const BillDetailModal = ({ visible, onCancel, record, userInfo, t }) => {
         </div>
       </div>
     </Modal>
+    <ReceiptModal
+      visible={receiptVisible}
+      onCancel={() => setReceiptVisible(false)}
+      record={record}
+      userInfo={userInfo}
+      t={t}
+    />
+    </>
   );
 };
 
