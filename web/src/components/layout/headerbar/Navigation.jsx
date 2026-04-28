@@ -17,7 +17,8 @@ const baseLinkStyle = {
   color: 'var(--text-secondary)',
   textDecoration: 'none',
   borderRadius: 'var(--radius-md)',
-  transition: 'color 150ms ease-out, background 150ms ease-out, font-weight 150ms ease-out',
+  transition:
+    'color 200ms ease-out, transform 220ms cubic-bezier(0.32, 0.72, 0, 1), font-weight 150ms ease-out',
   whiteSpace: 'nowrap',
   flexShrink: 0,
   display: 'flex',
@@ -28,13 +29,15 @@ const baseLinkStyle = {
   background: 'transparent',
   border: 'none',
   fontFamily: 'inherit',
+  zIndex: 1,
 };
 
+// Active items only get text-color + weight changes; the morphing pill
+// is rendered as a single absolute element by the Navigation parent so
+// it can slide smoothly between entries.
 const activeLinkStyle = {
   color: 'var(--text-primary)',
   fontWeight: 600,
-  background: 'linear-gradient(135deg, rgba(0, 114, 255, 0.12) 0%, rgba(0, 198, 255, 0.18) 100%)',
-  boxShadow: '0 0 0 1px rgba(0, 114, 255, 0.18) inset',
 };
 
 // Is a nav entry considered "active" given the current pathname?
@@ -91,8 +94,9 @@ const DropdownItem = ({ link, onClose }) => {
 };
 
 // ── Dropdown trigger (for entries with children) ────────────────────────────
-const DropdownNavEntry = ({ link, active, padding }) => {
+const DropdownNavEntry = React.forwardRef(({ link, active, padding }, forwardedRef) => {
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
   const timerRef = useRef(null);
   const wrapperRef = useRef(null);
 
@@ -122,11 +126,12 @@ const DropdownNavEntry = ({ link, active, padding }) => {
   return (
     <div
       ref={wrapperRef}
-      style={{ position: 'relative' }}
-      onMouseEnter={() => { cancelClose(); setOpen(true); }}
-      onMouseLeave={scheduleClose}
+      style={{ position: 'relative', zIndex: 1 }}
+      onMouseEnter={() => { cancelClose(); setOpen(true); setHover(true); }}
+      onMouseLeave={() => { scheduleClose(); setHover(false); }}
     >
       <button
+        ref={forwardedRef}
         type='button'
         onClick={(e) => {
           e.preventDefault();
@@ -136,7 +141,11 @@ const DropdownNavEntry = ({ link, active, padding }) => {
         style={{
           ...baseLinkStyle,
           padding,
-          ...(active ? activeLinkStyle : {}),
+          ...(active
+            ? activeLinkStyle
+            : hover
+              ? { color: 'var(--text-primary)', transform: 'translateY(-1px)' }
+              : {}),
         }}
       >
         <span>{link.text}</span>
@@ -180,47 +189,53 @@ const DropdownNavEntry = ({ link, active, padding }) => {
       )}
     </div>
   );
-};
+});
+DropdownNavEntry.displayName = 'DropdownNavEntry';
 
 // ── Plain nav link ─────────────────────────────────────────────────────────
-const PlainNavLink = ({ link, active, targetPath, padding }) => {
-  const [hover, setHover] = useState(false);
-  const style = {
-    ...baseLinkStyle,
-    padding,
-    ...(active
-      ? activeLinkStyle
-      : hover
-        ? { color: 'var(--text-primary)', background: 'var(--surface-hover)' }
-        : {}),
-  };
+const PlainNavLink = React.forwardRef(
+  ({ link, active, targetPath, padding }, forwardedRef) => {
+    const [hover, setHover] = useState(false);
+    const style = {
+      ...baseLinkStyle,
+      padding,
+      ...(active
+        ? activeLinkStyle
+        : hover
+          ? { color: 'var(--text-primary)', transform: 'translateY(-1px)' }
+          : {}),
+    };
 
-  if (link.isExternal) {
+    if (link.isExternal) {
+      return (
+        <a
+          ref={forwardedRef}
+          href={link.externalLink}
+          target='_blank'
+          rel='noopener noreferrer'
+          style={style}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          <span>{link.text}</span>
+        </a>
+      );
+    }
+
     return (
-      <a
-        href={link.externalLink}
-        target='_blank'
-        rel='noopener noreferrer'
+      <Link
+        ref={forwardedRef}
+        to={targetPath}
         style={style}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
         <span>{link.text}</span>
-      </a>
+      </Link>
     );
-  }
-
-  return (
-    <Link
-      to={targetPath}
-      style={style}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <span>{link.text}</span>
-    </Link>
-  );
-};
+  },
+);
+PlainNavLink.displayName = 'PlainNavLink';
 
 // ── Main Navigation ────────────────────────────────────────────────────────
 const Navigation = ({
@@ -232,6 +247,50 @@ const Navigation = ({
 }) => {
   const location = useLocation();
   const padding = isMobile ? '4px 10px' : '6px 14px';
+  const navRef = useRef(null);
+  const itemRefs = useRef({});
+  const [pillStyle, setPillStyle] = useState({
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    visible: false,
+  });
+
+  // Recompute the morphing pill's position whenever the active route or the
+  // available links change. Also runs on window resize so the pill keeps
+  // tracking the active item when layout reflows.
+  useEffect(() => {
+    if (isMobile) return;
+    const recompute = () => {
+      const nav = navRef.current;
+      if (!nav) return;
+      const activeLink = mainNavLinks.find((l) =>
+        isEntryActive(l, location.pathname),
+      );
+      const el = activeLink ? itemRefs.current[activeLink.itemKey] : null;
+      if (!el) {
+        setPillStyle((s) => ({ ...s, visible: false }));
+        return;
+      }
+      const navRect = nav.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      setPillStyle({
+        x: elRect.left - navRect.left,
+        y: elRect.top - navRect.top,
+        width: elRect.width,
+        height: elRect.height,
+        visible: true,
+      });
+    };
+    // Wait one frame so just-rendered children have measurable layout.
+    const raf = requestAnimationFrame(recompute);
+    window.addEventListener('resize', recompute);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', recompute);
+    };
+  }, [location.pathname, mainNavLinks, isMobile, isLoading]);
 
   // On mobile, the inline nav links overflow and overlap the action buttons
   // (notifications / theme / language / user). They are surfaced via a
@@ -241,11 +300,16 @@ const Navigation = ({
   const renderNavLinks = () => {
     return mainNavLinks.map((link) => {
       const active = isEntryActive(link, location.pathname);
+      const setRef = (el) => {
+        if (el) itemRefs.current[link.itemKey] = el;
+        else delete itemRefs.current[link.itemKey];
+      };
 
       if (link.children && link.children.length > 0) {
         return (
           <DropdownNavEntry
             key={link.itemKey}
+            ref={setRef}
             link={link}
             active={active}
             padding={padding}
@@ -262,6 +326,7 @@ const Navigation = ({
       return (
         <PlainNavLink
           key={link.itemKey}
+          ref={setRef}
           link={link}
           active={active}
           targetPath={targetPath}
@@ -273,9 +338,32 @@ const Navigation = ({
 
   return (
     <nav
+      ref={navRef}
       className='flex flex-1 items-center gap-1 mx-3 md:mx-6 whitespace-nowrap'
-      style={{ overflow: 'visible' }}
+      style={{ overflow: 'visible', position: 'relative' }}
     >
+      {/* Morphing active pill — single absolute element that slides between items */}
+      <span
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: pillStyle.width,
+          height: pillStyle.height,
+          transform: `translate3d(${pillStyle.x}px, ${pillStyle.y}px, 0)`,
+          background:
+            'linear-gradient(135deg, rgba(0, 114, 255, 0.12) 0%, rgba(0, 198, 255, 0.18) 100%)',
+          boxShadow: '0 0 0 1px rgba(0, 114, 255, 0.18) inset',
+          borderRadius: 'var(--radius-md)',
+          opacity: pillStyle.visible ? 1 : 0,
+          transition:
+            'transform 320ms cubic-bezier(0.32, 0.72, 0, 1), width 320ms cubic-bezier(0.32, 0.72, 0, 1), height 320ms cubic-bezier(0.32, 0.72, 0, 1), opacity 200ms ease-out',
+          pointerEvents: 'none',
+          zIndex: 0,
+          willChange: 'transform, width',
+        }}
+      />
       <SkeletonWrapper
         loading={isLoading}
         type='navigation'
