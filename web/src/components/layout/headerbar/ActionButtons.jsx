@@ -22,6 +22,7 @@ import NewYearButton from './NewYearButton';
 import NotificationButton from './NotificationButton';
 import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
+import TgGroupButton from './TgGroupButton';
 import UserArea from './UserArea';
 
 const ActionButtons = ({
@@ -32,6 +33,7 @@ const ActionButtons = ({
   onThemeToggle,
   currentLang,
   onLanguageChange,
+  tgGroupLink,
   userState,
   isLoading,
   isMobile,
@@ -43,6 +45,8 @@ const ActionButtons = ({
   return (
     <div className='flex items-center gap-1'>
       <NewYearButton isNewYear={isNewYear} />
+
+      <TgGroupButton tgGroupLink={tgGroupLink} t={t} />
 
       <ThemeToggle theme={theme} onThemeToggle={onThemeToggle} t={t} />
 

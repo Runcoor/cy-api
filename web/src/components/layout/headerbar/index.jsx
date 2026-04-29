@@ -42,6 +42,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
     isNewYear,
     isSelfUseMode,
     docsLink,
+    tgGroupLink,
     isDemoSiteMode,
     isConsoleRoute,
     theme,
@@ -137,6 +138,7 @@ const HeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
             onThemeToggle={handleThemeToggle}
             currentLang={currentLang}
             onLanguageChange={handleLanguageChange}
+            tgGroupLink={tgGroupLink}
             userState={userState}
             isLoading={isLoading}
             isMobile={isMobile}

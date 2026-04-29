@@ -84,17 +84,27 @@ const UserArea = ({
           <Button
             theme='borderless'
             type='tertiary'
-            className='!px-2 !py-1'
+            className='username-pill !px-3 !py-1'
             style={{
               borderRadius: 'var(--radius-md)',
-              background: 'transparent',
-              transition: 'background-color 150ms ease-out',
+              background:
+                'linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.10))',
+              border: '1px solid rgba(56, 189, 248, 0.28)',
+              transition: 'background-color 150ms ease-out, transform 150ms ease-out',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span
-                className='text-xs font-medium'
-                style={{ color: 'var(--text-primary)' }}
+                className='username-text'
+                style={{
+                  fontFamily: "'Playfair Display', var(--font-serif)",
+                  fontStyle: 'italic',
+                  fontWeight: 600,
+                  fontSize: 14,
+                  letterSpacing: '0.01em',
+                  color: 'var(--text-primary)',
+                  lineHeight: 1.2,
+                }}
               >
                 {userState.user.username}
               </span>

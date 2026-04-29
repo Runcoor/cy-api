@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { Button, Dropdown } from '@douyinfe/semi-ui';
-import { Languages } from 'lucide-react';
+import { Globe2 } from 'lucide-react';
 
 const headerIconBtnClass = '!w-8 !h-8 !p-0 flex items-center justify-center';
 const headerIconBtnStyle = {
@@ -62,7 +62,7 @@ const LanguageSelector = ({ currentLang, onLanguageChange, t }) => {
       }
     >
       <Button
-        icon={<Languages size={16} />}
+        icon={<Globe2 size={16} />}
         aria-label={t('common.changeLanguage')}
         theme='borderless'
         type='tertiary'

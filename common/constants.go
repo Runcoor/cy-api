@@ -16,6 +16,7 @@ var SystemName = "AGGRETOKEN"
 var Footer = ""
 var Logo = ""
 var TopUpLink = ""
+var TGGroupLink = ""
 
 // var ChatLink = ""
 // var ChatLink2 = ""

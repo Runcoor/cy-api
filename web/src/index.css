@@ -4352,5 +4352,63 @@ html.dark {
   border-top: 1px solid var(--border-subtle) !important;
 }
 
+/* ==================== Username Pill (top-right) ==================== */
+/*
+ * The username pill in the top-right header has a soft sky-blue gradient
+ * background and a 45° "light sweep" highlight. The sweep is implemented
+ * with a gradient ::after layer that translates from -120% to 120% across
+ * the pill. The keyframes spend ~9% of the cycle on the sweep itself and
+ * the remainder idle so the highlight runs once roughly every 14s.
+ */
+.username-pill {
+  position: relative;
+  overflow: hidden;
+}
+.username-pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: -120% 0;
+  animation: username-pill-sweep 14s ease-in-out infinite;
+  border-radius: inherit;
+  mix-blend-mode: screen;
+}
+html.dark .username-pill::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(186, 230, 253, 0.32) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: -120% 0;
+}
+.username-pill:hover {
+  transform: translateY(-1px);
+}
+@keyframes username-pill-sweep {
+  0%   { background-position: -120% 0; }
+  9%   { background-position:  120% 0; }
+  100% { background-position:  120% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .username-pill::after { animation: none; }
+}
+
 /* ==================== Misc ==================== */
 .ec-dbcd0a3c01b55203 { forced-color-adjust: auto; }

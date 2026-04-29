@@ -46,6 +46,7 @@ export default function GeneralSettings(props) {
   const [showQuotaWarning, setShowQuotaWarning] = useState(false);
   const [inputs, setInputs] = useState({
     TopUpLink: '',
+    TGGroupLink: '',
     'general_setting.docs_link': '',
     'general_setting.quota_display_type': 'USD',
     'general_setting.custom_currency_symbol': '¤',
@@ -259,6 +260,16 @@ export default function GeneralSettings(props) {
                   initValue={''}
                   placeholder={''}
                   onChange={handleFieldChange('general_setting.docs_link')}
+                  showClear
+                />
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.Input
+                  field={'TGGroupLink'}
+                  label={t('Telegram 群组链接')}
+                  initValue={''}
+                  placeholder={t('例如 https://t.me/your_group')}
+                  onChange={handleFieldChange('TGGroupLink')}
                   showClear
                 />
               </Col>

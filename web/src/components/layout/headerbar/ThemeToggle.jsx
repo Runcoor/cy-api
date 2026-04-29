@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React, { useMemo } from 'react';
 import { Button, Dropdown } from '@douyinfe/semi-ui';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { SunMedium, MoonStar, MonitorSmartphone } from 'lucide-react';
 import { useActualTheme } from '../../../context/Theme';
 
 const headerIconBtnClass = '!w-8 !h-8 !p-0 flex items-center justify-center';
@@ -37,22 +37,22 @@ const ThemeToggle = ({ theme, onThemeToggle, t }) => {
     () => [
       {
         key: 'light',
-        icon: <Sun size={16} />,
-        buttonIcon: <Sun size={16} />,
+        icon: <SunMedium size={16} />,
+        buttonIcon: <SunMedium size={16} />,
         label: t('浅色模式'),
         description: t('始终使用浅色主题'),
       },
       {
         key: 'dark',
-        icon: <Moon size={16} />,
-        buttonIcon: <Moon size={16} />,
+        icon: <MoonStar size={16} />,
+        buttonIcon: <MoonStar size={16} />,
         label: t('深色模式'),
         description: t('始终使用深色主题'),
       },
       {
         key: 'auto',
-        icon: <Monitor size={16} />,
-        buttonIcon: <Monitor size={16} />,
+        icon: <MonitorSmartphone size={16} />,
+        buttonIcon: <MonitorSmartphone size={16} />,
         label: t('自动模式'),
         description: t('跟随系统主题设置'),
       },
