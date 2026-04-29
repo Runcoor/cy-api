@@ -39,7 +39,7 @@ const LanguageSelector = ({ currentLang, onLanguageChange, t }) => {
     <Dropdown
       position='bottomRight'
       render={
-        <Dropdown.Menu>
+        <Dropdown.Menu style={{ padding: 4 }}>
           {languages.map((lang) => (
             <Dropdown.Item
               key={lang.code}

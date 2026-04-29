@@ -344,16 +344,20 @@ export function setPromptShown(id) {
 export function compareObjects(oldObject, newObject) {
   const changedProperties = [];
 
-  // 比较两个对象的属性
+  // Iterate keys from oldObject (treated as "current values") and surface a
+  // diff whenever the snapshot side disagrees, including the case where the
+  // snapshot never had the key. The previous implementation also required
+  // newObject.hasOwnProperty(key), which silently swallowed any newly added
+  // option whose row had not yet been seeded in the DB on first save.
   for (const key in oldObject) {
-    if (oldObject.hasOwnProperty(key) && newObject.hasOwnProperty(key)) {
-      if (oldObject[key] !== newObject[key]) {
-        changedProperties.push({
-          key: key,
-          oldValue: oldObject[key],
-          newValue: newObject[key],
-        });
-      }
+    if (!oldObject.hasOwnProperty(key)) continue;
+    const newVal = newObject ? newObject[key] : undefined;
+    if (oldObject[key] !== newVal) {
+      changedProperties.push({
+        key: key,
+        oldValue: oldObject[key],
+        newValue: newVal,
+      });
     }
   }
 

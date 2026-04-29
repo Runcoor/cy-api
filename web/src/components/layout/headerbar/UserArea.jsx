@@ -68,7 +68,7 @@ const UserArea = ({
           position='bottomRight'
           getPopupContainer={() => dropdownRef.current}
           render={
-            <Dropdown.Menu>
+            <Dropdown.Menu style={{ padding: 4 }}>
               <Dropdown.Item
                 onClick={logout}
                 style={{ ...menuItemStyle, color: 'var(--error)' }}
