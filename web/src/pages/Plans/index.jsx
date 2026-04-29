@@ -1,29 +1,29 @@
 /*
 Copyright (C) 2025 QuantumNous
 
-Plans / Pricing page — subscription tier layout.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-Three subscription cards (Starter / Pro / Ultra) loaded from the public
-endpoint GET /api/subscription/plans, sorted by price ascending. Middle
-card is highlighted as popular. Below the cards is a 5-row comparison
-table that pulls price / duration / token-gift / member-group from the
-plan rows directly, plus two marketing rows (use case + audience) that
-i18n-map by plan.upgrade_group.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
 
-Animations layered on top:
-  - Stagger fade-in for cards (per-index delay)
-  - Background blob slow drift
-  - Animated price counter on card mount (count from 0 → actual)
-  - Popular badge subtle gradient shimmer
-  - Comparison rows reveal on scroll into view (IntersectionObserver)
-  - Magnetic CTA button (subtle attraction toward cursor on hover)
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { UserContext } from '../../context/User';
+import { API, showError, showSuccess } from '../../helpers';
+import SubscriptionPurchaseModal from '../../components/topup/modals/SubscriptionPurchaseModal';
 import {
   Sparkles,
   Zap,
@@ -32,6 +32,31 @@ import {
   Star,
   MessageSquare,
 } from 'lucide-react';
+
+const PENDING_PLAN_KEY = 'pending_subscription_plan_id';
+
+// 易支付 form-post helper. Mirrors the implementation used in
+// components/topup/SubscriptionPlansCard.jsx so the redirect behaviour stays
+// consistent with the in-console purchase flow.
+function submitEpayForm({ url, params }) {
+  const form = document.createElement('form');
+  form.action = url;
+  form.method = 'POST';
+  const isSafari =
+    navigator.userAgent.indexOf('Safari') > -1 &&
+    navigator.userAgent.indexOf('Chrome') < 1;
+  if (!isSafari) form.target = '_blank';
+  Object.keys(params || {}).forEach((key) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = params[key];
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -132,7 +157,7 @@ const MagneticWrap = ({ children, strength = 6 }) => {
 
 // ─── Plan card ──────────────────────────────────────────────────────────────
 
-const PlanCard = ({ index, plan, popular, t }) => {
+const PlanCard = ({ index, plan, popular, t, onSubscribe }) => {
   const tk = tierKey(plan);
   const meta = TIER_META[tk] || TIER_META.starter;
   const Icon = meta.icon;
@@ -315,9 +340,11 @@ const PlanCard = ({ index, plan, popular, t }) => {
 
         {/* CTA */}
         <MagneticWrap strength={4}>
-          <Link to='/console/topup' style={{ textDecoration: 'none', display: 'block' }}>
-            <CTAButton popular={popular} label={t('plans.subscribe')} />
-          </Link>
+          <CTAButton
+            popular={popular}
+            label={t('plans.subscribe')}
+            onClick={() => onSubscribe?.(plan)}
+          />
         </MagneticWrap>
       </div>
     </div>
@@ -344,13 +371,15 @@ const popularBadgeStyle = {
   zIndex: 3,
 };
 
-const CTAButton = ({ popular, label }) => {
+const CTAButton = ({ popular, label, onClick }) => {
   const [hover, setHover] = useState(false);
   if (popular) {
     return (
       <button
+        type='button'
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onClick={onClick}
         style={{
           width: '100%',
           padding: '13px 20px',
@@ -374,8 +403,10 @@ const CTAButton = ({ popular, label }) => {
   }
   return (
     <button
+      type='button'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onClick={onClick}
       style={{
         width: '100%',
         padding: '13px 20px',
@@ -574,6 +605,8 @@ const thStyle = {
 
 const PlansPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [userState] = useContext(UserContext);
   const isLoggedIn = !!userState?.user;
   const [heroVisible, setHeroVisible] = useState(false);
@@ -583,6 +616,15 @@ const PlansPage = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+
+  // Purchase modal — payment configuration is fetched lazily on first open
+  // (only logged-in users can hit /api/user/topup/info), then cached.
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [paying, setPaying] = useState(false);
+  const [selectedEpayMethod, setSelectedEpayMethod] = useState('');
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [paymentInfoLoading, setPaymentInfoLoading] = useState(false);
 
   useEffect(() => {
     setHeroVisible(true);
@@ -618,6 +660,177 @@ const PlansPage = () => {
   const popularIdx = plans.length >= 3
     ? Math.floor(plans.length / 2)
     : plans.findIndex((p) => tierKey(p) === 'pro');
+
+  const epayMethods = useMemo(() => {
+    const list = paymentInfo?.payMethods || [];
+    return list.filter(
+      (m) => m?.type && m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus',
+    );
+  }, [paymentInfo]);
+
+  const ensurePaymentInfo = useCallback(async () => {
+    if (paymentInfo || paymentInfoLoading) return paymentInfo;
+    setPaymentInfoLoading(true);
+    try {
+      const res = await API.get('/api/user/topup/info');
+      const { success, data } = res.data || {};
+      if (success && data) {
+        let methods = data.pay_methods || [];
+        if (typeof methods === 'string') {
+          try { methods = JSON.parse(methods); } catch { methods = []; }
+        }
+        methods = (methods || []).filter((m) => m?.name && m?.type);
+        const info = {
+          payMethods: methods,
+          enableOnlineTopUp: !!data.enable_online_topup,
+          enableStripeTopUp: !!data.enable_stripe_topup,
+          enableCreemTopUp: !!data.enable_creem_topup,
+        };
+        setPaymentInfo(info);
+        return info;
+      }
+    } catch {
+      // Swallow — modal will render the "no payment configured" banner.
+    } finally {
+      setPaymentInfoLoading(false);
+    }
+    return null;
+  }, [paymentInfo, paymentInfoLoading]);
+
+  const openBuyForPlan = useCallback(
+    async (plan) => {
+      if (!plan?.id) return;
+      if (!isLoggedIn) {
+        // Remember intent across the auth redirect so we can re-open the
+        // modal once the user comes back to /plans.
+        try { sessionStorage.setItem(PENDING_PLAN_KEY, String(plan.id)); } catch {}
+        const next = `/plans?plan=${plan.id}`;
+        navigate(`/login?next=${encodeURIComponent(next)}`);
+        return;
+      }
+      setSelectedPlan({ plan });
+      setModalOpen(true);
+      const info = paymentInfo || (await ensurePaymentInfo());
+      const firstEpay = (info?.payMethods || []).find(
+        (m) => m?.type && m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus',
+      );
+      setSelectedEpayMethod((prev) => prev || firstEpay?.type || '');
+    },
+    [isLoggedIn, navigate, paymentInfo, ensurePaymentInfo],
+  );
+
+  const closeBuyModal = () => {
+    setModalOpen(false);
+    setSelectedPlan(null);
+    setPaying(false);
+  };
+
+  // Auto-open the modal when the user lands back on /plans with ?plan=<id>
+  // (post-login redirect), or when sessionStorage has a pending intent.
+  // Runs once plans have loaded so we can resolve the plan object.
+  const autoOpenedRef = useRef(false);
+  useEffect(() => {
+    if (autoOpenedRef.current) return;
+    if (loading || plans.length === 0) return;
+    if (!isLoggedIn) return;
+
+    let pendingId = searchParams.get('plan');
+    if (!pendingId) {
+      try { pendingId = sessionStorage.getItem(PENDING_PLAN_KEY); } catch {}
+    }
+    if (!pendingId) return;
+
+    const target = plans.find((p) => String(p.id) === String(pendingId));
+    autoOpenedRef.current = true;
+    try { sessionStorage.removeItem(PENDING_PLAN_KEY); } catch {}
+    if (searchParams.get('plan')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('plan');
+      setSearchParams(next, { replace: true });
+    }
+    if (target) {
+      openBuyForPlan(target);
+    }
+  }, [loading, plans, isLoggedIn, searchParams, setSearchParams, openBuyForPlan]);
+
+  const payStripe = async () => {
+    const plan = selectedPlan?.plan;
+    if (!plan?.stripe_price_id) {
+      showError(t('该套餐未配置 Stripe'));
+      return;
+    }
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/stripe/pay', { plan_id: plan.id });
+      if (res.data?.message === 'success') {
+        window.open(res.data.data?.pay_link, '_blank');
+        showSuccess(t('已打开支付页面'));
+        closeBuyModal();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string' ? res.data.data : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const payCreem = async () => {
+    const plan = selectedPlan?.plan;
+    if (!plan?.creem_product_id) {
+      showError(t('该套餐未配置 Creem'));
+      return;
+    }
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/creem/pay', { plan_id: plan.id });
+      if (res.data?.message === 'success') {
+        window.open(res.data.data?.checkout_url, '_blank');
+        showSuccess(t('已打开支付页面'));
+        closeBuyModal();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string' ? res.data.data : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const payEpay = async () => {
+    const plan = selectedPlan?.plan;
+    if (!plan?.id) return;
+    if (!selectedEpayMethod) {
+      showError(t('请选择支付方式'));
+      return;
+    }
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/epay/pay', {
+        plan_id: plan.id,
+        payment_method: selectedEpayMethod,
+      });
+      if (res.data?.message === 'success') {
+        submitEpayForm({ url: res.data.url, params: res.data.data });
+        showSuccess(t('已发起支付'));
+        closeBuyModal();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string' ? res.data.data : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
 
   return (
     <div
@@ -734,6 +947,7 @@ const PlansPage = () => {
                 plan={p}
                 popular={i === popularIdx}
                 t={t}
+                onSubscribe={openBuyForPlan}
               />
             ))}
           </div>
@@ -811,7 +1025,10 @@ const PlansPage = () => {
             }}
           >
             <MagneticWrap strength={5}>
-              <Link to={isLoggedIn ? '/console/topup' : '/register'} style={{ textDecoration: 'none' }}>
+              <Link
+                to={isLoggedIn ? '/console/topup' : `/register?next=${encodeURIComponent('/plans')}`}
+                style={{ textDecoration: 'none' }}
+              >
                 <button
                   style={{
                     padding: '12px 28px',
@@ -860,6 +1077,26 @@ const PlansPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Purchase modal — wires Stripe / Creem / 易支付 directly from the
+          pricing page so users don't bounce through /console/topup. */}
+      <SubscriptionPurchaseModal
+        t={t}
+        visible={modalOpen}
+        onCancel={closeBuyModal}
+        selectedPlan={selectedPlan}
+        paying={paying}
+        selectedEpayMethod={selectedEpayMethod}
+        setSelectedEpayMethod={setSelectedEpayMethod}
+        epayMethods={epayMethods}
+        enableOnlineTopUp={paymentInfo?.enableOnlineTopUp || false}
+        enableStripeTopUp={paymentInfo?.enableStripeTopUp || false}
+        enableCreemTopUp={paymentInfo?.enableCreemTopUp || false}
+        purchaseLimitInfo={null}
+        onPayStripe={payStripe}
+        onPayCreem={payCreem}
+        onPayEpay={payEpay}
+      />
 
       {/* Page-scoped CSS for blob drift, badge shimmer, and table responsiveness. */}
       <style>{`

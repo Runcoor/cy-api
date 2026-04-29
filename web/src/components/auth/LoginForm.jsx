@@ -200,6 +200,18 @@ const LoginForm = () => {
     }
   }, []);
 
+  // Where to land after a successful login. Anchored to ?next= so flows like
+  // the public /plans page can deep-link straight back to the purchase intent
+  // (e.g. /login?next=/plans?plan=3) instead of dumping the user on /console.
+  // Only same-origin relative paths are honored to avoid open-redirect.
+  const resolveNextPath = (fallback = '/console') => {
+    const next = searchParams.get('next');
+    if (typeof next === 'string' && next.startsWith('/') && !next.startsWith('//')) {
+      return next;
+    }
+    return fallback;
+  };
+
   // ── All handlers (unchanged) ──
 
   const onWeChatLoginClicked = () => {
@@ -226,7 +238,7 @@ const LoginForm = () => {
         localStorage.setItem('user', JSON.stringify(data));
         setUserData(data);
         updateAPI();
-        navigate('/');
+        navigate(resolveNextPath('/'));
         showSuccess('登录成功！');
         setShowWeChatLoginModal(false);
       } else {
@@ -271,7 +283,7 @@ const LoginForm = () => {
           if (username === 'root' && password === '123456') {
             Modal.error({ title: '您正在使用默认密码！', content: '请立刻修改默认密码！', centered: true });
           }
-          navigate('/console');
+          navigate(resolveNextPath());
         } else {
           showError(message);
         }
@@ -302,7 +314,7 @@ const LoginForm = () => {
         showSuccess('登录成功！');
         setUserData(data);
         updateAPI();
-        navigate('/');
+        navigate(resolveNextPath('/'));
       } else {
         showError(message);
       }
@@ -368,7 +380,7 @@ const LoginForm = () => {
         setUserData(finish.data);
         updateAPI();
         showSuccess('登录成功！');
-        navigate('/console');
+        navigate(resolveNextPath());
       } else { showError(finish.message || 'Passkey 登录失败，请重试'); }
     } catch (error) {
       if (error?.name === 'AbortError') showInfo('已取消 Passkey 登录');
@@ -384,7 +396,7 @@ const LoginForm = () => {
     setUserData(data);
     updateAPI();
     showSuccess('登录成功！');
-    navigate('/console');
+    navigate(resolveNextPath());
   };
 
   const handleBackToLogin = () => {

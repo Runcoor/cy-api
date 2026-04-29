@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   API,
   getLogo,
@@ -102,7 +102,19 @@ const primaryCtaStyle = {
 
 const RegisterForm = () => {
   let navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
+
+  // Where to redirect after register/login. Forwarded to /login on the
+  // confirm-email step so a deep-link like /register?next=/plans?plan=3
+  // still lands the user back on the pricing page after auth.
+  const nextParam = (() => {
+    const n = searchParams.get('next');
+    return typeof n === 'string' && n.startsWith('/') && !n.startsWith('//') ? n : '';
+  })();
+  const loginPathWithNext = nextParam
+    ? `/login?next=${encodeURIComponent(nextParam)}`
+    : '/login';
   const githubButtonTextKeyByState = {
     idle: '使用 GitHub 继续',
     redirecting: '正在跳转 GitHub...',
@@ -197,7 +209,7 @@ const RegisterForm = () => {
       if (success) {
         userDispatch({ type: 'login', payload: data });
         localStorage.setItem('user', JSON.stringify(data));
-        setUserData(data); updateAPI(); navigate('/'); showSuccess('登录成功！'); setShowWeChatLoginModal(false);
+        setUserData(data); updateAPI(); navigate(nextParam || '/'); showSuccess('登录成功！'); setShowWeChatLoginModal(false);
       } else showError(message);
     } catch (error) { showError('登录失败，请重试'); } finally { setWechatCodeSubmitLoading(false); }
   };
@@ -217,7 +229,7 @@ const RegisterForm = () => {
         inputs.aff_code = affCode;
         const res = await API.post(`/api/user/register?turnstile=${turnstileToken}`, inputs);
         const { success, message } = res.data;
-        if (success) { navigate('/login'); showSuccess('注册成功！'); } else showError(message);
+        if (success) { navigate(loginPathWithNext); showSuccess('注册成功！'); } else showError(message);
       } catch (error) { showError('注册失败，请重试'); } finally { setRegisterLoading(false); }
     }
   }
@@ -273,7 +285,7 @@ const RegisterForm = () => {
     try {
       const res = await API.get(`/api/oauth/telegram/login`, { params });
       const { success, message, data } = res.data;
-      if (success) { userDispatch({ type: 'login', payload: data }); localStorage.setItem('user', JSON.stringify(data)); showSuccess('登录成功！'); setUserData(data); updateAPI(); navigate('/'); }
+      if (success) { userDispatch({ type: 'login', payload: data }); localStorage.setItem('user', JSON.stringify(data)); showSuccess('登录成功！'); setUserData(data); updateAPI(); navigate(nextParam || '/'); }
       else showError(message);
     } catch (error) { showError('登录失败，请重试'); }
   };
