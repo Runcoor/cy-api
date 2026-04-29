@@ -2,6 +2,8 @@ package model
 
 import (
 	"strings"
+
+	"github.com/runcoor/aggre-api/pkg/geoip"
 )
 
 const (
@@ -17,18 +19,20 @@ const (
 )
 
 type LoginLog struct {
-	Id         int    `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserId     int    `json:"user_id" gorm:"index"`
-	Username   string `json:"username" gorm:"type:varchar(64);index"`
-	LoginType  string `json:"login_type" gorm:"type:varchar(32)"`
-	LoginIp    string `json:"login_ip" gorm:"type:varchar(64)"`
-	UserAgent  string `json:"user_agent" gorm:"type:text"`
-	Platform   string `json:"platform" gorm:"type:varchar(64)"`
-	Browser    string `json:"browser" gorm:"type:varchar(64)"`
-	Os         string `json:"os" gorm:"type:varchar(64)"`
-	Status     int    `json:"status" gorm:"default:1"`
-	FailReason string `json:"fail_reason" gorm:"type:varchar(255)"`
-	CreatedAt  int64  `json:"created_at" gorm:"autoCreateTime"`
+	Id            int    `json:"id" gorm:"primaryKey;autoIncrement"`
+	UserId        int    `json:"user_id" gorm:"index"`
+	Username      string `json:"username" gorm:"type:varchar(64);index"`
+	LoginType     string `json:"login_type" gorm:"type:varchar(32)"`
+	OauthProvider string `json:"oauth_provider" gorm:"type:varchar(32)"`
+	LoginIp       string `json:"login_ip" gorm:"type:varchar(64)"`
+	Country       string `json:"country" gorm:"type:varchar(8)"`
+	UserAgent     string `json:"user_agent" gorm:"type:text"`
+	Platform      string `json:"platform" gorm:"type:varchar(64)"`
+	Browser       string `json:"browser" gorm:"type:varchar(64)"`
+	Os            string `json:"os" gorm:"type:varchar(64)"`
+	Status        int    `json:"status" gorm:"default:1"`
+	FailReason    string `json:"fail_reason" gorm:"type:varchar(255)"`
+	CreatedAt     int64  `json:"created_at" gorm:"autoCreateTime"`
 }
 
 func (LoginLog) TableName() string {
@@ -38,6 +42,15 @@ func (LoginLog) TableName() string {
 func RecordLoginLog(log *LoginLog) {
 	if log.UserAgent != "" {
 		log.Platform, log.Browser, log.Os = parseUserAgent(log.UserAgent)
+	}
+	// Split "oauth:github" -> LoginType=oauth, OauthProvider=github while
+	// keeping the original LoginType string untouched for backward compatibility
+	// with existing rows and the admin-side filter dropdown.
+	if log.OauthProvider == "" && strings.HasPrefix(log.LoginType, LoginTypeOAuth+":") {
+		log.OauthProvider = strings.TrimPrefix(log.LoginType, LoginTypeOAuth+":")
+	}
+	if log.Country == "" {
+		log.Country = geoip.Country(log.LoginIp)
 	}
 	DB.Create(log)
 }

@@ -125,13 +125,15 @@ const LoginLogPage = () => {
     return d.toLocaleString();
   };
 
-  const formatLoginType = (type) => {
+  const formatLoginType = (type, record) => {
     if (!type) return '-';
-    if (type.startsWith('oauth:')) {
-      const provider = type.replace('oauth:', '');
+    if (type.startsWith('oauth:') || type === 'oauth') {
+      const provider =
+        record?.oauth_provider ||
+        (type.startsWith('oauth:') ? type.replace('oauth:', '') : '');
       return (
         <Tag color="green" size="small">
-          OAuth:{provider}
+          {provider ? `OAuth:${provider}` : 'OAuth'}
         </Tag>
       );
     }
@@ -139,6 +141,25 @@ const LoginLogPage = () => {
       <Tag color={LOGIN_TYPE_COLORS[type] || 'grey'} size="small">
         {type}
       </Tag>
+    );
+  };
+
+  // Render country code with flag emoji. Two ASCII letters get mapped to
+  // their regional-indicator counterparts which most platforms display as a
+  // flag glyph. Falls back to '-' when no country is available (e.g. the
+  // GeoIP DB is not configured or the IP is private).
+  const formatCountry = (code) => {
+    if (!code) return '-';
+    const upper = String(code).toUpperCase();
+    if (!/^[A-Z]{2}$/.test(upper)) return upper;
+    const flag = String.fromCodePoint(
+      ...upper.split('').map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65),
+    );
+    return (
+      <span style={{ fontSize: 13 }}>
+        <span style={{ marginRight: 6 }}>{flag}</span>
+        {upper}
+      </span>
     );
   };
 
@@ -160,7 +181,7 @@ const LoginLogPage = () => {
       title: t('登录方式'),
       dataIndex: 'login_type',
       width: 120,
-      render: formatLoginType,
+      render: (type, record) => formatLoginType(type, record),
     },
     {
       title: t('状态'),
@@ -182,6 +203,12 @@ const LoginLogPage = () => {
       dataIndex: 'login_ip',
       width: 140,
       render: (ip) => <Text copyable={{ content: ip }} style={{ fontSize: 13 }}>{ip || '-'}</Text>,
+    },
+    {
+      title: t('国家'),
+      dataIndex: 'country',
+      width: 90,
+      render: formatCountry,
     },
     {
       title: t('平台 / 浏览器'),

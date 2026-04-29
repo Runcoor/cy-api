@@ -4288,6 +4288,7 @@
     "兼容所有支持 OpenAI API 格式的工具：Claude Code、Codex CLI、Cursor、VS Code (Continue/Cline)、JetBrains AI、Cherry Studio、ChatBox 等。同时原生支持 Claude Messages 和 Gemini 格式。": "Compatible with all OpenAI API-format tools: Claude Code, Codex CLI, Cursor, VS Code (Continue/Cline), JetBrains AI, Cherry Studio, ChatBox, and more. Also natively supports Claude Messages and Gemini formats.",
     "实际扣费怎么计算？": "How is billing calculated?",
     "按实际 Token 用量计费，充值余额永不过期。每次 API 调用会实时显示消耗的 Token 数和费用，在控制台可以随时查看详细的用量记录和账单。": "Billed by actual token usage. Credits never expire. Each API call displays real-time token consumption and cost. Detailed usage logs and bills are available anytime in the console.",
+    "国家": "Country",
     "国内能直接用吗？": "Can I use it from China without a VPN?",
     "可以直接使用，无需额外网络工具。我们提供国内可直连的 API 端点，针对国内网络环境做了专项优化，确保低延迟、高可用。": "Yes, it works directly without any extra network tools. We provide API endpoints accessible from mainland China, optimized for low latency and high availability.",
     "服务稳定性怎么保障？": "How do you ensure service stability?",

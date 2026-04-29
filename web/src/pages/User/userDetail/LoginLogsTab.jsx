@@ -75,8 +75,21 @@ const LoginLogsTab = ({ userId }) => {
     {
       title: t('登录方式'),
       dataIndex: 'login_type',
-      width: 130,
-      render: (v) => v || '-',
+      width: 140,
+      render: (v, record) => {
+        if (!v) return '-';
+        if (v.startsWith('oauth:') || v === 'oauth') {
+          const provider =
+            record?.oauth_provider ||
+            (v.startsWith('oauth:') ? v.replace('oauth:', '') : '');
+          return (
+            <Tag color='green' size='small'>
+              {provider ? `OAuth:${provider}` : 'OAuth'}
+            </Tag>
+          );
+        }
+        return v;
+      },
     },
     {
       title: t('结果'),
@@ -93,6 +106,25 @@ const LoginLogsTab = ({ userId }) => {
       dataIndex: 'login_ip',
       width: 140,
       render: (v) => v || '-',
+    },
+    {
+      title: t('国家'),
+      dataIndex: 'country',
+      width: 90,
+      render: (v) => {
+        if (!v) return '-';
+        const upper = String(v).toUpperCase();
+        if (!/^[A-Z]{2}$/.test(upper)) return upper;
+        const flag = String.fromCodePoint(
+          ...upper.split('').map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65),
+        );
+        return (
+          <span style={{ fontSize: 13 }}>
+            <span style={{ marginRight: 6 }}>{flag}</span>
+            {upper}
+          </span>
+        );
+      },
     },
     {
       title: t('平台 / 浏览器'),
