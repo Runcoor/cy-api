@@ -685,6 +685,7 @@ const PlansPage = () => {
           enableOnlineTopUp: !!data.enable_online_topup,
           enableStripeTopUp: !!data.enable_stripe_topup,
           enableCreemTopUp: !!data.enable_creem_topup,
+          enableNowPaymentsTopUp: !!data.enable_nowpayments_topup,
         };
         setPaymentInfo(info);
         return info;
@@ -712,7 +713,7 @@ const PlansPage = () => {
       setModalOpen(true);
       const info = paymentInfo || (await ensurePaymentInfo());
       const firstEpay = (info?.payMethods || []).find(
-        (m) => m?.type && m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus',
+        (m) => m?.type && m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus' && m.type !== 'nowpayments',
       );
       setSelectedEpayMethod((prev) => prev || firstEpay?.type || '');
     },
@@ -789,6 +790,28 @@ const PlansPage = () => {
       const res = await API.post('/api/subscription/creem/pay', { plan_id: plan.id });
       if (res.data?.message === 'success') {
         window.open(res.data.data?.checkout_url, '_blank');
+        showSuccess(t('已打开支付页面'));
+        closeBuyModal();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string' ? res.data.data : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const payNowPayments = async () => {
+    const plan = selectedPlan?.plan;
+    if (!plan?.id) return;
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/nowpayments/pay', { plan_id: plan.id });
+      if (res.data?.message === 'success' && res.data.data?.pay_link) {
+        window.open(res.data.data.pay_link, '_blank');
         showSuccess(t('已打开支付页面'));
         closeBuyModal();
       } else {
@@ -1092,10 +1115,12 @@ const PlansPage = () => {
         enableOnlineTopUp={paymentInfo?.enableOnlineTopUp || false}
         enableStripeTopUp={paymentInfo?.enableStripeTopUp || false}
         enableCreemTopUp={paymentInfo?.enableCreemTopUp || false}
+        enableNowPaymentsTopUp={paymentInfo?.enableNowPaymentsTopUp || false}
         purchaseLimitInfo={null}
         onPayStripe={payStripe}
         onPayCreem={payCreem}
         onPayEpay={payEpay}
+        onPayNowPayments={payNowPayments}
       />
 
       {/* Page-scoped CSS for blob drift, badge shimmer, and table responsiveness. */}

@@ -48,6 +48,7 @@ const RechargeCard = ({
   enableOnlineTopUp,
   enableStripeTopUp,
   enableCreemTopUp,
+  enableNowPaymentsTopUp,
   creemProducts,
   creemPreTopUp,
   presetAmounts,
@@ -616,6 +617,7 @@ const RechargeCard = ({
                     enableOnlineTopUp={enableOnlineTopUp}
                     enableStripeTopUp={enableStripeTopUp}
                     enableCreemTopUp={enableCreemTopUp}
+                    enableNowPaymentsTopUp={enableNowPaymentsTopUp}
                     billingPreference={billingPreference}
                     onChangeBillingPreference={onChangeBillingPreference}
                     activeSubscriptions={activeSubscriptions}

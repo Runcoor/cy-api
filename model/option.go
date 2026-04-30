@@ -119,6 +119,17 @@ func InitOptionMap() {
 	common.OptionMap["CryptomusReturnUrl"] = setting.CryptomusReturnUrl
 	common.OptionMap["CryptomusUnitPrice"] = strconv.FormatFloat(setting.CryptomusUnitPrice, 'f', -1, 64)
 	common.OptionMap["CryptomusMinTopUp"] = strconv.Itoa(setting.CryptomusMinTopUp)
+	common.OptionMap["NowPaymentsEnabled"] = strconv.FormatBool(setting.NowPaymentsEnabled)
+	common.OptionMap["NowPaymentsApiKey"] = setting.NowPaymentsApiKey
+	common.OptionMap["NowPaymentsIpnSecret"] = setting.NowPaymentsIpnSecret
+	common.OptionMap["NowPaymentsSandbox"] = strconv.FormatBool(setting.NowPaymentsSandbox)
+	common.OptionMap["NowPaymentsPayCurrency"] = setting.NowPaymentsPayCurrency
+	common.OptionMap["NowPaymentsOrderCurrency"] = setting.NowPaymentsOrderCurrency
+	common.OptionMap["NowPaymentsNotifyUrl"] = setting.NowPaymentsNotifyUrl
+	common.OptionMap["NowPaymentsReturnUrl"] = setting.NowPaymentsReturnUrl
+	common.OptionMap["NowPaymentsCancelUrl"] = setting.NowPaymentsCancelUrl
+	common.OptionMap["NowPaymentsUnitPrice"] = strconv.FormatFloat(setting.NowPaymentsUnitPrice, 'f', -1, 64)
+	common.OptionMap["NowPaymentsMinTopUp"] = strconv.Itoa(setting.NowPaymentsMinTopUp)
 	common.OptionMap["TopupGroupRatio"] = common.TopupGroupRatio2JSONString()
 	common.OptionMap["Chats"] = setting.Chats2JsonString()
 	common.OptionMap["AutoGroups"] = setting.AutoGroups2JsonString()
@@ -457,6 +468,28 @@ func updateOptionMap(key string, value string) (err error) {
 		setting.CryptomusUnitPrice, _ = strconv.ParseFloat(value, 64)
 	case "CryptomusMinTopUp":
 		setting.CryptomusMinTopUp, _ = strconv.Atoi(value)
+	case "NowPaymentsEnabled":
+		setting.NowPaymentsEnabled = value == "true"
+	case "NowPaymentsApiKey":
+		setting.NowPaymentsApiKey = value
+	case "NowPaymentsIpnSecret":
+		setting.NowPaymentsIpnSecret = value
+	case "NowPaymentsSandbox":
+		setting.NowPaymentsSandbox = value == "true"
+	case "NowPaymentsPayCurrency":
+		setting.NowPaymentsPayCurrency = value
+	case "NowPaymentsOrderCurrency":
+		setting.NowPaymentsOrderCurrency = value
+	case "NowPaymentsNotifyUrl":
+		setting.NowPaymentsNotifyUrl = value
+	case "NowPaymentsReturnUrl":
+		setting.NowPaymentsReturnUrl = value
+	case "NowPaymentsCancelUrl":
+		setting.NowPaymentsCancelUrl = value
+	case "NowPaymentsUnitPrice":
+		setting.NowPaymentsUnitPrice, _ = strconv.ParseFloat(value, 64)
+	case "NowPaymentsMinTopUp":
+		setting.NowPaymentsMinTopUp, _ = strconv.Atoi(value)
 	case "TopupGroupRatio":
 		err = common.UpdateTopupGroupRatioByJSONString(value)
 	case "GitHubClientId":

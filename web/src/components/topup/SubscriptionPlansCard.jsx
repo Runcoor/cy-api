@@ -68,6 +68,7 @@ const SubscriptionPlansCard = ({
   enableOnlineTopUp = false,
   enableStripeTopUp = false,
   enableCreemTopUp = false,
+  enableNowPaymentsTopUp = false,
   billingPreference,
   onChangeBillingPreference,
   activeSubscriptions = [],
@@ -154,6 +155,31 @@ const SubscriptionPlansCard = ({
         showError(errorMsg);
       }
     } catch (e) {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const payNowPayments = async () => {
+    if (!selectedPlan?.plan?.id) return;
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/nowpayments/pay', {
+        plan_id: selectedPlan.plan.id,
+      });
+      if (res.data?.message === 'success' && res.data.data?.pay_link) {
+        window.open(res.data.data.pay_link, '_blank');
+        showSuccess(t('已打开支付页面'));
+        closeBuy();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string'
+            ? res.data.data
+            : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
       showError(t('支付请求失败'));
     } finally {
       setPaying(false);
@@ -558,6 +584,7 @@ const SubscriptionPlansCard = ({
         enableOnlineTopUp={enableOnlineTopUp}
         enableStripeTopUp={enableStripeTopUp}
         enableCreemTopUp={enableCreemTopUp}
+        enableNowPaymentsTopUp={enableNowPaymentsTopUp}
         purchaseLimitInfo={
           selectedPlan?.plan?.id
             ? {
@@ -569,6 +596,7 @@ const SubscriptionPlansCard = ({
         onPayStripe={payStripe}
         onPayCreem={payCreem}
         onPayEpay={payEpay}
+        onPayNowPayments={payNowPayments}
       />
     </>
   );

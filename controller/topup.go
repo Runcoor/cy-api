@@ -70,6 +70,27 @@ func GetTopUpInfo(c *gin.Context) {
 		}
 	}
 
+	// 如果启用了 NowPayments 加密货币支付，添加到支付方法列表
+	enableNowPayments := nowPaymentsEnabled()
+	if enableNowPayments {
+		hasNowPayments := false
+		for _, method := range payMethods {
+			if method["type"] == "nowpayments" {
+				hasNowPayments = true
+				break
+			}
+		}
+		if !hasNowPayments {
+			nowPaymentsMethod := map[string]string{
+				"name":      "NowPayments (USDT / Crypto)",
+				"type":      "nowpayments",
+				"color":     "rgba(var(--semi-teal-5), 1)",
+				"min_topup": strconv.Itoa(setting.NowPaymentsMinTopUp),
+			}
+			payMethods = append(payMethods, nowPaymentsMethod)
+		}
+	}
+
 	// 如果启用了 Waffo 支付，添加到支付方法列表
 	enableWaffo := setting.WaffoEnabled &&
 		((!setting.WaffoSandbox &&
@@ -110,9 +131,11 @@ func GetTopUpInfo(c *gin.Context) {
 		"enable_online_topup": operation_setting.PayAddress != "" && operation_setting.EpayId != "" && operation_setting.EpayKey != "",
 		"enable_stripe_topup": setting.StripeApiSecret != "" && setting.StripeWebhookSecret != "" && setting.StripePriceId != "",
 		"enable_creem_topup":  setting.CreemApiKey != "" && setting.CreemProducts != "[]",
-		"enable_waffo_topup":     enableWaffo,
-		"enable_cryptomus_topup": enableCryptomus,
-		"cryptomus_min_topup":    setting.CryptomusMinTopUp,
+		"enable_waffo_topup":       enableWaffo,
+		"enable_cryptomus_topup":   enableCryptomus,
+		"cryptomus_min_topup":      setting.CryptomusMinTopUp,
+		"enable_nowpayments_topup": enableNowPayments,
+		"nowpayments_min_topup":    setting.NowPaymentsMinTopUp,
 		"waffo_pay_methods": func() interface{} {
 			if enableWaffo {
 				return setting.GetWaffoPayMethods()

@@ -183,6 +183,8 @@ const RechargePage = () => {
   const [waffoMinTopUp, setWaffoMinTopUp] = useState(1);
   const [enableCryptomusTopUp, setEnableCryptomusTopUp] = useState(false);
   const [cryptomusMinTopUp, setCryptomusMinTopUp] = useState(1);
+  const [enableNowPaymentsTopUp, setEnableNowPaymentsTopUp] = useState(false);
+  const [nowpaymentsMinTopUp, setNowpaymentsMinTopUp] = useState(1);
   const [priceRatio, setPriceRatio] = useState(statusState?.status?.price || 1);
   const [minTopUp, setMinTopUp] = useState(1);
   const [topUpCount, setTopUpCount] = useState(1);
@@ -295,6 +297,8 @@ const RechargePage = () => {
         setWaffoMinTopUp(data.waffo_min_topup || 1);
         setEnableCryptomusTopUp(!!data.enable_cryptomus_topup);
         setCryptomusMinTopUp(data.cryptomus_min_topup || 1);
+        setEnableNowPaymentsTopUp(!!data.enable_nowpayments_topup);
+        setNowpaymentsMinTopUp(data.nowpayments_min_topup || 1);
         const min = data.enable_online_topup ? data.min_topup : data.enable_stripe_topup ? data.stripe_min_topup : data.enable_waffo_topup ? data.waffo_min_topup : 1;
         setMinTopUp(min);
         setTopUpCount(min);
@@ -405,6 +409,29 @@ const RechargePage = () => {
     }
   };
 
+  const nowpaymentsTopUp = async () => {
+    const min = Math.max(nowpaymentsMinTopUp || 1, minTopUp || 1);
+    if (topUpCount < min) {
+      showError(t('充值数量不能小于') + min);
+      return;
+    }
+    setPaymentLoading(true);
+    try {
+      const res = await API.post('/api/user/nowpayments/pay', {
+        amount: parseInt(topUpCount),
+      });
+      if (res.data?.message === 'success' && res.data.data?.pay_link) {
+        window.open(res.data.data.pay_link, '_blank');
+      } else {
+        showError(res.data?.data || res.data?.message || t('支付请求失败'));
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const waffoTopUp = async (idx) => {
     if (topUpCount < waffoMinTopUp) { showError(t('充值数量不能小于') + waffoMinTopUp); return; }
     setPaymentLoading(true);
@@ -438,8 +465,8 @@ const RechargePage = () => {
   };
 
   /* ─── Derived ─── */
-  const epayMethods = payMethods.filter((m) => m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus');
-  const hasOnlinePay = enableOnlineTopUp || enableStripeTopUp || enableWaffoTopUp || enableCryptomusTopUp;
+  const epayMethods = payMethods.filter((m) => m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus' && m.type !== 'nowpayments');
+  const hasOnlinePay = enableOnlineTopUp || enableStripeTopUp || enableWaffoTopUp || enableCryptomusTopUp || enableNowPaymentsTopUp;
   const currentDiscount = topupInfo?.discount?.[topUpCount] || 1.0;
   const actualPay = topUpCount * priceRatio * currentDiscount;
   const hasDiscount = currentDiscount < 1.0;
@@ -499,6 +526,7 @@ const RechargePage = () => {
                 enableOnlineTopUp={enableOnlineTopUp}
                 enableStripeTopUp={enableStripeTopUp}
                 enableCreemTopUp={enableCreemTopUp}
+                enableNowPaymentsTopUp={enableNowPaymentsTopUp}
                 billingPreference={billingPreference}
                 onChangeBillingPreference={updateBillingPreference}
                 activeSubscriptions={activeSubscriptions}
@@ -678,6 +706,24 @@ const RechargePage = () => {
                               )}
                             </button>
                           )}
+                          {/* NowPayments */}
+                          {enableNowPaymentsTopUp && (
+                            <button key='nowpayments' className={`rc-pay-method${selectedPayMethod === 'nowpayments' ? ' selected' : ''}`}
+                              onClick={() => setSelectedPayMethod('nowpayments')}>
+                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(38,178,168,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0, fontSize: 18, fontWeight: 800, color: '#26B2A8', fontFamily: 'var(--font-mono)' }}>
+                                ₮
+                              </div>
+                              <div style={{ flex: 1, textAlign: 'left' }}>
+                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{t('NowPayments (USDT / Crypto)')}</div>
+                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('支持 USDT/USDC 等多链，托管页面付款')}</div>
+                              </div>
+                              {selectedPayMethod === 'nowpayments' && (
+                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Check size={12} color='#fff' />
+                                </div>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </section>
                     )}
@@ -742,6 +788,8 @@ const RechargePage = () => {
                             onClick={() => {
                               if (selectedPayMethod === 'cryptomus') {
                                 cryptomusTopUp();
+                              } else if (selectedPayMethod === 'nowpayments') {
+                                nowpaymentsTopUp();
                               } else {
                                 preTopUp(selectedPayMethod);
                               }

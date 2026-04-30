@@ -24,7 +24,7 @@ import {
   Button,
   Select,
 } from '@douyinfe/semi-ui';
-import { Crown, CalendarClock, Package } from 'lucide-react';
+import { Crown, CalendarClock, Package, Coins } from 'lucide-react';
 import { SiStripe } from 'react-icons/si';
 import { IconCreditCard } from '@douyinfe/semi-icons';
 import { getCurrencyConfig } from '../../../helpers/render';
@@ -45,10 +45,12 @@ const SubscriptionPurchaseModal = ({
   enableOnlineTopUp = false,
   enableStripeTopUp = false,
   enableCreemTopUp = false,
+  enableNowPaymentsTopUp = false,
   purchaseLimitInfo = null,
   onPayStripe,
   onPayCreem,
   onPayEpay,
+  onPayNowPayments,
 }) => {
   const plan = selectedPlan?.plan;
   const { symbol, rate } = getCurrencyConfig();
@@ -67,7 +69,9 @@ const SubscriptionPurchaseModal = ({
   const hasStripe = enableStripeTopUp && !!plan?.stripe_price_id;
   const hasCreem = enableCreemTopUp && !!plan?.creem_product_id;
   const hasEpay = enableOnlineTopUp && epayMethods.length > 0;
-  const hasAnyPayment = hasStripe || hasCreem || hasEpay;
+  // NowPayments 不需要套餐侧的额外配置 — 只要管理员开启网关就可用，直接按 plan.price_amount 报价
+  const hasNowPayments = enableNowPaymentsTopUp;
+  const hasAnyPayment = hasStripe || hasCreem || hasEpay || hasNowPayments;
   const purchaseLimit = Number(purchaseLimitInfo?.limit || 0);
   const purchaseCount = Number(purchaseLimitInfo?.count || 0);
   const purchaseLimitReached =
@@ -230,6 +234,22 @@ const SubscriptionPurchaseModal = ({
                       Creem
                     </Button>
                   )}
+                </div>
+              )}
+
+              {/* NowPayments — 加密货币支付 */}
+              {hasNowPayments && (
+                <div className='flex gap-2'>
+                  <Button
+                    theme='light'
+                    className='flex-1'
+                    icon={<Coins size={14} color='#26B2A8' />}
+                    onClick={onPayNowPayments}
+                    loading={paying}
+                    disabled={purchaseLimitReached}
+                  >
+                    {t('USDT / 加密货币')}
+                  </Button>
                 </div>
               )}
 
