@@ -71,23 +71,26 @@ type nowPaymentsIpnPayload struct {
 }
 
 // nowPaymentsCreateInvoiceResponse NowPayments 创建发票响应
+//
+// 注意：NowPayments 实际响应里 id 和 price_amount 是 *字符串*（虽然文档示意是数字），
+// 用 string 接才能稳定 unmarshal —— 之前用 int64/float64 会直接 type mismatch。
 type nowPaymentsCreateInvoiceResponse struct {
-	ID               int64   `json:"id"`
-	OrderID          string  `json:"order_id"`
-	OrderDescription string  `json:"order_description"`
-	PriceAmount      float64 `json:"price_amount"`
-	PriceCurrency    string  `json:"price_currency"`
-	PayCurrency      string  `json:"pay_currency"`
-	IpnCallbackURL   string  `json:"ipn_callback_url"`
-	InvoiceURL       string  `json:"invoice_url"`
-	SuccessURL       string  `json:"success_url"`
-	CancelURL        string  `json:"cancel_url"`
-	CreatedAt        string  `json:"created_at"`
-	UpdatedAt        string  `json:"updated_at"`
+	ID               string `json:"id"`
+	OrderID          string `json:"order_id"`
+	OrderDescription string `json:"order_description"`
+	PriceAmount      string `json:"price_amount"`
+	PriceCurrency    string `json:"price_currency"`
+	PayCurrency      string `json:"pay_currency"`
+	IpnCallbackURL   string `json:"ipn_callback_url"`
+	InvoiceURL       string `json:"invoice_url"`
+	SuccessURL       string `json:"success_url"`
+	CancelURL        string `json:"cancel_url"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
 
 	// 错误响应字段（NowPayments 错误时返回 statusCode + message）
-	Code       int    `json:"statusCode"`
-	Message    string `json:"message"`
+	Code    int    `json:"statusCode"`
+	Message string `json:"message"`
 }
 
 // nowPaymentsBaseURL 根据沙盒开关返回对应的 API 基础地址
@@ -138,7 +141,7 @@ func getNowPaymentsPayMoney(amount float64, group string) float64 {
 // 调用方需要负责：在调用前已 Insert 一条 pending 状态的订单（topUp 或 subscriptionOrder），
 // 失败时把订单状态置为 failed。
 func createNowPaymentsInvoice(ctx context.Context, orderID string, payMoney float64,
-	orderDesc, successURL, cancelURL, notifyURL, payCurrency string) (invoiceURL string, invoiceID int64, err error) {
+	orderDesc, successURL, cancelURL, notifyURL, payCurrency string) (invoiceURL, invoiceID string, err error) {
 
 	orderCurrency := setting.NowPaymentsOrderCurrency
 	if orderCurrency == "" {
@@ -157,12 +160,12 @@ func createNowPaymentsInvoice(ctx context.Context, orderID string, payMoney floa
 	}
 	body, err := common.Marshal(payload)
 	if err != nil {
-		return "", 0, fmt.Errorf("marshal request: %w", err)
+		return "", "", fmt.Errorf("marshal request: %w", err)
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, nowPaymentsBaseURL()+nowPaymentsCreateInvoicePath, bytes.NewReader(body))
 	if err != nil {
-		return "", 0, fmt.Errorf("build request: %w", err)
+		return "", "", fmt.Errorf("build request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("x-api-key", setting.NowPaymentsApiKey)
@@ -170,18 +173,18 @@ func createNowPaymentsInvoice(ctx context.Context, orderID string, payMoney floa
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		return "", 0, fmt.Errorf("send request: %w", err)
+		return "", "", fmt.Errorf("send request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", 0, fmt.Errorf("read response: %w", err)
+		return "", "", fmt.Errorf("read response: %w", err)
 	}
 
 	var createResp nowPaymentsCreateInvoiceResponse
 	if err := common.Unmarshal(respBody, &createResp); err != nil {
-		return "", 0, fmt.Errorf("decode response: %w (body=%s)", err, string(respBody))
+		return "", "", fmt.Errorf("decode response: %w (body=%s)", err, string(respBody))
 	}
 
 	if resp.StatusCode >= 400 || createResp.InvoiceURL == "" {
@@ -189,7 +192,7 @@ func createNowPaymentsInvoice(ctx context.Context, orderID string, payMoney floa
 		if errMsg == "" {
 			errMsg = fmt.Sprintf("http %d", resp.StatusCode)
 		}
-		return "", 0, fmt.Errorf("nowpayments error: %s (body=%s)", errMsg, string(respBody))
+		return "", "", fmt.Errorf("nowpayments error: %s (body=%s)", errMsg, string(respBody))
 	}
 
 	return createResp.InvoiceURL, createResp.ID, nil
@@ -321,7 +324,7 @@ func RequestNowPaymentsPay(c *gin.Context) {
 		return
 	}
 
-	log.Printf("NowPayments 订单创建成功 - 用户: %d, 订单: %s, 金额: %.2f USD, invoice_id=%d",
+	log.Printf("NowPayments 订单创建成功 - 用户: %d, 订单: %s, 金额: %.2f USD, invoice_id=%s",
 		userId, tradeNo, payMoney, invoiceID)
 
 	c.JSON(http.StatusOK, gin.H{

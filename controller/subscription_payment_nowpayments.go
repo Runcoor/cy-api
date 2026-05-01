@@ -127,7 +127,7 @@ func SubscriptionRequestNowPaymentsPay(c *gin.Context) {
 		return
 	}
 
-	log.Printf("NowPayments 订阅订单创建成功 - 用户: %d, 套餐: %s, 订单: %s, 金额: %.2f USD, invoice_id=%d",
+	log.Printf("NowPayments 订阅订单创建成功 - 用户: %d, 套餐: %s, 订单: %s, 金额: %.2f USD, invoice_id=%s",
 		userId, plan.Title, tradeNo, payMoney, invoiceID)
 
 	c.JSON(http.StatusOK, gin.H{
