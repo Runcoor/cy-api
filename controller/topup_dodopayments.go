@@ -100,8 +100,8 @@ type dodoCreatePaymentResponse struct {
 	TotalAmount    int64  `json:"total_amount"`
 	ExpiresOn      string `json:"expires_on"`
 
-	// 错误响应（Dodo 4xx 时返回 error/message 字段）
-	Code    int    `json:"code"`
+	// 错误响应（Dodo 4xx 时返回 code/error/message 字段，code 是字符串错误码如 MERCHANT_NOT_LIVE）
+	Code    string `json:"code"`
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
@@ -194,6 +194,9 @@ func callDodoCreate(ctx context.Context, path string, body []byte) (*dodoCreateP
 		}
 		if errMsg == "" {
 			errMsg = fmt.Sprintf("http %d", resp.StatusCode)
+		}
+		if parsed.Code != "" {
+			errMsg = fmt.Sprintf("%s [%s]", errMsg, parsed.Code)
 		}
 		return nil, fmt.Errorf("dodo payments error: %s (body=%s)", errMsg, string(respBody))
 	}
