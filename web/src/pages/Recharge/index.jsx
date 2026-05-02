@@ -27,7 +27,16 @@ import {
   renderQuotaWithAmount,
   getQuotaPerUnit,
 } from '../../helpers';
-import { Modal, Toast, Skeleton, InputNumber, Input, Button, Banner, Tooltip } from '@douyinfe/semi-ui';
+import {
+  Modal,
+  Toast,
+  Skeleton,
+  InputNumber,
+  Input,
+  Button,
+  Banner,
+  Tooltip,
+} from '@douyinfe/semi-ui';
 import { IconTick } from '@douyinfe/semi-icons';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../../context/User';
@@ -147,7 +156,9 @@ function submitEpayForm({ url, params }) {
   const form = document.createElement('form');
   form.action = url;
   form.method = 'POST';
-  const isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') < 1;
+  const isSafari =
+    navigator.userAgent.indexOf('Safari') > -1 &&
+    navigator.userAgent.indexOf('Chrome') < 1;
   if (!isSafari) form.target = '_blank';
   Object.keys(params || {}).forEach((key) => {
     const input = document.createElement('input');
@@ -172,7 +183,10 @@ const RechargePage = () => {
 
   /* ─── Topup state (mirrored from topup/index.jsx) ─── */
   const [topupLoading, setTopupLoading] = useState(true);
-  const [topupInfo, setTopupInfo] = useState({ amount_options: [], discount: {} });
+  const [topupInfo, setTopupInfo] = useState({
+    amount_options: [],
+    discount: {},
+  });
   const [payMethods, setPayMethods] = useState([]);
   const [enableOnlineTopUp, setEnableOnlineTopUp] = useState(false);
   const [enableStripeTopUp, setEnableStripeTopUp] = useState(false);
@@ -185,6 +199,8 @@ const RechargePage = () => {
   const [cryptomusMinTopUp, setCryptomusMinTopUp] = useState(1);
   const [enableNowPaymentsTopUp, setEnableNowPaymentsTopUp] = useState(false);
   const [nowpaymentsMinTopUp, setNowpaymentsMinTopUp] = useState(1);
+  const [enableDodoPaymentsTopUp, setEnableDodoPaymentsTopUp] = useState(false);
+  const [dodopaymentsMinTopUp, setDodopaymentsMinTopUp] = useState(1);
   const [priceRatio, setPriceRatio] = useState(statusState?.status?.price || 1);
   const [minTopUp, setMinTopUp] = useState(1);
   const [topUpCount, setTopUpCount] = useState(1);
@@ -205,7 +221,8 @@ const RechargePage = () => {
   /* ─── Subscription state ─── */
   const [subscriptionPlans, setSubscriptionPlans] = useState([]);
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
-  const [billingPreference, setBillingPreference] = useState('subscription_first');
+  const [billingPreference, setBillingPreference] =
+    useState('subscription_first');
   const [activeSubscriptions, setActiveSubscriptions] = useState([]);
   const [allSubscriptions, setAllSubscriptions] = useState([]);
 
@@ -239,7 +256,8 @@ const RechargePage = () => {
   const getUserQuota = async () => {
     try {
       const res = await API.get('/api/user/self');
-      if (res.data?.success) userDispatch({ type: 'login', payload: res.data.data });
+      if (res.data?.success)
+        userDispatch({ type: 'login', payload: res.data.data });
     } catch {}
   };
 
@@ -248,14 +266,19 @@ const RechargePage = () => {
     try {
       const res = await API.get('/api/subscription/plans');
       if (res.data?.success) setSubscriptionPlans(res.data.data || []);
-    } catch {} finally { setSubscriptionLoading(false); }
+    } catch {
+    } finally {
+      setSubscriptionLoading(false);
+    }
   };
 
   const getSubscriptionSelf = async () => {
     try {
       const res = await API.get('/api/subscription/self');
       if (res.data?.success) {
-        setBillingPreference(res.data.data?.billing_preference || 'subscription_first');
+        setBillingPreference(
+          res.data.data?.billing_preference || 'subscription_first',
+        );
         setActiveSubscriptions(res.data.data?.subscriptions || []);
         setAllSubscriptions(res.data.data?.all_subscriptions || []);
       }
@@ -266,12 +289,20 @@ const RechargePage = () => {
     const prev = billingPreference;
     setBillingPreference(pref);
     try {
-      const res = await API.put('/api/subscription/self/preference', { billing_preference: pref });
+      const res = await API.put('/api/subscription/self/preference', {
+        billing_preference: pref,
+      });
       if (res.data?.success) {
         showSuccess(t('更新成功'));
         setBillingPreference(res.data.data?.billing_preference || pref);
-      } else { showError(res.data?.message || t('更新失败')); setBillingPreference(prev); }
-    } catch { showError(t('请求失败')); setBillingPreference(prev); }
+      } else {
+        showError(res.data?.message || t('更新失败'));
+        setBillingPreference(prev);
+      }
+    } catch {
+      showError(t('请求失败'));
+      setBillingPreference(prev);
+    }
   };
 
   const getTopupInfo = async () => {
@@ -280,14 +311,20 @@ const RechargePage = () => {
       const res = await API.get('/api/user/topup/info');
       const { success, data } = res.data;
       if (success && data) {
-        setTopupInfo({ amount_options: data.amount_options || [], discount: data.discount || {} });
+        setTopupInfo({
+          amount_options: data.amount_options || [],
+          discount: data.discount || {},
+        });
         let methods = data.pay_methods || [];
         if (typeof methods === 'string') methods = JSON.parse(methods);
-        methods = (methods || []).filter((m) => m.name && m.type).map((m) => {
-          m.min_topup = Number(m.min_topup) || 0;
-          if (m.type === 'stripe' && !m.min_topup) m.min_topup = Number(data.stripe_min_topup) || 0;
-          return m;
-        });
+        methods = (methods || [])
+          .filter((m) => m.name && m.type)
+          .map((m) => {
+            m.min_topup = Number(m.min_topup) || 0;
+            if (m.type === 'stripe' && !m.min_topup)
+              m.min_topup = Number(data.stripe_min_topup) || 0;
+            return m;
+          });
         setPayMethods(methods);
         setEnableOnlineTopUp(!!data.enable_online_topup);
         setEnableStripeTopUp(!!data.enable_stripe_topup);
@@ -299,21 +336,43 @@ const RechargePage = () => {
         setCryptomusMinTopUp(data.cryptomus_min_topup || 1);
         setEnableNowPaymentsTopUp(!!data.enable_nowpayments_topup);
         setNowpaymentsMinTopUp(data.nowpayments_min_topup || 1);
-        const min = data.enable_online_topup ? data.min_topup : data.enable_stripe_topup ? data.stripe_min_topup : data.enable_waffo_topup ? data.waffo_min_topup : 1;
+        setEnableDodoPaymentsTopUp(!!data.enable_dodopayments_topup);
+        setDodopaymentsMinTopUp(data.dodopayments_min_topup || 1);
+        const min = data.enable_online_topup
+          ? data.min_topup
+          : data.enable_stripe_topup
+            ? data.stripe_min_topup
+            : data.enable_waffo_topup
+              ? data.waffo_min_topup
+              : 1;
         setMinTopUp(min);
         setTopUpCount(min);
-        try { setCreemProducts(JSON.parse(data.creem_products || '[]')); } catch { setCreemProducts([]); }
+        try {
+          setCreemProducts(JSON.parse(data.creem_products || '[]'));
+        } catch {
+          setCreemProducts([]);
+        }
         // Presets
         const opts = data.amount_options || [];
         const disc = data.discount || {};
         if (opts.length > 0) {
-          setPresetAmounts(opts.map((v) => ({ value: v, discount: disc[v] || 1.0 })));
+          setPresetAmounts(
+            opts.map((v) => ({ value: v, discount: disc[v] || 1.0 })),
+          );
         } else {
-          setPresetAmounts([1, 5, 10, 30, 50, 100].map((m) => ({ value: min * m, discount: disc[min * m] || 1.0 })));
+          setPresetAmounts(
+            [1, 5, 10, 30, 50, 100].map((m) => ({
+              value: min * m,
+              discount: disc[min * m] || 1.0,
+            })),
+          );
         }
         getAmountFn(min);
       }
-    } catch {} finally { setTopupLoading(false); }
+    } catch {
+    } finally {
+      setTopupLoading(false);
+    }
   };
 
   /* ─── Amount calculation ─── */
@@ -321,20 +380,30 @@ const RechargePage = () => {
     if (value === undefined) value = topUpCount;
     setAmountLoading(true);
     try {
-      const res = await API.post('/api/user/amount', { amount: parseFloat(value) });
+      const res = await API.post('/api/user/amount', {
+        amount: parseFloat(value),
+      });
       if (res.data?.message === 'success') setAmount(parseFloat(res.data.data));
       else setAmount(0);
-    } catch {} finally { setAmountLoading(false); }
+    } catch {
+    } finally {
+      setAmountLoading(false);
+    }
   };
 
   const getStripeAmountFn = async (value) => {
     if (value === undefined) value = topUpCount;
     setAmountLoading(true);
     try {
-      const res = await API.post('/api/user/stripe/amount', { amount: parseFloat(value) });
+      const res = await API.post('/api/user/stripe/amount', {
+        amount: parseFloat(value),
+      });
       if (res.data?.message === 'success') setAmount(parseFloat(res.data.data));
       else setAmount(0);
-    } catch {} finally { setAmountLoading(false); }
+    } catch {
+    } finally {
+      setAmountLoading(false);
+    }
   };
 
   const renderAmount = () => amount + ' ' + t('元');
@@ -346,44 +415,82 @@ const RechargePage = () => {
     try {
       if (payment === 'stripe') await getStripeAmountFn();
       else await getAmountFn();
-      if (topUpCount < minTopUp) { showError(t('充值数量不能小于') + minTopUp); return; }
+      if (topUpCount < minTopUp) {
+        showError(t('充值数量不能小于') + minTopUp);
+        return;
+      }
       setOpen(true);
-    } catch { showError(t('获取金额失败')); }
-    finally { setPaymentLoading(false); }
+    } catch {
+      showError(t('获取金额失败'));
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   const onlineTopUp = async () => {
-    if (topUpCount < minTopUp) { showError(t('充值数量不能小于') + minTopUp); return; }
+    if (topUpCount < minTopUp) {
+      showError(t('充值数量不能小于') + minTopUp);
+      return;
+    }
     setConfirmLoading(true);
     try {
       let res;
       if (payWay === 'stripe') {
-        res = await API.post('/api/user/stripe/pay', { amount: parseInt(topUpCount), payment_method: 'stripe' });
+        res = await API.post('/api/user/stripe/pay', {
+          amount: parseInt(topUpCount),
+          payment_method: 'stripe',
+        });
       } else {
-        res = await API.post('/api/user/pay', { amount: parseInt(topUpCount), payment_method: payWay });
+        res = await API.post('/api/user/pay', {
+          amount: parseInt(topUpCount),
+          payment_method: payWay,
+        });
       }
       if (res?.data?.message === 'success') {
-        if (payWay === 'stripe') { window.open(res.data.data.pay_link, '_blank'); }
-        else { submitEpayForm({ url: res.data.url, params: res.data.data }); }
-      } else { showError(res?.data?.data || res?.data?.message || t('支付失败')); }
-    } catch { showError(t('支付请求失败')); }
-    finally { setOpen(false); setConfirmLoading(false); }
+        if (payWay === 'stripe') {
+          window.open(res.data.data.pay_link, '_blank');
+        } else {
+          submitEpayForm({ url: res.data.url, params: res.data.data });
+        }
+      } else {
+        showError(res?.data?.data || res?.data?.message || t('支付失败'));
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setOpen(false);
+      setConfirmLoading(false);
+    }
   };
 
   const topUp = async () => {
-    if (!redemptionCode) { showInfo(t('请输入兑换码！')); return; }
+    if (!redemptionCode) {
+      showInfo(t('请输入兑换码！'));
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await API.post('/api/user/topup', { key: redemptionCode });
       const { success, message, data } = res.data;
       if (success) {
         showSuccess(t('兑换成功！'));
-        Modal.success({ title: t('兑换成功！'), content: t('成功兑换额度：') + renderQuota(data), centered: true });
-        if (userState.user) userDispatch({ type: 'login', payload: { ...userState.user, quota: userState.user.quota + data } });
+        Modal.success({
+          title: t('兑换成功！'),
+          content: t('成功兑换额度：') + renderQuota(data),
+          centered: true,
+        });
+        if (userState.user)
+          userDispatch({
+            type: 'login',
+            payload: { ...userState.user, quota: userState.user.quota + data },
+          });
         setRedemptionCode('');
       } else showError(message);
-    } catch { showError(t('请求失败')); }
-    finally { setIsSubmitting(false); }
+    } catch {
+      showError(t('请求失败'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const cryptomusTopUp = async () => {
@@ -432,29 +539,73 @@ const RechargePage = () => {
     }
   };
 
+  const dodopaymentsTopUp = async () => {
+    const min = Math.max(dodopaymentsMinTopUp || 1, minTopUp || 1);
+    if (topUpCount < min) {
+      showError(t('充值数量不能小于') + min);
+      return;
+    }
+    setPaymentLoading(true);
+    try {
+      const res = await API.post('/api/user/dodopayments/pay', {
+        amount: parseInt(topUpCount),
+      });
+      if (res.data?.message === 'success' && res.data.data?.pay_link) {
+        window.open(res.data.data.pay_link, '_blank');
+      } else {
+        showError(res.data?.data || res.data?.message || t('支付请求失败'));
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const waffoTopUp = async (idx) => {
-    if (topUpCount < waffoMinTopUp) { showError(t('充值数量不能小于') + waffoMinTopUp); return; }
+    if (topUpCount < waffoMinTopUp) {
+      showError(t('充值数量不能小于') + waffoMinTopUp);
+      return;
+    }
     setPaymentLoading(true);
     try {
       const body = { amount: parseInt(topUpCount) };
       if (idx != null) body.pay_method_index = idx;
       const res = await API.post('/api/user/waffo/pay', body);
-      if (res.data?.message === 'success' && res.data.data?.payment_url) window.open(res.data.data.payment_url, '_blank');
+      if (res.data?.message === 'success' && res.data.data?.payment_url)
+        window.open(res.data.data.payment_url, '_blank');
       else showError(res.data?.data || t('支付请求失败'));
-    } catch { showError(t('支付请求失败')); }
-    finally { setPaymentLoading(false); }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
-  const creemPreTopUp = (product) => { setSelectedCreemProduct(product); setCreemOpen(true); };
+  const creemPreTopUp = (product) => {
+    setSelectedCreemProduct(product);
+    setCreemOpen(true);
+  };
   const onlineCreemTopUp = async () => {
-    if (!selectedCreemProduct?.productId) { showError(t('产品配置错误，请联系管理员')); return; }
+    if (!selectedCreemProduct?.productId) {
+      showError(t('产品配置错误，请联系管理员'));
+      return;
+    }
     setConfirmLoading(true);
     try {
-      const res = await API.post('/api/user/creem/pay', { product_id: selectedCreemProduct.productId, payment_method: 'creem' });
-      if (res.data?.message === 'success') window.open(res.data.data.checkout_url, '_blank');
+      const res = await API.post('/api/user/creem/pay', {
+        product_id: selectedCreemProduct.productId,
+        payment_method: 'creem',
+      });
+      if (res.data?.message === 'success')
+        window.open(res.data.data.checkout_url, '_blank');
       else showError(res.data?.data || res.data?.message || t('支付失败'));
-    } catch { showError(t('支付请求失败')); }
-    finally { setCreemOpen(false); setConfirmLoading(false); }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setCreemOpen(false);
+      setConfirmLoading(false);
+    }
   };
 
   const selectPresetAmount = (preset) => {
@@ -465,50 +616,105 @@ const RechargePage = () => {
   };
 
   /* ─── Derived ─── */
-  const epayMethods = payMethods.filter((m) => m.type !== 'stripe' && m.type !== 'creem' && m.type !== 'waffo' && m.type !== 'cryptomus' && m.type !== 'nowpayments');
-  const hasOnlinePay = enableOnlineTopUp || enableStripeTopUp || enableWaffoTopUp || enableCryptomusTopUp || enableNowPaymentsTopUp;
+  const epayMethods = payMethods.filter(
+    (m) =>
+      m.type !== 'stripe' &&
+      m.type !== 'creem' &&
+      m.type !== 'waffo' &&
+      m.type !== 'cryptomus' &&
+      m.type !== 'nowpayments' &&
+      m.type !== 'dodopayments',
+  );
+  const hasOnlinePay =
+    enableOnlineTopUp ||
+    enableStripeTopUp ||
+    enableWaffoTopUp ||
+    enableCryptomusTopUp ||
+    enableNowPaymentsTopUp ||
+    enableDodoPaymentsTopUp;
   const currentDiscount = topupInfo?.discount?.[topUpCount] || 1.0;
   const actualPay = topUpCount * priceRatio * currentDiscount;
   const hasDiscount = currentDiscount < 1.0;
-  const showSubscriptionTab = !subscriptionLoading && subscriptionPlans.length > 0;
+  const showSubscriptionTab =
+    !subscriptionLoading && subscriptionPlans.length > 0;
 
   return (
     <>
       <style>{STYLES}</style>
-      <div style={{ minHeight: 'calc(100vh - var(--header-height))', background: 'var(--bg-base)', padding: isMobile ? '24px 16px 48px' : '40px 24px 80px' }}>
+      <div
+        style={{
+          minHeight: 'calc(100vh - var(--header-height))',
+          background: 'var(--bg-base)',
+          padding: isMobile ? '24px 16px 48px' : '40px 24px 80px',
+        }}
+      >
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-
           {/* ─── Header ─── */}
           <div className='rc-animate' style={{ marginBottom: 32 }}>
-            <Button theme='borderless' type='tertiary' icon={<ArrowLeft size={16} />}
+            <Button
+              theme='borderless'
+              type='tertiary'
+              icon={<ArrowLeft size={16} />}
               onClick={() => navigate('/console/topup')}
               style={{ marginBottom: 16, borderRadius: 'var(--radius-md)' }}
             >
               {t('返回钱包')}
             </Button>
-            <h1 style={{
-              fontSize: isMobile ? 32 : 42, fontWeight: 800, margin: 0, lineHeight: 1.1,
-              fontFamily: 'var(--font-serif)', color: 'var(--text-primary)',
-            }}>
+            <h1
+              style={{
+                fontSize: isMobile ? 32 : 42,
+                fontWeight: 800,
+                margin: 0,
+                lineHeight: 1.1,
+                fontFamily: 'var(--font-serif)',
+                color: 'var(--text-primary)',
+              }}
+            >
               {t('升级体验')}
             </h1>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginTop: 8, maxWidth: 600 }}>
+            <p
+              style={{
+                fontSize: 16,
+                color: 'var(--text-secondary)',
+                marginTop: 8,
+                maxWidth: 600,
+              }}
+            >
               {t('选择适合你的套餐，或充值余额按需使用。')}
             </p>
           </div>
 
           {/* ─── Tab switcher (design-doc style pill) ─── */}
           {showSubscriptionTab && (
-            <div className='rc-animate' style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
-              <div style={{
-                display: 'flex', gap: 4, padding: 5,
-                background: 'var(--surface-active)', borderRadius: 9999,
-                maxWidth: 400, width: '100%',
-              }}>
-                <button className={`rc-tab${activeTab === 'subscription' ? ' active' : ''}`} onClick={() => setActiveTab('subscription')}>
+            <div
+              className='rc-animate'
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: 40,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 4,
+                  padding: 5,
+                  background: 'var(--surface-active)',
+                  borderRadius: 9999,
+                  maxWidth: 400,
+                  width: '100%',
+                }}
+              >
+                <button
+                  className={`rc-tab${activeTab === 'subscription' ? ' active' : ''}`}
+                  onClick={() => setActiveTab('subscription')}
+                >
                   {t('订阅套餐')}
                 </button>
-                <button className={`rc-tab${activeTab === 'topup' ? ' active' : ''}`} onClick={() => setActiveTab('topup')}>
+                <button
+                  className={`rc-tab${activeTab === 'topup' ? ' active' : ''}`}
+                  onClick={() => setActiveTab('topup')}
+                >
                   {t('额度充值')}
                 </button>
               </div>
@@ -539,52 +745,116 @@ const RechargePage = () => {
               {topupLoading ? (
                 <Skeleton.Paragraph active rows={6} />
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 32, alignItems: 'start' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1fr 340px',
+                    gap: 32,
+                    alignItems: 'start',
+                  }}
+                >
                   {/* ─── Left: presets + custom + payment ─── */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 40,
+                    }}
+                  >
                     {/* Preset grid */}
                     {hasOnlinePay && (
                       <section>
-                        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: 16 }}>
+                        <h2
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-serif)',
+                            color: 'var(--text-primary)',
+                            marginBottom: 16,
+                          }}
+                        >
                           {t('选择充值额度')}
                         </h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: 12 }}>
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: isMobile
+                              ? 'repeat(2, 1fr)'
+                              : 'repeat(3, 1fr)',
+                            gap: 12,
+                          }}
+                        >
                           {presetAmounts.map((p) => {
-                            const disc = p.discount || topupInfo?.discount?.[p.value] || 1.0;
+                            const disc =
+                              p.discount ||
+                              topupInfo?.discount?.[p.value] ||
+                              1.0;
                             const origPay = p.value * priceRatio;
                             const actPay = origPay * disc;
                             const hasDsc = disc < 1.0;
                             const isSelected = selectedPreset === p.value;
                             return (
-                              <button key={p.value}
+                              <button
+                                key={p.value}
                                 className={`rc-preset-card${isSelected ? ' selected' : ''}`}
                                 onClick={() => selectPresetAmount(p)}
                               >
-                                <div style={{ position: 'relative', zIndex: 1 }}>
-                                  <div style={{ fontSize: 26, fontWeight: 800, fontFamily: 'var(--font-serif)', color: isSelected ? 'var(--accent)' : 'var(--text-primary)', marginBottom: 4 }}>
+                                <div
+                                  style={{ position: 'relative', zIndex: 1 }}
+                                >
+                                  <div
+                                    style={{
+                                      fontSize: 26,
+                                      fontWeight: 800,
+                                      fontFamily: 'var(--font-serif)',
+                                      color: isSelected
+                                        ? 'var(--accent)'
+                                        : 'var(--text-primary)',
+                                      marginBottom: 4,
+                                    }}
+                                  >
                                     ${p.value}
                                   </div>
                                   {hasDsc && (
-                                    <div style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                                    <div
+                                      style={{
+                                        fontSize: 13,
+                                        color: 'var(--text-muted)',
+                                        textDecoration: 'line-through',
+                                      }}
+                                    >
                                       ¥{origPay.toFixed(0)}
                                     </div>
                                   )}
                                   {!hasDsc && (
-                                    <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                                    <div
+                                      style={{
+                                        fontSize: 13,
+                                        color: 'var(--text-muted)',
+                                      }}
+                                    >
                                       ¥{actPay.toFixed(0)}
                                     </div>
                                   )}
                                 </div>
                                 {hasDsc && (
-                                  <span style={{
-                                    position: 'absolute', top: 12, right: 12,
-                                    display: 'inline-flex', alignItems: 'center',
-                                    padding: '2px 8px', borderRadius: 9999,
-                                    fontSize: 11, fontWeight: 700,
-                                    background: 'var(--accent-gradient)', color: '#fff',
-                                  }}>
-                                    {(disc * 10).toFixed(1)}{t('折')}
+                                  <span
+                                    style={{
+                                      position: 'absolute',
+                                      top: 12,
+                                      right: 12,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      padding: '2px 8px',
+                                      borderRadius: 9999,
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      background: 'var(--accent-gradient)',
+                                      color: '#fff',
+                                    }}
+                                  >
+                                    {(disc * 10).toFixed(1)}
+                                    {t('折')}
                                   </span>
                                 )}
                               </button>
@@ -597,46 +867,110 @@ const RechargePage = () => {
                     {/* Custom amount */}
                     {hasOnlinePay && (
                       <section>
-                        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: 16 }}>
+                        <h2
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-serif)',
+                            color: 'var(--text-primary)',
+                            marginBottom: 16,
+                          }}
+                        >
                           {t('自定义金额')}
                         </h2>
-                        <div className='rc-custom-amount' style={{
-                          display: 'flex', alignItems: 'center', gap: 16, padding: 24,
-                          borderRadius: 'var(--radius-lg)', background: 'var(--surface-active)',
-                        }}>
+                        <div
+                          className='rc-custom-amount'
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 16,
+                            padding: 24,
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'var(--surface-active)',
+                          }}
+                        >
                           <div style={{ flex: 1, position: 'relative' }}>
-                            <span style={{
-                              position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
-                              fontSize: 28, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-muted)',
-                            }}>$</span>
+                            <span
+                              style={{
+                                position: 'absolute',
+                                left: 20,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                fontSize: 28,
+                                fontWeight: 700,
+                                fontFamily: 'var(--font-serif)',
+                                color: 'var(--text-muted)',
+                              }}
+                            >
+                              $
+                            </span>
                             <InputNumber
                               value={topUpCount}
-                              onChange={(v) => { setTopUpCount(v || 0); setSelectedPreset(null); getAmountFn(v || 0); }}
-                              min={minTopUp} max={999999999} step={1} precision={0}
+                              onChange={(v) => {
+                                setTopUpCount(v || 0);
+                                setSelectedPreset(null);
+                                getAmountFn(v || 0);
+                              }}
+                              min={minTopUp}
+                              max={999999999}
+                              step={1}
+                              precision={0}
                               style={{
-                                width: '100%', borderRadius: 'var(--radius-lg)',
-                                height: 64, fontSize: 28, fontWeight: 700, paddingLeft: 48,
+                                width: '100%',
+                                borderRadius: 'var(--radius-lg)',
+                                height: 64,
+                                fontSize: 28,
+                                fontWeight: 700,
+                                paddingLeft: 48,
                               }}
                               innerButtons={false}
                             />
                           </div>
                           <div style={{ display: 'flex', gap: 8 }}>
-                            <button onClick={() => { const v = Math.max(minTopUp, topUpCount - 1); setTopUpCount(v); setSelectedPreset(null); getAmountFn(v); }}
+                            <button
+                              onClick={() => {
+                                const v = Math.max(minTopUp, topUpCount - 1);
+                                setTopUpCount(v);
+                                setSelectedPreset(null);
+                                getAmountFn(v);
+                              }}
                               style={{
-                                width: 48, height: 48, borderRadius: '50%', border: 'none',
-                                background: 'var(--surface)', cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'var(--text-secondary)', transition: 'all 0.2s',
-                              }}>
+                                width: 48,
+                                height: 48,
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'var(--surface)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--text-secondary)',
+                                transition: 'all 0.2s',
+                              }}
+                            >
                               <Minus size={18} />
                             </button>
-                            <button onClick={() => { const v = topUpCount + 1; setTopUpCount(v); setSelectedPreset(null); getAmountFn(v); }}
+                            <button
+                              onClick={() => {
+                                const v = topUpCount + 1;
+                                setTopUpCount(v);
+                                setSelectedPreset(null);
+                                getAmountFn(v);
+                              }}
                               style={{
-                                width: 48, height: 48, borderRadius: '50%', border: 'none',
-                                background: 'var(--surface)', cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: 'var(--text-secondary)', transition: 'all 0.2s',
-                              }}>
+                                width: 48,
+                                height: 48,
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'var(--surface)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--text-secondary)',
+                                transition: 'all 0.2s',
+                              }}
+                            >
                               <Plus size={18} />
                             </button>
                           </div>
@@ -647,59 +981,217 @@ const RechargePage = () => {
                     {/* Payment methods */}
                     {hasOnlinePay && (
                       <section>
-                        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: 16 }}>
+                        <h2
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-serif)',
+                            color: 'var(--text-primary)',
+                            marginBottom: 16,
+                          }}
+                        >
                           {t('选择支付方式')}
                         </h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 12 }}>
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: isMobile
+                              ? '1fr'
+                              : 'repeat(2, 1fr)',
+                            gap: 12,
+                          }}
+                        >
                           {/* Stripe */}
-                          {enableStripeTopUp && payMethods.filter((m) => m.type === 'stripe').map((m) => (
-                            <button key='stripe' className={`rc-pay-method${selectedPayMethod === 'stripe' ? ' selected' : ''}`}
-                              onClick={() => setSelectedPayMethod('stripe')}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(99,91,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0 }}>
-                                <SiStripe size={22} color='#635BFF' />
-                              </div>
-                              <div style={{ flex: 1, textAlign: 'left' }}>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>Stripe</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('国际支付')}</div>
-                              </div>
-                              {selectedPayMethod === 'stripe' && (
-                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <Check size={12} color='#fff' />
-                                </div>
-                              )}
-                            </button>
-                          ))}
+                          {enableStripeTopUp &&
+                            payMethods
+                              .filter((m) => m.type === 'stripe')
+                              .map((m) => (
+                                <button
+                                  key='stripe'
+                                  className={`rc-pay-method${selectedPayMethod === 'stripe' ? ' selected' : ''}`}
+                                  onClick={() => setSelectedPayMethod('stripe')}
+                                >
+                                  <div
+                                    style={{
+                                      width: 44,
+                                      height: 44,
+                                      borderRadius: '50%',
+                                      background: 'rgba(99,91,255,0.08)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      marginRight: 14,
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    <SiStripe size={22} color='#635BFF' />
+                                  </div>
+                                  <div style={{ flex: 1, textAlign: 'left' }}>
+                                    <div
+                                      style={{
+                                        fontSize: 15,
+                                        fontWeight: 700,
+                                        color: 'var(--text-primary)',
+                                      }}
+                                    >
+                                      Stripe
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: 12,
+                                        color: 'var(--text-muted)',
+                                      }}
+                                    >
+                                      {t('国际支付')}
+                                    </div>
+                                  </div>
+                                  {selectedPayMethod === 'stripe' && (
+                                    <div
+                                      style={{
+                                        width: 22,
+                                        height: 22,
+                                        borderRadius: '50%',
+                                        background: 'var(--accent)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                      }}
+                                    >
+                                      <Check size={12} color='#fff' />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
                           {/* Epay methods */}
-                          {enableOnlineTopUp && epayMethods.map((m) => (
-                            <button key={m.type} className={`rc-pay-method${selectedPayMethod === m.type ? ' selected' : ''}`}
-                              onClick={() => setSelectedPayMethod(m.type)}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: m.type === 'alipay' ? 'rgba(22,119,255,0.08)' : m.type === 'wxpay' ? 'rgba(7,193,96,0.08)' : 'var(--surface-active)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0 }}>
-                                {m.type === 'alipay' ? <SiAlipay size={22} color='#1677FF' /> : m.type === 'wxpay' ? <SiWechat size={22} color='#07C160' /> : <CreditCard size={20} style={{ color: 'var(--text-muted)' }} />}
-                              </div>
-                              <div style={{ flex: 1, textAlign: 'left' }}>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{m.name ? t(m.name) : ''}</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('即时到账')}</div>
-                              </div>
-                              {selectedPayMethod === m.type && (
-                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <Check size={12} color='#fff' />
+                          {enableOnlineTopUp &&
+                            epayMethods.map((m) => (
+                              <button
+                                key={m.type}
+                                className={`rc-pay-method${selectedPayMethod === m.type ? ' selected' : ''}`}
+                                onClick={() => setSelectedPayMethod(m.type)}
+                              >
+                                <div
+                                  style={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: '50%',
+                                    background:
+                                      m.type === 'alipay'
+                                        ? 'rgba(22,119,255,0.08)'
+                                        : m.type === 'wxpay'
+                                          ? 'rgba(7,193,96,0.08)'
+                                          : 'var(--surface-active)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: 14,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {m.type === 'alipay' ? (
+                                    <SiAlipay size={22} color='#1677FF' />
+                                  ) : m.type === 'wxpay' ? (
+                                    <SiWechat size={22} color='#07C160' />
+                                  ) : (
+                                    <CreditCard
+                                      size={20}
+                                      style={{ color: 'var(--text-muted)' }}
+                                    />
+                                  )}
                                 </div>
-                              )}
-                            </button>
-                          ))}
+                                <div style={{ flex: 1, textAlign: 'left' }}>
+                                  <div
+                                    style={{
+                                      fontSize: 15,
+                                      fontWeight: 700,
+                                      color: 'var(--text-primary)',
+                                    }}
+                                  >
+                                    {m.name ? t(m.name) : ''}
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: 12,
+                                      color: 'var(--text-muted)',
+                                    }}
+                                  >
+                                    {t('即时到账')}
+                                  </div>
+                                </div>
+                                {selectedPayMethod === m.type && (
+                                  <div
+                                    style={{
+                                      width: 22,
+                                      height: 22,
+                                      borderRadius: '50%',
+                                      background: 'var(--accent)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                    }}
+                                  >
+                                    <Check size={12} color='#fff' />
+                                  </div>
+                                )}
+                              </button>
+                            ))}
                           {/* Cryptomus */}
                           {enableCryptomusTopUp && (
-                            <button key='cryptomus' className={`rc-pay-method${selectedPayMethod === 'cryptomus' ? ' selected' : ''}`}
-                              onClick={() => setSelectedPayMethod('cryptomus')}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(247,147,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0, fontSize: 18, fontWeight: 800, color: '#F7931A', fontFamily: 'var(--font-mono)' }}>
+                            <button
+                              key='cryptomus'
+                              className={`rc-pay-method${selectedPayMethod === 'cryptomus' ? ' selected' : ''}`}
+                              onClick={() => setSelectedPayMethod('cryptomus')}
+                            >
+                              <div
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: '50%',
+                                  background: 'rgba(247,147,26,0.10)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginRight: 14,
+                                  flexShrink: 0,
+                                  fontSize: 18,
+                                  fontWeight: 800,
+                                  color: '#F7931A',
+                                  fontFamily: 'var(--font-mono)',
+                                }}
+                              >
                                 ₮
                               </div>
                               <div style={{ flex: 1, textAlign: 'left' }}>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{t('USDT / 加密货币')}</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('链上到账，低手续费')}</div>
+                                <div
+                                  style={{
+                                    fontSize: 15,
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                  }}
+                                >
+                                  {t('USDT / 加密货币')}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: 'var(--text-muted)',
+                                  }}
+                                >
+                                  {t('链上到账，低手续费')}
+                                </div>
                               </div>
                               {selectedPayMethod === 'cryptomus' && (
-                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div
+                                  style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: '50%',
+                                    background: 'var(--accent)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
                                   <Check size={12} color='#fff' />
                                 </div>
                               )}
@@ -707,17 +1199,129 @@ const RechargePage = () => {
                           )}
                           {/* 加密货币支付（NowPayments） — 不暴露第三方品牌名 */}
                           {enableNowPaymentsTopUp && (
-                            <button key='nowpayments' className={`rc-pay-method${selectedPayMethod === 'nowpayments' ? ' selected' : ''}`}
-                              onClick={() => setSelectedPayMethod('nowpayments')}>
-                              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(38,178,168,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14, flexShrink: 0, fontSize: 18, fontWeight: 800, color: '#26B2A8', fontFamily: 'var(--font-mono)' }}>
+                            <button
+                              key='nowpayments'
+                              className={`rc-pay-method${selectedPayMethod === 'nowpayments' ? ' selected' : ''}`}
+                              onClick={() =>
+                                setSelectedPayMethod('nowpayments')
+                              }
+                            >
+                              <div
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: '50%',
+                                  background: 'rgba(38,178,168,0.12)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginRight: 14,
+                                  flexShrink: 0,
+                                  fontSize: 18,
+                                  fontWeight: 800,
+                                  color: '#26B2A8',
+                                  fontFamily: 'var(--font-mono)',
+                                }}
+                              >
                                 ₮
                               </div>
                               <div style={{ flex: 1, textAlign: 'left' }}>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{t('加密货币支付')}</div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('链上到账，多链支持')}</div>
+                                <div
+                                  style={{
+                                    fontSize: 15,
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                  }}
+                                >
+                                  {t('加密货币支付')}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: 'var(--text-muted)',
+                                  }}
+                                >
+                                  {t('链上到账，多链支持')}
+                                </div>
                               </div>
                               {selectedPayMethod === 'nowpayments' && (
-                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div
+                                  style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: '50%',
+                                    background: 'var(--accent)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <Check size={12} color='#fff' />
+                                </div>
+                              )}
+                            </button>
+                          )}
+                          {/* 信用卡 / 全球支付（Dodo Payments） — 不暴露第三方品牌名 */}
+                          {enableDodoPaymentsTopUp && (
+                            <button
+                              key='dodopayments'
+                              className={`rc-pay-method${selectedPayMethod === 'dodopayments' ? ' selected' : ''}`}
+                              onClick={() =>
+                                setSelectedPayMethod('dodopayments')
+                              }
+                            >
+                              <div
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: '50%',
+                                  background: 'rgba(122,90,248,0.12)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  marginRight: 14,
+                                  flexShrink: 0,
+                                  fontSize: 18,
+                                  fontWeight: 800,
+                                  color: '#7A5AF8',
+                                  fontFamily: 'var(--font-mono)',
+                                }}
+                              >
+                                $
+                              </div>
+                              <div style={{ flex: 1, textAlign: 'left' }}>
+                                <div
+                                  style={{
+                                    fontSize: 15,
+                                    fontWeight: 700,
+                                    color: 'var(--text-primary)',
+                                  }}
+                                >
+                                  {t('信用卡 / 全球支付')}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: 'var(--text-muted)',
+                                  }}
+                                >
+                                  {t(
+                                    'Visa / Mastercard / 本地支付，按 USD 结算',
+                                  )}
+                                </div>
+                              </div>
+                              {selectedPayMethod === 'dodopayments' && (
+                                <div
+                                  style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: '50%',
+                                    background: 'var(--accent)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
                                   <Check size={12} color='#fff' />
                                 </div>
                               )}
@@ -729,20 +1333,53 @@ const RechargePage = () => {
 
                     {/* Redemption code */}
                     <section>
-                      <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: 16 }}>
+                      <h2
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 700,
+                          fontFamily: 'var(--font-serif)',
+                          color: 'var(--text-primary)',
+                          marginBottom: 16,
+                        }}
+                      >
                         {t('兑换充值码')}
                       </h2>
                       <div style={{ display: 'flex', gap: 10 }}>
                         <Input
-                          value={redemptionCode} onChange={setRedemptionCode}
+                          value={redemptionCode}
+                          onChange={setRedemptionCode}
                           placeholder={t('输入充值码')}
-                          prefix={<TicketCheck size={14} style={{ color: 'var(--text-muted)', marginLeft: 4, marginRight: 4 }} />}
+                          prefix={
+                            <TicketCheck
+                              size={14}
+                              style={{
+                                color: 'var(--text-muted)',
+                                marginLeft: 4,
+                                marginRight: 4,
+                              }}
+                            />
+                          }
                           showClear
-                          style={{ flex: 1, borderRadius: 'var(--radius-lg)', height: 44 }}
+                          style={{
+                            flex: 1,
+                            borderRadius: 'var(--radius-lg)',
+                            height: 44,
+                          }}
                           onEnterPress={topUp}
                         />
-                        <Button theme='solid' type='primary' loading={isSubmitting} onClick={topUp}
-                          style={{ borderRadius: 'var(--radius-lg)', background: 'var(--accent-gradient)', border: 'none', fontWeight: 600, height: 44, padding: '0 24px' }}
+                        <Button
+                          theme='solid'
+                          type='primary'
+                          loading={isSubmitting}
+                          onClick={topUp}
+                          style={{
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'var(--accent-gradient)',
+                            border: 'none',
+                            fontWeight: 600,
+                            height: 44,
+                            padding: '0 24px',
+                          }}
                         >
                           {t('兑换')}
                         </Button>
@@ -755,19 +1392,34 @@ const RechargePage = () => {
                     <div style={{ position: 'sticky', top: 80, marginTop: 40 }}>
                       <div className='rc-summary'>
                         <div style={{ marginBottom: 16 }}>
-                          <h3 style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', margin: 0 }}>
+                          <h3
+                            style={{
+                              fontSize: 18,
+                              fontWeight: 700,
+                              fontFamily: 'var(--font-serif)',
+                              color: 'var(--text-primary)',
+                              margin: 0,
+                            }}
+                          >
                             {t('订单摘要')}
                           </h3>
-                          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+                          <p
+                            style={{
+                              fontSize: 13,
+                              color: 'var(--text-muted)',
+                              marginTop: 4,
+                            }}
+                          >
                             {t('确认你的充值详情')}
                           </p>
                         </div>
                         {(() => {
-                          // Crypto rails (NowPayments / Cryptomus) settle directly in USD —
-                          // skip the CNY conversion so the user sees the actual settlement price.
+                          // USD-settled rails (NowPayments / Cryptomus / Dodo Payments) skip
+                          // the CNY conversion so the user sees the actual USD price.
                           const isCrypto =
                             selectedPayMethod === 'nowpayments' ||
-                            selectedPayMethod === 'cryptomus';
+                            selectedPayMethod === 'cryptomus' ||
+                            selectedPayMethod === 'dodopayments';
                           const symbol = isCrypto ? '$' : '¥';
                           const rate = isCrypto ? 1 : priceRatio;
                           const discountPart =
@@ -775,43 +1427,123 @@ const RechargePage = () => {
                           const settlement =
                             topUpCount * rate * currentDiscount;
                           return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14 }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ color: 'var(--text-secondary)' }}>{t('充值数量')}</span>
-                                <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>${topUpCount}</span>
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 12,
+                                fontSize: 14,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <span
+                                  style={{ color: 'var(--text-secondary)' }}
+                                >
+                                  {t('充值数量')}
+                                </span>
+                                <span
+                                  style={{
+                                    fontWeight: 500,
+                                    color: 'var(--text-primary)',
+                                  }}
+                                >
+                                  ${topUpCount}
+                                </span>
                               </div>
                               {hasDiscount && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ color: 'var(--text-secondary)' }}>{t('折扣')} ({(currentDiscount * 10).toFixed(1)}{t('折')})</span>
-                                  <span style={{ fontWeight: 500, color: 'var(--error)' }}>-{symbol}{discountPart.toFixed(2)}</span>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <span
+                                    style={{ color: 'var(--text-secondary)' }}
+                                  >
+                                    {t('折扣')} (
+                                    {(currentDiscount * 10).toFixed(1)}
+                                    {t('折')})
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontWeight: 500,
+                                      color: 'var(--error)',
+                                    }}
+                                  >
+                                    -{symbol}
+                                    {discountPart.toFixed(2)}
+                                  </span>
                                 </div>
                               )}
-                              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 16, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <span style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+                              <div
+                                style={{
+                                  borderTop: '1px solid var(--border-subtle)',
+                                  paddingTop: 16,
+                                  marginTop: 4,
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'flex-end',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: 15,
+                                    fontWeight: 700,
+                                    fontFamily: 'var(--font-serif)',
+                                    color: 'var(--text-primary)',
+                                  }}
+                                >
                                   {t('实付金额')}
                                 </span>
-                                <span style={{ fontSize: 32, fontWeight: 800, fontFamily: 'var(--font-serif)', color: 'var(--accent)' }}>
-                                  {symbol}{(isCrypto ? settlement : actualPay).toFixed(2)}
+                                <span
+                                  style={{
+                                    fontSize: 32,
+                                    fontWeight: 800,
+                                    fontFamily: 'var(--font-serif)',
+                                    color: 'var(--accent)',
+                                  }}
+                                >
+                                  {symbol}
+                                  {(isCrypto ? settlement : actualPay).toFixed(
+                                    2,
+                                  )}
                                 </span>
                               </div>
                             </div>
                           );
                         })()}
                         {selectedPayMethod && (
-                          <Button theme='solid' type='primary' block loading={paymentLoading}
+                          <Button
+                            theme='solid'
+                            type='primary'
+                            block
+                            loading={paymentLoading}
                             onClick={() => {
                               if (selectedPayMethod === 'cryptomus') {
                                 cryptomusTopUp();
                               } else if (selectedPayMethod === 'nowpayments') {
                                 nowpaymentsTopUp();
+                              } else if (selectedPayMethod === 'dodopayments') {
+                                dodopaymentsTopUp();
                               } else {
                                 preTopUp(selectedPayMethod);
                               }
                             }}
                             style={{
-                              marginTop: 20, height: 48, borderRadius: 'var(--radius-lg)',
-                              background: 'var(--accent-gradient)', border: 'none',
-                              fontWeight: 700, fontSize: 15,
+                              marginTop: 20,
+                              height: 48,
+                              borderRadius: 'var(--radius-lg)',
+                              background: 'var(--accent-gradient)',
+                              border: 'none',
+                              fontWeight: 700,
+                              fontSize: 15,
                             }}
                           >
                             {t('确认充值')}
@@ -824,35 +1556,66 @@ const RechargePage = () => {
               )}
             </div>
           )}
-
         </div>
       </div>
 
       {/* ─── Modals ─── */}
       <PaymentConfirmModal
-        t={t} open={open} onlineTopUp={onlineTopUp} handleCancel={() => setOpen(false)}
-        confirmLoading={confirmLoading} topUpCount={topUpCount}
+        t={t}
+        open={open}
+        onlineTopUp={onlineTopUp}
+        handleCancel={() => setOpen(false)}
+        confirmLoading={confirmLoading}
+        topUpCount={topUpCount}
         renderQuotaWithAmount={renderQuotaWithAmount}
-        amountLoading={amountLoading} renderAmount={renderAmount}
-        payWay={payWay} payMethods={payMethods} amountNumber={amount}
+        amountLoading={amountLoading}
+        renderAmount={renderAmount}
+        payWay={payWay}
+        payMethods={payMethods}
+        amountNumber={amount}
         discountRate={topupInfo?.discount?.[topUpCount] || 1.0}
       />
       <Modal
-        title={t('确定要充值 $')} visible={creemOpen}
-        onOk={onlineCreemTopUp} onCancel={() => { setCreemOpen(false); setSelectedCreemProduct(null); }}
-        maskClosable={false} size='small' centered confirmLoading={confirmLoading}
+        title={t('确定要充值 $')}
+        visible={creemOpen}
+        onOk={onlineCreemTopUp}
+        onCancel={() => {
+          setCreemOpen(false);
+          setSelectedCreemProduct(null);
+        }}
+        maskClosable={false}
+        size='small'
+        centered
+        confirmLoading={confirmLoading}
       >
         {selectedCreemProduct && (
           <div className='space-y-2'>
-            <div className='flex justify-between py-1.5' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>{t('产品名称')}</span>
-              <span style={{ color: 'var(--text-primary)' }}>{selectedCreemProduct.name}</span>
+            <div
+              className='flex justify-between py-1.5'
+              style={{ borderBottom: '1px solid var(--border-subtle)' }}
+            >
+              <span style={{ color: 'var(--text-muted)' }}>
+                {t('产品名称')}
+              </span>
+              <span style={{ color: 'var(--text-primary)' }}>
+                {selectedCreemProduct.name}
+              </span>
             </div>
-            <div className='flex justify-between py-1.5' style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <div
+              className='flex justify-between py-1.5'
+              style={{ borderBottom: '1px solid var(--border-subtle)' }}
+            >
               <span style={{ color: 'var(--text-muted)' }}>{t('价格')}</span>
-              <span style={{ color: 'var(--text-primary)' }}>${selectedCreemProduct.price}</span>
+              <span style={{ color: 'var(--text-primary)' }}>
+                ${selectedCreemProduct.price}
+              </span>
             </div>
-            <p className='text-sm pt-2' style={{ color: 'var(--text-secondary)' }}>{t('是否确认充值？')}</p>
+            <p
+              className='text-sm pt-2'
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {t('是否确认充值？')}
+            </p>
           </div>
         )}
       </Modal>

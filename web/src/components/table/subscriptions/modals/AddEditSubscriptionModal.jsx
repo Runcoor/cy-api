@@ -98,6 +98,7 @@ const AddEditSubscriptionModal = ({
     upgrade_group: '',
     stripe_price_id: '',
     creem_product_id: '',
+    dodo_product_id: '',
   });
 
   const buildFormValues = () => {
@@ -126,6 +127,7 @@ const AddEditSubscriptionModal = ({
       upgrade_group: p.upgrade_group || '',
       stripe_price_id: p.stripe_price_id || '',
       creem_product_id: p.creem_product_id || '',
+      dodo_product_id: p.dodo_product_id || '',
     };
   };
 
@@ -207,17 +209,37 @@ const AddEditSubscriptionModal = ({
         title={
           <Space>
             {isEdit ? (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
-                borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
-                color: 'var(--accent)', background: 'var(--accent-light)', lineHeight: '20px',
-              }}>{t('更新')}</span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '1px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: 'var(--accent)',
+                  background: 'var(--accent-light)',
+                  lineHeight: '20px',
+                }}
+              >
+                {t('更新')}
+              </span>
             ) : (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', padding: '1px 8px',
-                borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 500,
-                color: 'var(--success)', background: 'rgba(52, 199, 89, 0.12)', lineHeight: '20px',
-              }}>{t('新建')}</span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '1px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: 'var(--success)',
+                  background: 'rgba(52, 199, 89, 0.12)',
+                  lineHeight: '20px',
+                }}
+              >
+                {t('新建')}
+              </span>
             )}
             <Title heading={4} className='m-0'>
               {isEdit ? t('更新套餐信息') : t('创建新的订阅套餐')}
@@ -228,7 +250,10 @@ const AddEditSubscriptionModal = ({
         visible={visible}
         width={isMobile ? '100%' : 600}
         footer={
-          <div className='flex justify-end' style={{ background: 'var(--surface)' }}>
+          <div
+            className='flex justify-end'
+            style={{ background: 'var(--surface)' }}
+          >
             <Space>
               <Button
                 theme='solid'
@@ -262,13 +287,12 @@ const AddEditSubscriptionModal = ({
             {({ values }) => (
               <div className='p-2'>
                 {/* 基本信息 */}
-                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
+                <Card
+                  style={{ borderRadius: 'var(--radius-lg)' }}
+                  className=' mb-4'
+                >
                   <div className='flex items-center mb-2'>
-                    <Avatar
-                      size='small'
-                      color='blue'
-                      className='mr-2'
-                    >
+                    <Avatar size='small' color='blue' className='mr-2'>
                       <IconCalendarClock size={16} />
                     </Avatar>
                     <div>
@@ -412,13 +436,12 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 有效期设置 */}
-                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
+                <Card
+                  style={{ borderRadius: 'var(--radius-lg)' }}
+                  className=' mb-4'
+                >
                   <div className='flex items-center mb-2'>
-                    <Avatar
-                      size='small'
-                      color='green'
-                      className='mr-2'
-                    >
+                    <Avatar size='small' color='green' className='mr-2'>
                       <Clock size={16} />
                     </Avatar>
                     <div>
@@ -474,13 +497,12 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 额度重置 */}
-                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
+                <Card
+                  style={{ borderRadius: 'var(--radius-lg)' }}
+                  className=' mb-4'
+                >
                   <div className='flex items-center mb-2'>
-                    <Avatar
-                      size='small'
-                      color='orange'
-                      className='mr-2'
-                    >
+                    <Avatar size='small' color='orange' className='mr-2'>
                       <RefreshCw size={16} />
                     </Avatar>
                     <div>
@@ -532,13 +554,12 @@ const AddEditSubscriptionModal = ({
                 </Card>
 
                 {/* 第三方支付配置 */}
-                <Card style={{ borderRadius: 'var(--radius-lg)' }} className=' mb-4'>
+                <Card
+                  style={{ borderRadius: 'var(--radius-lg)' }}
+                  className=' mb-4'
+                >
                   <div className='flex items-center mb-2'>
-                    <Avatar
-                      size='small'
-                      color='purple'
-                      className='mr-2'
-                    >
+                    <Avatar size='small' color='purple' className='mr-2'>
                       <IconCreditCard size={16} />
                     </Avatar>
                     <div>
@@ -566,6 +587,15 @@ const AddEditSubscriptionModal = ({
                         field='creem_product_id'
                         label='Creem ProductId'
                         placeholder='prod_...'
+                        showClear
+                      />
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Input
+                        field='dodo_product_id'
+                        label='Dodo Payments ProductId'
+                        placeholder='pdt_...'
                         showClear
                       />
                     </Col>

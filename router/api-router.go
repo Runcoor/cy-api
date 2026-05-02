@@ -52,6 +52,7 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.POST("/waffo/webhook", controller.WaffoWebhook)
 		apiRouter.POST("/cryptomus/webhook", controller.CryptomusWebhook)
 		apiRouter.POST("/nowpayments/webhook", controller.NowPaymentsWebhook)
+		apiRouter.POST("/dodopayments/webhook", controller.DodoPaymentsWebhook)
 
 		// Universal secure verification routes
 		apiRouter.POST("/verify", middleware.UserAuth(), middleware.CriticalRateLimit(), controller.UniversalVerify)
@@ -99,6 +100,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.POST("/waffo/pay", middleware.CriticalRateLimit(), controller.RequestWaffoPay)
 				selfRoute.POST("/cryptomus/pay", middleware.CriticalRateLimit(), controller.RequestCryptomusPay)
 				selfRoute.POST("/nowpayments/pay", middleware.CriticalRateLimit(), controller.RequestNowPaymentsPay)
+				selfRoute.POST("/dodopayments/pay", middleware.CriticalRateLimit(), controller.RequestDodoPaymentsPay)
 				selfRoute.POST("/aff_transfer", controller.TransferAffQuota)
 				selfRoute.PUT("/setting", controller.UpdateUserSetting)
 
@@ -192,6 +194,7 @@ func SetApiRouter(router *gin.Engine) {
 			subscriptionRoute.POST("/stripe/pay", middleware.CriticalRateLimit(), controller.SubscriptionRequestStripePay)
 			subscriptionRoute.POST("/creem/pay", middleware.CriticalRateLimit(), controller.SubscriptionRequestCreemPay)
 			subscriptionRoute.POST("/nowpayments/pay", middleware.CriticalRateLimit(), controller.SubscriptionRequestNowPaymentsPay)
+			subscriptionRoute.POST("/dodopayments/pay", middleware.CriticalRateLimit(), controller.SubscriptionRequestDodoPaymentsPay)
 		}
 		// Finance dashboard (admin only)
 		financeRoute := apiRouter.Group("/finance")

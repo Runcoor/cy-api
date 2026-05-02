@@ -18,12 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import {
-  Banner,
-  Modal,
-  Button,
-  Select,
-} from '@douyinfe/semi-ui';
+import { Banner, Modal, Button, Select } from '@douyinfe/semi-ui';
 import { Crown, CalendarClock, Package } from 'lucide-react';
 import { SiStripe } from 'react-icons/si';
 import { IconCreditCard } from '@douyinfe/semi-icons';
@@ -50,6 +45,7 @@ const SubscriptionPurchaseModal = ({
   onPayCreem,
   onPayEpay,
   onPayNowPayments,
+  onPayDodoPayments,
 }) => {
   const plan = selectedPlan?.plan;
   const { symbol, rate } = getCurrencyConfig();
@@ -80,10 +76,23 @@ const SubscriptionPurchaseModal = ({
     <Modal
       title={
         <div className='flex items-center gap-2'>
-          <span className='w-6 h-6 flex items-center justify-center' style={{ borderRadius: 'var(--radius-sm)', background: 'var(--accent-light)', color: 'var(--accent)' }}>
+          <span
+            className='w-6 h-6 flex items-center justify-center'
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-light)',
+              color: 'var(--accent)',
+            }}
+          >
             <Crown size={14} />
           </span>
-          <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-primary)' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+            }}
+          >
             {t('购买订阅套餐')}
           </span>
         </div>
@@ -106,42 +115,74 @@ const SubscriptionPurchaseModal = ({
           >
             <div className='space-y-3'>
               <div className='flex justify-between items-center'>
-                <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                <span
+                  className='text-sm font-medium'
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {t('套餐名称')}
                 </span>
-                <span className='text-sm truncate max-w-[200px]' style={{ color: 'var(--text-primary)' }}>
+                <span
+                  className='text-sm truncate max-w-[200px]'
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   {plan.title}
                 </span>
               </div>
               <div className='flex justify-between items-center'>
-                <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                <span
+                  className='text-sm font-medium'
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {t('有效期')}
                 </span>
                 <div className='flex items-center'>
-                  <CalendarClock size={14} className='mr-1' style={{ color: 'var(--text-muted)' }} />
-                  <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                  <CalendarClock
+                    size={14}
+                    className='mr-1'
+                    style={{ color: 'var(--text-muted)' }}
+                  />
+                  <span
+                    className='text-sm'
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {formatSubscriptionDuration(plan, t)}
                   </span>
                 </div>
               </div>
               {formatSubscriptionResetPeriod(plan, t) !== t('不重置') && (
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                  <span
+                    className='text-sm font-medium'
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {t('重置周期')}
                   </span>
-                  <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                  <span
+                    className='text-sm'
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {formatSubscriptionResetPeriod(plan, t)}
                   </span>
                 </div>
               )}
               {plan?.quota_description ? (
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                  <span
+                    className='text-sm font-medium'
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {t('总额度')}
                   </span>
                   <div className='flex items-center'>
-                    <Package size={14} className='mr-1' style={{ color: 'var(--text-muted)' }} />
-                    <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                    <Package
+                      size={14}
+                      className='mr-1'
+                      style={{ color: 'var(--text-muted)' }}
+                    />
+                    <span
+                      className='text-sm'
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       {plan.quota_description}
                     </span>
                   </div>
@@ -149,17 +190,29 @@ const SubscriptionPurchaseModal = ({
               ) : null}
               {plan?.upgrade_group ? (
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                  <span
+                    className='text-sm font-medium'
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {t('升级分组')}
                   </span>
-                  <span className='text-sm' style={{ color: 'var(--text-primary)' }}>
+                  <span
+                    className='text-sm'
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {plan.upgrade_group}
                   </span>
                 </div>
               ) : null}
-              <div className='my-2' style={{ borderTop: '1px solid var(--border-subtle)' }} />
+              <div
+                className='my-2'
+                style={{ borderTop: '1px solid var(--border-subtle)' }}
+              />
               <div className='flex justify-between items-center'>
-                <span className='text-sm font-medium' style={{ color: 'var(--text-secondary)' }}>
+                <span
+                  className='text-sm font-medium'
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {t('应付金额')}
                 </span>
                 <div className='flex items-baseline gap-2'>
@@ -172,7 +225,8 @@ const SubscriptionPurchaseModal = ({
                         fontFamily: 'var(--font-serif)',
                       }}
                     >
-                      {symbol}{displayOriginalPrice}
+                      {symbol}
+                      {displayOriginalPrice}
                     </span>
                   )}
                   <span
@@ -247,11 +301,13 @@ const SubscriptionPurchaseModal = ({
                     placeholder={t('选择支付方式')}
                     optionList={epayMethods.map((m) => ({
                       value: m.type,
-                      // 加密货币通道隐藏第三方品牌名，统一显示为「加密货币支付」
+                      // 加密货币 / 第三方支付通道隐藏第三方品牌名，统一展示标签
                       label:
                         m.type === 'nowpayments'
                           ? t('加密货币支付')
-                          : m.name || m.type,
+                          : m.type === 'dodopayments'
+                            ? t('信用卡 / 全球支付')
+                            : m.name || m.type,
                     }))}
                     disabled={purchaseLimitReached}
                   />
@@ -261,6 +317,8 @@ const SubscriptionPurchaseModal = ({
                     onClick={() => {
                       if (selectedEpayMethod === 'nowpayments') {
                         onPayNowPayments?.();
+                      } else if (selectedEpayMethod === 'dodopayments') {
+                        onPayDodoPayments?.();
                       } else {
                         onPayEpay?.();
                       }

@@ -130,6 +130,16 @@ func InitOptionMap() {
 	common.OptionMap["NowPaymentsCancelUrl"] = setting.NowPaymentsCancelUrl
 	common.OptionMap["NowPaymentsUnitPrice"] = strconv.FormatFloat(setting.NowPaymentsUnitPrice, 'f', -1, 64)
 	common.OptionMap["NowPaymentsMinTopUp"] = strconv.Itoa(setting.NowPaymentsMinTopUp)
+	common.OptionMap["DodoPaymentsEnabled"] = strconv.FormatBool(setting.DodoPaymentsEnabled)
+	common.OptionMap["DodoPaymentsApiKey"] = setting.DodoPaymentsApiKey
+	common.OptionMap["DodoPaymentsWebhookSecret"] = setting.DodoPaymentsWebhookSecret
+	common.OptionMap["DodoPaymentsSandbox"] = strconv.FormatBool(setting.DodoPaymentsSandbox)
+	common.OptionMap["DodoPaymentsTopUpProductId"] = setting.DodoPaymentsTopUpProductId
+	common.OptionMap["DodoPaymentsNotifyUrl"] = setting.DodoPaymentsNotifyUrl
+	common.OptionMap["DodoPaymentsReturnUrl"] = setting.DodoPaymentsReturnUrl
+	common.OptionMap["DodoPaymentsCancelUrl"] = setting.DodoPaymentsCancelUrl
+	common.OptionMap["DodoPaymentsUnitPrice"] = strconv.FormatFloat(setting.DodoPaymentsUnitPrice, 'f', -1, 64)
+	common.OptionMap["DodoPaymentsMinTopUp"] = strconv.Itoa(setting.DodoPaymentsMinTopUp)
 	common.OptionMap["TopupGroupRatio"] = common.TopupGroupRatio2JSONString()
 	common.OptionMap["Chats"] = setting.Chats2JsonString()
 	common.OptionMap["AutoGroups"] = setting.AutoGroups2JsonString()
@@ -490,6 +500,26 @@ func updateOptionMap(key string, value string) (err error) {
 		setting.NowPaymentsUnitPrice, _ = strconv.ParseFloat(value, 64)
 	case "NowPaymentsMinTopUp":
 		setting.NowPaymentsMinTopUp, _ = strconv.Atoi(value)
+	case "DodoPaymentsEnabled":
+		setting.DodoPaymentsEnabled = value == "true"
+	case "DodoPaymentsApiKey":
+		setting.DodoPaymentsApiKey = value
+	case "DodoPaymentsWebhookSecret":
+		setting.DodoPaymentsWebhookSecret = value
+	case "DodoPaymentsSandbox":
+		setting.DodoPaymentsSandbox = value == "true"
+	case "DodoPaymentsTopUpProductId":
+		setting.DodoPaymentsTopUpProductId = value
+	case "DodoPaymentsNotifyUrl":
+		setting.DodoPaymentsNotifyUrl = value
+	case "DodoPaymentsReturnUrl":
+		setting.DodoPaymentsReturnUrl = value
+	case "DodoPaymentsCancelUrl":
+		setting.DodoPaymentsCancelUrl = value
+	case "DodoPaymentsUnitPrice":
+		setting.DodoPaymentsUnitPrice, _ = strconv.ParseFloat(value, 64)
+	case "DodoPaymentsMinTopUp":
+		setting.DodoPaymentsMinTopUp, _ = strconv.Atoi(value)
 	case "TopupGroupRatio":
 		err = common.UpdateTopupGroupRatioByJSONString(value)
 	case "GitHubClientId":

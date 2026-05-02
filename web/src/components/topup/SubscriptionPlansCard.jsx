@@ -18,11 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useMemo, useState } from 'react';
-import {
-  Button,
-  Skeleton,
-  Tooltip,
-} from '@douyinfe/semi-ui';
+import { Button, Skeleton, Tooltip } from '@douyinfe/semi-ui';
 import { API, showError, showSuccess, renderQuota } from '../../helpers';
 import { getCurrencyConfig } from '../../helpers/render';
 import { RefreshCw, Sparkles } from 'lucide-react';
@@ -165,6 +161,31 @@ const SubscriptionPlansCard = ({
     setPaying(true);
     try {
       const res = await API.post('/api/subscription/nowpayments/pay', {
+        plan_id: selectedPlan.plan.id,
+      });
+      if (res.data?.message === 'success' && res.data.data?.pay_link) {
+        window.open(res.data.data.pay_link, '_blank');
+        showSuccess(t('已打开支付页面'));
+        closeBuy();
+      } else {
+        const errorMsg =
+          typeof res.data?.data === 'string'
+            ? res.data.data
+            : res.data?.message || t('支付失败');
+        showError(errorMsg);
+      }
+    } catch {
+      showError(t('支付请求失败'));
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const payDodoPayments = async () => {
+    if (!selectedPlan?.plan?.id) return;
+    setPaying(true);
+    try {
+      const res = await API.post('/api/subscription/dodopayments/pay', {
         plan_id: selectedPlan.plan.id,
       });
       if (res.data?.message === 'success' && res.data.data?.pay_link) {
@@ -330,23 +351,55 @@ const SubscriptionPlansCard = ({
           <div>
             <div className='flex items-center justify-between mb-4'>
               <div className='flex items-center gap-3'>
-                <h3 className='text-lg font-bold m-0' style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
+                <h3
+                  className='text-lg font-bold m-0'
+                  style={{
+                    fontFamily: 'var(--font-serif)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
                   {t('我的订阅')}
                 </h3>
                 {hasActiveSubscription ? (
-                  <span className='inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1' style={{ borderRadius: 9999, background: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)' }}>
-                    <span className='w-1.5 h-1.5 rounded-full' style={{ background: 'var(--success)' }} />
+                  <span
+                    className='inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1'
+                    style={{
+                      borderRadius: 9999,
+                      background: 'rgba(52, 199, 89, 0.12)',
+                      color: 'var(--success)',
+                    }}
+                  >
+                    <span
+                      className='w-1.5 h-1.5 rounded-full'
+                      style={{ background: 'var(--success)' }}
+                    />
                     {activeSubscriptions.length} {t('个生效中')}
                   </span>
                 ) : (
-                  <span className='inline-flex items-center text-xs font-medium px-2.5 py-1' style={{ borderRadius: 9999, background: 'var(--surface-active)', color: 'var(--text-muted)' }}>
+                  <span
+                    className='inline-flex items-center text-xs font-medium px-2.5 py-1'
+                    style={{
+                      borderRadius: 9999,
+                      background: 'var(--surface-active)',
+                      color: 'var(--text-muted)',
+                    }}
+                  >
                     {t('无生效')}
                   </span>
                 )}
               </div>
-              <Button size='small' theme='borderless' type='tertiary'
-                icon={<RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />}
-                onClick={handleRefresh} loading={refreshing}
+              <Button
+                size='small'
+                theme='borderless'
+                type='tertiary'
+                icon={
+                  <RefreshCw
+                    size={13}
+                    className={refreshing ? 'animate-spin' : ''}
+                  />
+                }
+                onClick={handleRefresh}
+                loading={refreshing}
                 style={{ borderRadius: 'var(--radius-md)' }}
               />
             </div>
@@ -357,39 +410,74 @@ const SubscriptionPlansCard = ({
                   const subscription = sub.subscription;
                   const totalAmount = Number(subscription?.amount_total || 0);
                   const usedAmount = Number(subscription?.amount_used || 0);
-                  const remainAmount = totalAmount > 0 ? Math.max(0, totalAmount - usedAmount) : 0;
-                  const planTitle = planTitleMap.get(subscription?.plan_id) || '';
+                  const remainAmount =
+                    totalAmount > 0 ? Math.max(0, totalAmount - usedAmount) : 0;
+                  const planTitle =
+                    planTitleMap.get(subscription?.plan_id) || '';
                   const remainDays = getRemainingDays(sub);
                   const usagePercent = getUsagePercent(sub);
                   const now = Date.now() / 1000;
                   const isExpired = (subscription?.end_time || 0) < now;
                   const isCancelled = subscription?.status === 'cancelled';
-                  const isActive = subscription?.status === 'active' && !isExpired;
+                  const isActive =
+                    subscription?.status === 'active' && !isExpired;
 
                   return (
-                    <div key={subscription?.id || subIndex}
+                    <div
+                      key={subscription?.id || subIndex}
                       className='rounded-[var(--radius-lg)] p-4'
                       style={{
                         background: 'var(--surface)',
-                        border: isActive ? '1px solid rgba(52, 199, 89, 0.3)' : '1px solid var(--border-default)',
-                        boxShadow: isActive ? '0 4px 16px rgba(52, 199, 89, 0.06)' : 'none',
+                        border: isActive
+                          ? '1px solid rgba(52, 199, 89, 0.3)'
+                          : '1px solid var(--border-default)',
+                        boxShadow: isActive
+                          ? '0 4px 16px rgba(52, 199, 89, 0.06)'
+                          : 'none',
                       }}
                     >
                       <div className='flex items-center justify-between gap-2 mb-3'>
-                        <span className='text-sm font-bold truncate' style={{ color: 'var(--text-primary)', minWidth: 0 }}>
+                        <span
+                          className='text-sm font-bold truncate'
+                          style={{ color: 'var(--text-primary)', minWidth: 0 }}
+                        >
                           {planTitle || `${t('订阅')} #${subscription?.id}`}
                         </span>
                         {isActive ? (
-                          <span className='inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'rgba(52, 199, 89, 0.12)', color: 'var(--success)' }}>
-                            <span className='w-1.5 h-1.5 rounded-full flex-shrink-0' style={{ background: 'var(--success)' }} />
+                          <span
+                            className='inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0'
+                            style={{
+                              borderRadius: 9999,
+                              background: 'rgba(52, 199, 89, 0.12)',
+                              color: 'var(--success)',
+                            }}
+                          >
+                            <span
+                              className='w-1.5 h-1.5 rounded-full flex-shrink-0'
+                              style={{ background: 'var(--success)' }}
+                            />
                             {t('生效')}
                           </span>
                         ) : isCancelled ? (
-                          <span className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'rgba(255, 59, 48, 0.1)', color: 'var(--error)' }}>
+                          <span
+                            className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0'
+                            style={{
+                              borderRadius: 9999,
+                              background: 'rgba(255, 59, 48, 0.1)',
+                              color: 'var(--error)',
+                            }}
+                          >
                             {t('已作废')}
                           </span>
                         ) : (
-                          <span className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0' style={{ borderRadius: 9999, background: 'var(--surface-active)', color: 'var(--text-muted)' }}>
+                          <span
+                            className='text-[11px] font-semibold px-2 py-0.5 whitespace-nowrap flex-shrink-0'
+                            style={{
+                              borderRadius: 9999,
+                              background: 'var(--surface-active)',
+                              color: 'var(--text-muted)',
+                            }}
+                          >
                             {t('已过期')}
                           </span>
                         )}
@@ -398,28 +486,74 @@ const SubscriptionPlansCard = ({
                       {totalAmount > 0 && (
                         <div className='mb-3'>
                           <div className='flex justify-between text-[11px] mb-1.5'>
-                            <span style={{ color: 'var(--text-muted)' }}>{renderQuota(usedAmount)} / {renderQuota(totalAmount)}</span>
-                            <span style={{ color: isActive ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 600 }}>{usagePercent}%</span>
+                            <span style={{ color: 'var(--text-muted)' }}>
+                              {renderQuota(usedAmount)} /{' '}
+                              {renderQuota(totalAmount)}
+                            </span>
+                            <span
+                              style={{
+                                color: isActive
+                                  ? 'var(--accent)'
+                                  : 'var(--text-muted)',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {usagePercent}%
+                            </span>
                           </div>
-                          <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--surface-active)', overflow: 'hidden' }}>
-                            <div style={{
-                              height: '100%', width: `${Math.min(usagePercent, 100)}%`,
-                              background: isActive ? 'var(--accent-gradient)' : 'var(--text-muted)',
-                              borderRadius: 9999, transition: 'width 0.6s ease',
-                            }} />
+                          <div
+                            style={{
+                              width: '100%',
+                              height: 6,
+                              borderRadius: 9999,
+                              background: 'var(--surface-active)',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <div
+                              style={{
+                                height: '100%',
+                                width: `${Math.min(usagePercent, 100)}%`,
+                                background: isActive
+                                  ? 'var(--accent-gradient)'
+                                  : 'var(--text-muted)',
+                                borderRadius: 9999,
+                                transition: 'width 0.6s ease',
+                              }}
+                            />
                           </div>
                         </div>
                       )}
-                      <div className='flex justify-between text-[11px]' style={{ color: 'var(--text-muted)' }}>
-                        <span>{isActive ? `${t('剩余')} ${remainDays} ${t('天')}` : isExpired ? t('已过期') : t('已作废')}</span>
-                        <span>{new Date((subscription?.end_time || 0) * 1000).toLocaleDateString()}</span>
+                      <div
+                        className='flex justify-between text-[11px]'
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        <span>
+                          {isActive
+                            ? `${t('剩余')} ${remainDays} ${t('天')}`
+                            : isExpired
+                              ? t('已过期')
+                              : t('已作废')}
+                        </span>
+                        <span>
+                          {new Date(
+                            (subscription?.end_time || 0) * 1000,
+                          ).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className='text-sm py-6 text-center rounded-[var(--radius-lg)]' style={{ color: 'var(--text-muted)', background: 'var(--surface)', border: '1px solid var(--border-default)' }}>
+              <div
+                className='text-sm py-6 text-center rounded-[var(--radius-lg)]'
+                style={{
+                  color: 'var(--text-muted)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-default)',
+                }}
+              >
                 {t('购买套餐后即可享受模型权益')}
               </div>
             )}
@@ -433,48 +567,81 @@ const SubscriptionPlansCard = ({
                 const { symbol, rate } = getCurrencyConfig();
                 const price = Number(plan?.price_amount || 0);
                 const convertedPrice = price * rate;
-                const displayPrice = convertedPrice.toFixed(Number.isInteger(convertedPrice) ? 0 : 2);
+                const displayPrice = convertedPrice.toFixed(
+                  Number.isInteger(convertedPrice) ? 0 : 2,
+                );
                 const originalPrice = Number(plan?.original_price_amount || 0);
-                const hasOriginalPrice = originalPrice > 0 && originalPrice !== price;
+                const hasOriginalPrice =
+                  originalPrice > 0 && originalPrice !== price;
                 const convertedOriginalPrice = originalPrice * rate;
-                const displayOriginalPrice = convertedOriginalPrice.toFixed(Number.isInteger(convertedOriginalPrice) ? 0 : 2);
+                const displayOriginalPrice = convertedOriginalPrice.toFixed(
+                  Number.isInteger(convertedOriginalPrice) ? 0 : 2,
+                );
                 const isPopular = index === 0 && plans.length > 1;
                 const limit = Number(plan?.max_purchase_per_user || 0);
                 const quotaDescription = plan?.quota_description || '';
                 const planBenefits = [
                   `${t('有效期')}: ${formatSubscriptionDuration(plan, t)}`,
-                  formatSubscriptionResetPeriod(plan, t) !== t('不重置') ? `${t('额度重置')}: ${formatSubscriptionResetPeriod(plan, t)}` : null,
-                  quotaDescription ? `${t('总额度')}: ${quotaDescription}` : null,
+                  formatSubscriptionResetPeriod(plan, t) !== t('不重置')
+                    ? `${t('额度重置')}: ${formatSubscriptionResetPeriod(plan, t)}`
+                    : null,
+                  quotaDescription
+                    ? `${t('总额度')}: ${quotaDescription}`
+                    : null,
                   limit > 0 ? `${t('限购')} ${limit}` : null,
-                  plan?.upgrade_group ? `${t('升级分组')}: ${plan.upgrade_group}` : null,
+                  plan?.upgrade_group
+                    ? `${t('升级分组')}: ${plan.upgrade_group}`
+                    : null,
                 ].filter(Boolean);
 
                 return (
-                  <div key={plan?.id}
+                  <div
+                    key={plan?.id}
                     className='w-full h-full rounded-[var(--radius-lg)] relative overflow-hidden flex flex-col'
                     style={{
                       background: 'var(--surface)',
-                      border: isPopular ? 'none' : '1px solid var(--border-default)',
-                      boxShadow: isPopular ? '0 12px 32px rgba(0,114,255,0.12)' : '0 4px 16px rgba(0,0,0,0.03)',
+                      border: isPopular
+                        ? 'none'
+                        : '1px solid var(--border-default)',
+                      boxShadow: isPopular
+                        ? '0 12px 32px rgba(0,114,255,0.12)'
+                        : '0 4px 16px rgba(0,0,0,0.03)',
                       minHeight: isPopular ? 420 : 380,
                     }}
                   >
                     {/* Accent top bar for popular */}
                     {isPopular && (
-                      <div style={{ height: 3, background: 'var(--accent-gradient)' }} />
+                      <div
+                        style={{
+                          height: 3,
+                          background: 'var(--accent-gradient)',
+                        }}
+                      />
                     )}
                     <div className='p-6 flex flex-col flex-1'>
                       {/* Plan label */}
                       <div className='mb-4'>
                         {isPopular ? (
-                          <span className='inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1'
-                            style={{ borderRadius: 9999, background: 'var(--accent-gradient)', color: '#fff' }}>
+                          <span
+                            className='inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1'
+                            style={{
+                              borderRadius: 9999,
+                              background: 'var(--accent-gradient)',
+                              color: '#fff',
+                            }}
+                          >
                             <Sparkles size={10} />
                             {t('推荐')}
                           </span>
                         ) : (
-                          <span className='inline-flex text-xs font-bold uppercase tracking-wider px-2.5 py-1'
-                            style={{ borderRadius: 9999, background: 'var(--surface-active)', color: 'var(--text-secondary)' }}>
+                          <span
+                            className='inline-flex text-xs font-bold uppercase tracking-wider px-2.5 py-1'
+                            style={{
+                              borderRadius: 9999,
+                              background: 'var(--surface-active)',
+                              color: 'var(--text-secondary)',
+                            }}
+                          >
                             {plan?.title ? t(plan.title) : t('订阅套餐')}
                           </span>
                         )}
@@ -483,34 +650,82 @@ const SubscriptionPlansCard = ({
                       {/* Price */}
                       <div className='mb-2'>
                         <div className='flex items-baseline gap-1'>
-                          <span style={{ fontSize: isPopular ? 36 : 28, fontWeight: 800, fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}>
-                            {symbol}{displayPrice}
+                          <span
+                            style={{
+                              fontSize: isPopular ? 36 : 28,
+                              fontWeight: 800,
+                              fontFamily: 'var(--font-serif)',
+                              color: 'var(--text-primary)',
+                            }}
+                          >
+                            {symbol}
+                            {displayPrice}
                           </span>
-                          <span className='text-sm' style={{ color: 'var(--text-muted)' }}>
+                          <span
+                            className='text-sm'
+                            style={{ color: 'var(--text-muted)' }}
+                          >
                             /{formatSubscriptionDuration(plan, t)}
                           </span>
                         </div>
                         {hasOriginalPrice && (
-                          <span className='text-sm' style={{ color: 'var(--text-muted)', textDecoration: 'line-through' }}>
-                            {symbol}{displayOriginalPrice}
+                          <span
+                            className='text-sm'
+                            style={{
+                              color: 'var(--text-muted)',
+                              textDecoration: 'line-through',
+                            }}
+                          >
+                            {symbol}
+                            {displayOriginalPrice}
                           </span>
                         )}
                       </div>
                       {plan?.subtitle && (
-                        <p className='text-sm mb-4' style={{ color: 'var(--text-secondary)' }}>{t(plan.subtitle)}</p>
+                        <p
+                          className='text-sm mb-4'
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {t(plan.subtitle)}
+                        </p>
                       )}
                       {isPopular && plan?.title && (
-                        <p className='text-sm font-bold mb-4' style={{ color: 'var(--text-primary)' }}>{t(plan.title)}</p>
+                        <p
+                          className='text-sm font-bold mb-4'
+                          style={{ color: 'var(--text-primary)' }}
+                        >
+                          {t(plan.title)}
+                        </p>
                       )}
 
                       {/* Benefits with check icons */}
                       <ul className='flex flex-col gap-2.5 mb-auto flex-grow'>
                         {planBenefits.map((label) => (
-                          <li key={label} className='flex items-start gap-2.5 text-sm' style={{ color: 'var(--text-primary)' }}>
-                            <span className='flex-shrink-0 mt-0.5' style={{ color: isPopular ? 'var(--accent)' : 'var(--success)' }}>
-                              <svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/></svg>
+                          <li
+                            key={label}
+                            className='flex items-start gap-2.5 text-sm'
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            <span
+                              className='flex-shrink-0 mt-0.5'
+                              style={{
+                                color: isPopular
+                                  ? 'var(--accent)'
+                                  : 'var(--success)',
+                              }}
+                            >
+                              <svg
+                                width='16'
+                                height='16'
+                                viewBox='0 0 24 24'
+                                fill='currentColor'
+                              >
+                                <path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' />
+                              </svg>
                             </span>
-                            <span style={{ fontWeight: isPopular ? 500 : 400 }}>{label}</span>
+                            <span style={{ fontWeight: isPopular ? 500 : 400 }}>
+                              {label}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -521,19 +736,41 @@ const SubscriptionPlansCard = ({
                           const count = getPlanPurchaseCount(p?.plan?.id);
                           const reached = limit > 0 && count >= limit;
                           const btn = (
-                            <Button block disabled={reached}
-                              onClick={() => { if (!reached) openBuy(p); }}
+                            <Button
+                              block
+                              disabled={reached}
+                              onClick={() => {
+                                if (!reached) openBuy(p);
+                              }}
                               theme={isPopular ? 'solid' : 'light'}
                               type='primary'
                               style={{
-                                height: 44, borderRadius: 'var(--radius-lg)', fontWeight: 700,
-                                ...(isPopular ? { background: 'var(--accent-gradient)', border: 'none', boxShadow: '0 4px 12px rgba(0,114,255,0.2)' } : {}),
+                                height: 44,
+                                borderRadius: 'var(--radius-lg)',
+                                fontWeight: 700,
+                                ...(isPopular
+                                  ? {
+                                      background: 'var(--accent-gradient)',
+                                      border: 'none',
+                                      boxShadow:
+                                        '0 4px 12px rgba(0,114,255,0.2)',
+                                    }
+                                  : {}),
                               }}
                             >
                               {reached ? t('已达上限') : t('立即订阅')}
                             </Button>
                           );
-                          return reached ? <Tooltip content={`${t('已达到购买上限')} (${count}/${limit})`} position='top'>{btn}</Tooltip> : btn;
+                          return reached ? (
+                            <Tooltip
+                              content={`${t('已达到购买上限')} (${count}/${limit})`}
+                              position='top'
+                            >
+                              {btn}
+                            </Tooltip>
+                          ) : (
+                            btn
+                          );
                         })()}
                       </div>
                     </div>
@@ -595,6 +832,7 @@ const SubscriptionPlansCard = ({
         onPayCreem={payCreem}
         onPayEpay={payEpay}
         onPayNowPayments={payNowPayments}
+        onPayDodoPayments={payDodoPayments}
       />
     </>
   );

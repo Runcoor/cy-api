@@ -91,6 +91,27 @@ func GetTopUpInfo(c *gin.Context) {
 		}
 	}
 
+	// 如果启用了 Dodo Payments 充值（含 PWYW 产品），添加到支付方法列表
+	enableDodoTopUp := dodoPaymentsTopUpEnabled()
+	if enableDodoTopUp {
+		hasDodo := false
+		for _, method := range payMethods {
+			if method["type"] == "dodopayments" {
+				hasDodo = true
+				break
+			}
+		}
+		if !hasDodo {
+			dodoMethod := map[string]string{
+				"name":      "信用卡 / 全球支付",
+				"type":      "dodopayments",
+				"color":     "rgba(var(--semi-violet-5), 1)",
+				"min_topup": strconv.Itoa(setting.DodoPaymentsMinTopUp),
+			}
+			payMethods = append(payMethods, dodoMethod)
+		}
+	}
+
 	// 如果启用了 Waffo 支付，添加到支付方法列表
 	enableWaffo := setting.WaffoEnabled &&
 		((!setting.WaffoSandbox &&
@@ -136,6 +157,8 @@ func GetTopUpInfo(c *gin.Context) {
 		"cryptomus_min_topup":      setting.CryptomusMinTopUp,
 		"enable_nowpayments_topup": enableNowPayments,
 		"nowpayments_min_topup":    setting.NowPaymentsMinTopUp,
+		"enable_dodopayments_topup": enableDodoTopUp,
+		"dodopayments_min_topup":    setting.DodoPaymentsMinTopUp,
 		"waffo_pay_methods": func() interface{} {
 			if enableWaffo {
 				return setting.GetWaffoPayMethods()

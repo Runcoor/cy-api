@@ -82,8 +82,16 @@ const renderPlanTitle = (text, record, t) => {
         {Number(plan?.original_price_amount || 0) > 0 && (
           <>
             <Text type='tertiary'>{t('原价')}</Text>
-            <Text style={{ textDecoration: 'line-through', color: 'var(--text-muted)' }}>
-              {convertUSDToCurrency(Number(plan?.original_price_amount || 0), 2)}
+            <Text
+              style={{
+                textDecoration: 'line-through',
+                color: 'var(--text-muted)',
+              }}
+            >
+              {convertUSDToCurrency(
+                Number(plan?.original_price_amount || 0),
+                2,
+              )}
             </Text>
           </>
         )}
@@ -168,7 +176,14 @@ const renderEnabled = (text, record, t) => {
         lineHeight: '20px',
       }}
     >
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)' }} />
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: 'var(--success)',
+        }}
+      />
       {t('启用')}
     </span>
   ) : (
@@ -186,7 +201,14 @@ const renderEnabled = (text, record, t) => {
         lineHeight: '20px',
       }}
     >
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--error)' }} />
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: 'var(--error)',
+        }}
+      />
       {t('禁用')}
     </span>
   );
@@ -240,22 +262,52 @@ const paymentBadgeStyle = {
 const renderPaymentConfig = (text, record, t, enableEpay) => {
   const hasStripe = !!record?.plan?.stripe_price_id;
   const hasCreem = !!record?.plan?.creem_product_id;
+  const hasDodo = !!record?.plan?.dodo_product_id;
   const hasEpay = !!enableEpay;
 
   return (
     <Space spacing={4}>
       {hasStripe && (
-        <span style={{ ...paymentBadgeStyle, color: '#5856D6', background: 'rgba(88, 86, 214, 0.12)' }}>
+        <span
+          style={{
+            ...paymentBadgeStyle,
+            color: '#5856D6',
+            background: 'rgba(88, 86, 214, 0.12)',
+          }}
+        >
           Stripe
         </span>
       )}
       {hasCreem && (
-        <span style={{ ...paymentBadgeStyle, color: '#32ADE6', background: 'rgba(50, 173, 230, 0.12)' }}>
+        <span
+          style={{
+            ...paymentBadgeStyle,
+            color: '#32ADE6',
+            background: 'rgba(50, 173, 230, 0.12)',
+          }}
+        >
           Creem
         </span>
       )}
+      {hasDodo && (
+        <span
+          style={{
+            ...paymentBadgeStyle,
+            color: '#7A5AF8',
+            background: 'rgba(122, 90, 248, 0.12)',
+          }}
+        >
+          Dodo
+        </span>
+      )}
       {hasEpay && (
-        <span style={{ ...paymentBadgeStyle, color: 'var(--success)', background: 'rgba(52, 199, 89, 0.12)' }}>
+        <span
+          style={{
+            ...paymentBadgeStyle,
+            color: 'var(--success)',
+            background: 'rgba(52, 199, 89, 0.12)',
+          }}
+        >
           {t('易支付')}
         </span>
       )}

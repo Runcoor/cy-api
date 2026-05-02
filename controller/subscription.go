@@ -243,6 +243,7 @@ func AdminUpdateSubscriptionPlan(c *gin.Context) {
 			"sort_order":                 req.Plan.SortOrder,
 			"stripe_price_id":            req.Plan.StripePriceId,
 			"creem_product_id":           req.Plan.CreemProductId,
+			"dodo_product_id":            req.Plan.DodoProductId,
 			"max_purchase_per_user":      req.Plan.MaxPurchasePerUser,
 			"total_amount":               req.Plan.TotalAmount,
 			"quota_description":          req.Plan.QuotaDescription,

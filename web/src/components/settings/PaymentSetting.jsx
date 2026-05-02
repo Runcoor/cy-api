@@ -25,6 +25,7 @@ import SettingsPaymentGatewayCreem from '../../pages/Setting/Payment/SettingsPay
 import SettingsPaymentGatewayWaffo from '../../pages/Setting/Payment/SettingsPaymentGatewayWaffo';
 import SettingsPaymentGatewayCryptomus from '../../pages/Setting/Payment/SettingsPaymentGatewayCryptomus';
 import SettingsPaymentGatewayNowPayments from '../../pages/Setting/Payment/SettingsPaymentGatewayNowPayments';
+import SettingsPaymentGatewayDodoPayments from '../../pages/Setting/Payment/SettingsPaymentGatewayDodoPayments';
 import { API, showError, toBoolean } from '../../helpers';
 import { useTranslation } from 'react-i18next';
 import MacSpinner from '../common/ui/MacSpinner';
@@ -142,7 +143,10 @@ const PaymentSetting = () => {
             <SettingsPaymentGateway options={inputs} refresh={onRefresh} />
           </div>
           <div className='mv-settings-section'>
-            <SettingsPaymentGatewayStripe options={inputs} refresh={onRefresh} />
+            <SettingsPaymentGatewayStripe
+              options={inputs}
+              refresh={onRefresh}
+            />
           </div>
           <div className='mv-settings-section'>
             <SettingsPaymentGatewayCreem options={inputs} refresh={onRefresh} />
@@ -158,6 +162,12 @@ const PaymentSetting = () => {
           </div>
           <div className='mv-settings-section'>
             <SettingsPaymentGatewayNowPayments
+              options={inputs}
+              refresh={onRefresh}
+            />
+          </div>
+          <div className='mv-settings-section'>
+            <SettingsPaymentGatewayDodoPayments
               options={inputs}
               refresh={onRefresh}
             />
